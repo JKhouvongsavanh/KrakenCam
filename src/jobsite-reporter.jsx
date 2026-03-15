@@ -4756,7 +4756,7 @@ function PageFooter({ accentColor, settings, reportDate, reportTime, pageNum, is
         </div>
         <span style={{ fontSize:10,color:accentColor,fontWeight:600 }}>{settings?.reportFooterCenter||"Confidential"}</span>
         <div style={{ textAlign:"right" }}>
-          <div style={{ fontSize:9,color:"#bbb",letterSpacing:".06em" }}>POWERED BY SITESNAP PRO</div>
+          <div style={{ fontSize:9,color:"#bbb",letterSpacing:".06em" }}>POWERED BY KRAKEN CAM</div>
           <div style={{ fontSize:9.5,color:"#aaa" }}>Page {pageNum}</div>
         </div>
       </div>
