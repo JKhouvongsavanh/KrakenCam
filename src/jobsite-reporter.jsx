@@ -6426,7 +6426,7 @@ function ReportCreator({ project, reportData, settings, templates, users, onSave
                 </div>
                 <span style={{ color:accentColor,fontWeight:600 }}>{settings?.reportFooterCenter || "Confidential"}</span>
                 <div style={{ textAlign:"right" }}>
-                  <div className="rp-branding">POWERED BY SITESNAP PRO</div>
+                  <div className="rp-branding">POWERED BY KRAKEN CAM</div>
                   <div style={{ fontSize:9.5,color:"#aaa" }}>Page 1</div>
                 </div>
               </div>
