@@ -249,12 +249,12 @@ export default function AdminOverview() {
               >
                 <td style={{ ...S.td, fontWeight: 500 }}>{org.name}</td>
                 <td style={S.td}>
-                  <span style={tierBadgeStyle(org.tier)}>
-                    {TIER_META[org.tier]?.label || org.tier}
+                  <span style={tierBadgeStyle(org.subscription_tier)}>
+                    {TIER_META[org.subscription_tier]?.label || org.subscription_tier}
                   </span>
                 </td>
                 <td style={S.td}>{statusBadge(org.subscription_status)}</td>
-                <td style={{ ...S.td, color: '#aaa' }}>{org.seat_count || '—'}</td>
+                <td style={{ ...S.td, color: '#aaa' }}>—</td>
                 <td style={{ ...S.td, color: '#666' }}>
                   {org.created_at ? new Date(org.created_at).toLocaleDateString() : '—'}
                 </td>

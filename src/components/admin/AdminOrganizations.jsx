@@ -143,7 +143,7 @@ const S = {
 
 // ── Tier Change Modal ──────────────────────────────────────────────────────────
 function TierModal({ org, onClose, onSaved }) {
-  const [tier, setTier] = useState(org.tier || 'capture_i')
+  const [tier, setTier] = useState(org.subscription_tier || 'capture_i')
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState('')
 
@@ -264,8 +264,8 @@ function OrgExpandedRow({ org, onAction }) {
             <span style={S.detailValue}>{org.slug || '—'}</span>
           </div>
           <div style={S.detailBlock}>
-            <span style={S.detailLabel}>Billing Period</span>
-            <span style={S.detailValue}>{org.billing_period || 'monthly'}</span>
+            <span style={S.detailLabel}>Stripe Customer</span>
+            <span style={S.detailValue}>{org.stripe_customer_id || '—'}</span>
           </div>
           <div style={S.detailBlock}>
             <span style={S.detailLabel}>Trial Ends</span>
@@ -380,8 +380,8 @@ export default function AdminOrganizations() {
                     {org.slug && <span style={{ color: '#444', fontSize: 11, marginLeft: 6 }}>/{org.slug}</span>}
                   </td>
                   <td style={S.td}>
-                    <span style={S.badge(TIER_META[org.tier]?.color || '#888')}>
-                      {TIER_META[org.tier]?.label || org.tier}
+                    <span style={S.badge(TIER_META[org.subscription_tier]?.color || '#888')}>
+                      {TIER_META[org.subscription_tier]?.label || org.subscription_tier}
                     </span>
                   </td>
                   <td style={S.td}>
@@ -389,7 +389,7 @@ export default function AdminOrganizations() {
                       {org.subscription_status}
                     </span>
                   </td>
-                  <td style={{ ...S.td, color: '#aaa' }}>{org.seat_count || 1}</td>
+                  <td style={{ ...S.td, color: '#aaa' }}>—</td>
                   <td style={{ ...S.td, color: org.custom_price_override ? '#c792ea' : '#333', fontSize: 12 }}>
                     {org.custom_price_override ? '✓ Custom' : '—'}
                   </td>

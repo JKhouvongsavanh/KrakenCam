@@ -122,8 +122,8 @@ function OrgSearch({ onSelect }) {
             >
               <strong>{o.name}</strong>
               {o.slug && <span style={{ color: '#555', marginLeft: 6, fontSize: 11 }}>/{o.slug}</span>}
-              <span style={{ float: 'right', color: TIER_META[o.tier]?.color || '#888', fontSize: 11 }}>
-                {TIER_META[o.tier]?.label || o.tier}
+              <span style={{ float: 'right', color: TIER_META[o.subscription_tier]?.color || '#888', fontSize: 11 }}>
+                {TIER_META[o.subscription_tier]?.label || o.subscription_tier}
               </span>
             </div>
           ))}
@@ -224,11 +224,10 @@ export default function AdminEnterprise() {
                 >
                   <td style={{ ...S.td, fontWeight: 500 }}>
                     {org.name}
-                    <span style={{ color: '#444', fontSize: 11, marginLeft: 6 }}>({org.seat_count || 1} seats)</span>
                   </td>
                   <td style={S.td}>
-                    <span style={S.badge(TIER_META[org.tier]?.color || '#888')}>
-                      {TIER_META[org.tier]?.label || org.tier}
+                    <span style={S.badge(TIER_META[org.subscription_tier]?.color || '#888')}>
+                      {TIER_META[org.subscription_tier]?.label || org.subscription_tier}
                     </span>
                   </td>
                   <td style={{ ...S.td, ...S.priceHighlight }}>${org.custom_admin_price}</td>

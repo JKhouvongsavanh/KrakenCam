@@ -123,12 +123,13 @@ export async function getAllOrganizations({ search = '', tier = '', status = '' 
     .select(`
       id, name, slug, subscription_tier, subscription_status,
       trial_ends_at, created_at, custom_price_override,
-      custom_admin_price, custom_seat_price, custom_price_notes
+      custom_admin_price, custom_seat_price, custom_price_notes,
+      stripe_customer_id
     `)
     .order('created_at', { ascending: false })
 
   if (search) query = query.or(`name.ilike.%${search}%,slug.ilike.%${search}%`)
-  if (subscription_tier) query = query.eq('subscription_tier', subscription_tier)
+  if (tier) query = query.eq('subscription_tier', tier)
   if (status) query = query.eq('subscription_status', status)
 
   const { data, error } = await query
@@ -161,7 +162,7 @@ export async function updateOrgTier(orgId, newTier) {
   const supabase = getAdminClient()
   const { error } = await supabase
     .from('organizations')
-    .update({ tier: newTier })
+    .update({ subscription_tier: newTier })
     .eq('id', orgId)
   if (error) throw error
 }
@@ -203,7 +204,7 @@ export async function getEnterpriseOrgs() {
   const supabase = getAdminClient()
   const { data, error } = await supabase
     .from('organizations')
-    .select('id, name, slug, subscription_tier, subscription_status, custom_admin_price, custom_seat_price, custom_price_notes, seat_count, created_at')
+    .select('id, name, slug, subscription_tier, subscription_status, custom_admin_price, custom_seat_price, custom_price_notes, created_at')
     .eq('custom_price_override', true)
     .order('created_at', { ascending: false })
   if (error) throw error
