@@ -42,7 +42,7 @@ export default function ForgotPassword({ onBack }) {
       <div className="auth-page">
         <div className="auth-card">
           <div className="auth-logo">
-            <img src="/krakencam-logo.svg" alt="KrakenCam" />
+            <img src="/krakencam-icon.png" alt="" className="auth-logo-icon" /><img src="/krakencam-logo.png" alt="KrakenCam" className="auth-logo-text" />
           </div>
           <h1>Check Your Email</h1>
           <p className="auth-subtitle">
@@ -61,7 +61,7 @@ export default function ForgotPassword({ onBack }) {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-logo">
-          <img src="/krakencam-logo.svg" alt="KrakenCam" />
+          <img src="/krakencam-icon.png" alt="" className="auth-logo-icon" /><img src="/krakencam-logo.png" alt="KrakenCam" className="auth-logo-text" />
         </div>
 
         <h1>Reset Password</h1>

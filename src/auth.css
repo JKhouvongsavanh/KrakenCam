@@ -1,0 +1,348 @@
+/* ============================================================
+   KrakenCam Auth Styles
+   Dark theme, blue/cyan Kraken accent, centered layout
+   ============================================================ */
+
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+.auth-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0c10;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(30, 80, 200, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 180, 255, 0.06) 0%, transparent 50%);
+  padding: 24px;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Card ── */
+.auth-card {
+  background: #111318;
+  border: 1px solid #1e2330;
+  border-radius: 16px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow:
+    0 0 0 1px rgba(0, 150, 255, 0.06),
+    0 24px 64px rgba(0, 0, 0, 0.5);
+}
+
+.auth-card--wide  { max-width: 520px; }
+.auth-card--tiers { max-width: 900px; }
+
+/* ── Logo area ── */
+.auth-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.auth-logo-icon {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.auth-logo-text {
+  height: 28px;
+  object-fit: contain;
+}
+
+/* ── Headings ── */
+.auth-card h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #f0f4ff;
+  text-align: center;
+  margin: 0 0 6px;
+  letter-spacing: -0.3px;
+}
+
+.auth-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  text-align: center;
+  margin: 0 0 28px;
+}
+
+.trial-badge {
+  color: #22c55e;
+  font-weight: 500;
+}
+
+/* ── Form ── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #9ca3af;
+  letter-spacing: 0.2px;
+}
+
+.label-note {
+  font-weight: 400;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.form-group input {
+  background: #0d1017;
+  border: 1px solid #1e2638;
+  border-radius: 8px;
+  color: #e8eaf0;
+  font-size: 15px;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+  width: 100%;
+}
+
+.form-group input::placeholder {
+  color: #374151;
+}
+
+.form-group input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.field-error {
+  font-size: 12px;
+  color: #f87171;
+  margin-top: 2px;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  font-family: inherit;
+  letter-spacing: 0.1px;
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-full {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #1e2638;
+  color: #9ca3af;
+  border-radius: 8px;
+  padding: 11px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  font-family: inherit;
+}
+
+.btn-secondary:hover {
+  border-color: #2563eb;
+  color: #e8eaf0;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.btn-link:hover {
+  color: #06b6d4;
+  text-decoration: underline;
+}
+
+.btn-row {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+/* ── Auth footer links ── */
+.auth-links {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: #374151;
+  font-size: 13px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #1e2330;
+}
+
+/* ── Error alert ── */
+.auth-error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 8px;
+  color: #f87171;
+  font-size: 13px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+/* ── Tier cards ── */
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.tier-card {
+  position: relative;
+  background: #0d1017;
+  border: 1.5px solid #1e2638;
+  border-radius: 12px;
+  padding: 24px 20px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tier-card input[type="radio"] {
+  display: none;
+}
+
+.tier-card:hover {
+  border-color: #2563eb;
+}
+
+.tier-card--selected {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  background: #0f1520;
+}
+
+.tier-card--popular {
+  border-color: #06b6d4;
+}
+
+.tier-popular-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #2563eb, #06b6d4);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.tier-card h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #f0f4ff;
+  margin: 0;
+}
+
+.tier-price {
+  font-size: 14px;
+  color: #06b6d4;
+  font-weight: 600;
+  margin: 0;
+}
+
+.tier-features {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tier-features li {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.tier-note {
+  font-size: 12px;
+  color: #4b5563;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+/* ── Loading screen ── */
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #0a0c10;
+}
+
+/* ── Error screen ── */
+.error-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #0a0c10;
+  color: #9ca3af;
+  text-align: center;
+  gap: 8px;
+}
