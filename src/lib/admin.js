@@ -67,15 +67,15 @@ export async function getOverviewStats() {
     supabase.from('organizations').select('*', { count: 'exact', head: true }),
     supabase.from('organizations').select('*', { count: 'exact', head: true }).gte('created_at', startOfMonth),
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
-    supabase.from('jobsites').select('*', { count: 'exact', head: true }),
+    supabase.from('projects').select('*', { count: 'exact', head: true }),
     supabase.from('organizations')
       .select('*', { count: 'exact', head: true })
       .eq('subscription_status', 'trialing'),
     supabase.from('organizations')
-      .select('tier, subscription_status, billing_period, seat_count')
+      .select('subscription_tier, subscription_status')
       .eq('subscription_status', 'active'),
     supabase.from('organizations')
-      .select('name, tier, subscription_status, created_at, seat_count')
+      .select('name, subscription_tier, subscription_status, created_at')
       .order('created_at', { ascending: false })
       .limit(10),
   ])
@@ -92,13 +92,12 @@ export async function getOverviewStats() {
   let monthlyRevenueEstimate = 0
 
   ;(tierData || []).forEach(org => {
-    const tier = org.tier || 'capture_i'
+    const tier = org.subscription_tier || 'capture_i'
     tierCounts[tier] = (tierCounts[tier] || 0) + 1
-    const period = org.billing_period === 'annual' ? 'annual' : 'monthly'
+    const period = 'monthly'
     const adminPrice = adminPriceMap[tier]?.[period] || 39
     const seatPrice = seatPriceMap[period]
-    const seats = org.seat_count || 1
-    monthlyRevenueEstimate += adminPrice + (seats - 1) * seatPrice
+    monthlyRevenueEstimate += adminPrice
   })
 
   return {
@@ -122,14 +121,14 @@ export async function getAllOrganizations({ search = '', tier = '', status = '' 
   let query = supabase
     .from('organizations')
     .select(`
-      id, name, slug, tier, subscription_status, billing_period,
-      seat_count, trial_ends_at, created_at, custom_price_override,
+      id, name, slug, subscription_tier, subscription_status,
+      trial_ends_at, created_at, custom_price_override,
       custom_admin_price, custom_seat_price, custom_price_notes
     `)
     .order('created_at', { ascending: false })
 
   if (search) query = query.or(`name.ilike.%${search}%,slug.ilike.%${search}%`)
-  if (tier) query = query.eq('tier', tier)
+  if (subscription_tier) query = query.eq('subscription_tier', subscription_tier)
   if (status) query = query.eq('subscription_status', status)
 
   const { data, error } = await query
@@ -204,7 +203,7 @@ export async function getEnterpriseOrgs() {
   const supabase = getAdminClient()
   const { data, error } = await supabase
     .from('organizations')
-    .select('id, name, slug, tier, subscription_status, custom_admin_price, custom_seat_price, custom_price_notes, seat_count, created_at')
+    .select('id, name, slug, subscription_tier, subscription_status, custom_admin_price, custom_seat_price, custom_price_notes, seat_count, created_at')
     .eq('custom_price_override', true)
     .order('created_at', { ascending: false })
   if (error) throw error
@@ -286,7 +285,7 @@ export async function getAnalyticsData() {
   // Also get monthly new org counts by querying organizations
   const { data: orgsTimeline, error: orgErr } = await supabase
     .from('organizations')
-    .select('created_at, tier, subscription_status')
+    .select('created_at, subscription_tier, subscription_status')
     .gte('created_at', twelveMonthsAgo.toISOString())
     .order('created_at', { ascending: true })
 
@@ -315,12 +314,12 @@ export async function getAnalyticsData() {
   // Tier distribution from current active orgs
   const { data: tierDist } = await supabase
     .from('organizations')
-    .select('tier, subscription_status')
+    .select('subscription_tier, subscription_status')
     .in('subscription_status', ['active', 'trialing'])
 
   const tierCounts = { capture_i: 0, intelligence_ii: 0, command_iii: 0 }
   ;(tierDist || []).forEach(o => {
-    tierCounts[o.tier || 'capture_i']++
+    tierCounts[o.subscription_tier || 'capture_i']++
   })
 
   // Trial conversion: trials that became active
