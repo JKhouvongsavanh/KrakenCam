@@ -43,6 +43,25 @@ async function requireAdmin() {
   if (!ok) throw new Error('Unauthorized: super_admin role required')
 }
 
+// ─── Audit Log ────────────────────────────────────────────────────────────────
+
+/**
+ * Log an admin action to the audit_log table.
+ * Non-blocking — errors are swallowed so they never break the main action.
+ */
+export async function logAuditEvent(eventType, targetId, targetType, details) {
+  const supabase = getAdminClient()
+  await supabase
+    .from('audit_log')
+    .insert({
+      event_type: eventType,
+      target_id: targetId,
+      target_type: targetType,
+      details: details || {},
+    })
+    .catch(e => console.error('[Audit Log] Failed:', e))
+}
+
 // ─── Overview Stats ──────────────────────────────────────────────────────────
 
 /**
@@ -145,6 +164,7 @@ export async function suspendOrganization(orgId) {
     .update({ subscription_status: 'suspended' })
     .eq('id', orgId)
   if (error) throw error
+  await logAuditEvent('org.suspended', orgId, 'organization', {})
 }
 
 export async function reactivateOrganization(orgId) {
@@ -165,6 +185,7 @@ export async function updateOrgTier(orgId, newTier) {
     .update({ subscription_tier: newTier })
     .eq('id', orgId)
   if (error) throw error
+  await logAuditEvent('org.tier_changed', orgId, 'organization', { new_tier: newTier })
 }
 
 // ─── Custom / Enterprise Pricing ─────────────────────────────────────────────
@@ -182,6 +203,11 @@ export async function setCustomPrice(orgId, adminPrice, seatPrice, notes = '') {
     })
     .eq('id', orgId)
   if (error) throw error
+  await logAuditEvent('org.enterprise_pricing_set', orgId, 'organization', {
+    admin_price: adminPrice,
+    seat_price: seatPrice,
+    notes,
+  })
 }
 
 export async function clearCustomPrice(orgId) {
@@ -251,6 +277,7 @@ export async function toggleDiscountCode(codeId, enabled) {
     .update({ enabled })
     .eq('id', codeId)
   if (error) throw error
+  await logAuditEvent('discount_code.toggled', codeId, 'discount_code', { enabled })
 }
 
 export async function deleteDiscountCode(codeId) {
@@ -261,6 +288,7 @@ export async function deleteDiscountCode(codeId) {
     .delete()
     .eq('id', codeId)
   if (error) throw error
+  await logAuditEvent('discount_code.deleted', codeId, 'discount_code', {})
 }
 
 // ─── Analytics ────────────────────────────────────────────────────────────────

@@ -31,7 +31,8 @@ export function AuthProvider({ children }) {
         role,
         full_name,
         email,
-        is_active
+        is_active,
+        organizations(trial_ends_at, subscription_status, subscription_tier)
       `)
       .eq('user_id', userId)
       .single();
@@ -39,6 +40,10 @@ export function AuthProvider({ children }) {
     if (error) {
       console.error('[AuthProvider] Failed to load profile:', error);
       return null;
+    }
+    // Normalize: expose organizations join as `organization` (singular)
+    if (data && data.organizations) {
+      data.organization = data.organizations;
     }
     return data;
   }

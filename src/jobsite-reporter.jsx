@@ -16174,6 +16174,142 @@ function UpdateCardModal({ current, onSave, onClose }) {
   );
 }
 
+// ── InviteUserButton ──────────────────────────────────────────────────────────
+function InviteUserButton({ canEdit }) {
+  const { session } = useAuth();
+  const [open, setOpen] = React.useState(false);
+  const [email, setEmail] = React.useState("");
+  const [role, setRole] = React.useState("user");
+  const [sending, setSending] = React.useState(false);
+  const [msg, setMsg] = React.useState(null); // { type: 'success'|'error', text }
+
+  const close = () => { setOpen(false); setEmail(""); setRole("user"); setMsg(null); };
+
+  async function send() {
+    if (!email.trim()) { setMsg({ type: "error", text: "Please enter an email." }); return; }
+    setSending(true);
+    setMsg(null);
+    try {
+      const jwt = session?.access_token;
+      const res = await fetch("/api/invite-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${jwt}`,
+        },
+        body: JSON.stringify({ email: email.trim(), role }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMsg({ type: "error", text: data.error || "Failed to send invitation." });
+      } else {
+        setMsg({ type: "success", text: `Invitation sent to ${email.trim()}!` });
+        setTimeout(close, 2000);
+      }
+    } catch (err) {
+      setMsg({ type: "error", text: "Network error. Please try again." });
+    }
+    setSending(false);
+  }
+
+  if (!open) {
+    return (
+      <button
+        className="btn btn-secondary btn-sm"
+        onClick={() => canEdit && setOpen(true)}
+        disabled={!canEdit}
+        title="Invite a user to join your organization"
+      >
+        ✉️ Invite
+      </button>
+    );
+  }
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 9000,
+      display: "flex", alignItems: "center", justifyContent: "center", padding: 16,
+    }} onClick={e => e.target === e.currentTarget && close()}>
+      <div style={{
+        background: "#111318", border: "1px solid #1e2330", borderRadius: 14,
+        padding: "32px 28px", width: "100%", maxWidth: 400,
+        fontFamily: "'Inter','Segoe UI',sans-serif", color: "#e8eaf0",
+        boxShadow: "0 24px 64px rgba(0,0,0,0.5)",
+      }}>
+        <h3 style={{ margin: "0 0 6px", fontSize: 18, fontWeight: 700 }}>Invite Team Member</h3>
+        <p style={{ color: "#6b7280", fontSize: 13, marginBottom: 20 }}>
+          Send an invitation link by email. They'll create their own account.
+        </p>
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ fontSize: 12, color: "#9ca3af", fontWeight: 500, display: "block", marginBottom: 5 }}>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="colleague@company.com"
+            autoFocus
+            style={{
+              width: "100%", background: "#0d1017", border: "1px solid #1e2638",
+              borderRadius: 8, color: "#e8eaf0", fontSize: 14, padding: "10px 12px",
+              outline: "none", fontFamily: "inherit", boxSizing: "border-box",
+            }}
+            onKeyDown={e => e.key === "Enter" && send()}
+          />
+        </div>
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ fontSize: 12, color: "#9ca3af", fontWeight: 500, display: "block", marginBottom: 5 }}>Role</label>
+          <select
+            value={role}
+            onChange={e => setRole(e.target.value)}
+            style={{
+              width: "100%", background: "#0d1017", border: "1px solid #1e2638",
+              borderRadius: 8, color: "#e8eaf0", fontSize: 14, padding: "10px 12px",
+              outline: "none", fontFamily: "inherit", boxSizing: "border-box", cursor: "pointer",
+            }}
+          >
+            <option value="user">User</option>
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        {msg && (
+          <div style={{
+            padding: "9px 12px", borderRadius: 7, fontSize: 13, marginBottom: 14,
+            background: msg.type === "success" ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.08)",
+            border: `1px solid ${msg.type === "success" ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.25)"}`,
+            color: msg.type === "success" ? "#22c55e" : "#f87171",
+          }}>
+            {msg.text}
+          </div>
+        )}
+        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+          <button
+            onClick={close}
+            style={{
+              background: "transparent", border: "1px solid #1e2638", color: "#9ca3af",
+              borderRadius: 7, padding: "9px 16px", fontSize: 13, cursor: "pointer", fontFamily: "inherit",
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={send}
+            disabled={sending}
+            style={{
+              background: "linear-gradient(135deg,#2563eb,#06b6d4)", color: "#fff",
+              border: "none", borderRadius: 7, padding: "9px 18px", fontSize: 13,
+              fontWeight: 600, cursor: sending ? "not-allowed" : "pointer", fontFamily: "inherit",
+              opacity: sending ? 0.7 : 1,
+            }}
+          >
+            {sending ? "Sending…" : "Send Invite"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AccountPage({ settings, onSettingsChange, projects, users, onUsersChange, onProjectsChange, onNotify }) {
   const [tab, setTab]         = useState("team");
   const [editingUser, setEditingUser] = useState(null);
@@ -16487,6 +16623,7 @@ function AccountPage({ settings, onSettingsChange, projects, users, onUsersChang
             <button className="btn btn-primary btn-sm" onClick={()=>canEditTeam && setAddingUser(true)} disabled={!canEditTeam}>
               <Icon d={ic.userPlus} size={14} /> Add User <span style={{ opacity:.7,fontSize:11 }}>+${userSeat}/mo</span>
             </button>
+            <InviteUserButton canEdit={canEditTeam} />
           </div>
 
           {/* Admin row — clickable self-edit */}

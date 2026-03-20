@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from './components/AuthProvider.jsx'
 import LoginPage from './components/LoginPage.jsx'
 import SignupPage from './components/SignupPage.jsx'
@@ -7,12 +7,48 @@ import App from './jobsite-reporter.jsx'
 import AdminRoute from './components/admin/AdminRoute.jsx'
 import AdminDashboard from './components/admin/AdminDashboard.jsx'
 import BillingDashboard from './components/BillingDashboard.jsx'
+import SubscriptionGate from './components/SubscriptionGate.jsx'
+import AcceptInvite from './components/AcceptInvite.jsx'
+import ResetPassword from './components/ResetPassword.jsx'
+import { supabase } from './lib/supabase.js'
 
 export default function AppRouter() {
   const { session, loading } = useAuth()
   const [page, setPage] = useState('login')
+  const [isRecovery, setIsRecovery] = useState(false)
   const isAdmin = window.location.pathname.startsWith('/admin')
   const isBilling = window.location.pathname === '/billing'
+  const isAcceptInvite = window.location.pathname === '/accept-invite'
+
+  useEffect(() => {
+    // Check for recovery token in URL hash
+    const hash = window.location.hash
+    if (hash.includes('type=recovery') || hash.includes('type=email_change')) {
+      setIsRecovery(true)
+    }
+    // Also listen for auth state change
+    const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') setIsRecovery(true)
+    })
+    return () => authSub.unsubscribe()
+  }, [])
+
+  // Accept invite — show before auth checks
+  if (isAcceptInvite) {
+    return <AcceptInvite />
+  }
+
+  // Password recovery — show before auth checks
+  if (isRecovery) {
+    return (
+      <ResetPassword
+        onDone={() => {
+          setIsRecovery(false)
+          window.location.hash = ''
+        }}
+      />
+    )
+  }
 
   if (loading) {
     return (
@@ -48,9 +84,13 @@ export default function AppRouter() {
     return <BillingDashboard onNavigate={(path) => { window.history.pushState({}, '', path); window.dispatchEvent(new PopStateEvent('popstate')) }} />
   }
 
-  // Logged in → show the main app
+  // Logged in → show the main app (wrapped in SubscriptionGate)
   if (session) {
-    return <App />
+    return (
+      <SubscriptionGate>
+        <App />
+      </SubscriptionGate>
+    )
   }
 
   // Not logged in → show auth pages

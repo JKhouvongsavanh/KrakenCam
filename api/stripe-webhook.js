@@ -247,6 +247,27 @@ async function handleSubscriptionDeleted(subscription) {
     .update({ status: 'cancelled' })
     .eq('organization_id', org.id);
 
+  // Send cancellation email (fire-and-forget)
+  try {
+    const { data: adminProfile } = await supabase
+      .from('profiles')
+      .select('email, full_name')
+      .eq('organization_id', org.id)
+      .eq('role', 'admin')
+      .single()
+
+    if (adminProfile?.email) {
+      const firstName = adminProfile.full_name ? adminProfile.full_name.split(' ')[0] : 'there'
+      await fireEmail({
+        type: 'cancellation',
+        to: adminProfile.email,
+        firstName,
+      })
+    }
+  } catch (err) {
+    console.error('[stripe-webhook] Cancellation email error (non-fatal):', err)
+  }
+
   console.log(`[stripe-webhook] Subscription deleted for org ${org.id}, data_delete_at: ${deleteAt}`);
 }
 
@@ -337,6 +358,11 @@ export default async function handler(req, res) {
  * for Stripe signature verification. Without this, signature verification FAILS.
  */
 export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+t const config = {
   api: {
     bodyParser: false,
   },
