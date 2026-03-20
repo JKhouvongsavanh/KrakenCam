@@ -1,16 +1,15 @@
 /**
  * AdminDiscountCodes.jsx
  * Manage discount codes: list, create, toggle, delete.
+ * Create/delete go through Vercel API endpoints that sync with Stripe.
  */
 
 import React, { useEffect, useState } from 'react'
-import {
-  getDiscountCodes, createDiscountCode,
-  toggleDiscountCode, deleteDiscountCode
-} from '../../lib/admin.js'
+import { getDiscountCodes, toggleDiscountCode } from '../../lib/admin.js'
+import { getAccessToken } from '../../lib/supabase.js'
 
 const S = {
-  layout: { display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24, alignItems: 'start' },
+  layout: { display: 'grid', gridTemplateColumns: '1fr 360px', gap: 24, alignItems: 'start' },
   card: {
     background: '#1a1a1a', border: '1px solid #252525',
     borderRadius: 10, overflow: 'hidden',
@@ -33,6 +32,11 @@ const S = {
     background: '#111', border: '1px solid #2a2a2a', borderRadius: 7,
     color: '#e8e8e8', padding: '8px 12px', fontSize: 13, outline: 'none',
     width: '100%', boxSizing: 'border-box',
+  },
+  select: {
+    background: '#111', border: '1px solid #2a2a2a', borderRadius: 7,
+    color: '#e8e8e8', padding: '8px 12px', fontSize: 13, outline: 'none',
+    width: '100%', boxSizing: 'border-box', cursor: 'pointer',
   },
   row: { display: 'flex', gap: 10 },
   btn: (variant) => {
@@ -64,13 +68,42 @@ function isExpired(expiresAt) {
   return new Date(expiresAt) < new Date()
 }
 
+function formatDuration(code) {
+  if (!code.duration_type || code.duration_type === 'once') return 'Once'
+  if (code.duration_type === 'forever') return 'Forever'
+  if (code.duration_type === 'repeating') {
+    return code.duration_months ? `${code.duration_months} month${code.duration_months > 1 ? 's' : ''}` : 'Repeating'
+  }
+  return code.duration_type
+}
+
+function formatTier(tier) {
+  const map = {
+    all: 'All plans',
+    capture_i: 'Capture I',
+    intelligence_ii: 'Intelligence II',
+    command_iii: 'Command III',
+  }
+  return map[tier] || tier || 'All plans'
+}
+
+const EMPTY_FORM = {
+  code: '',
+  discountPercent: '',
+  durationType: 'once',
+  durationMonths: '',
+  maxUses: '',
+  expiresAt: '',
+  appliesToTier: 'all',
+}
+
 export default function AdminDiscountCodes() {
   const [codes, setCodes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   // Form state
-  const [form, setForm] = useState({ code: '', discountPercent: '', maxUses: '', expiresAt: '' })
+  const [form, setForm] = useState(EMPTY_FORM)
   const [formErr, setFormErr] = useState('')
   const [formOk, setFormOk] = useState('')
   const [saving, setSaving] = useState(false)
@@ -91,17 +124,33 @@ export default function AdminDiscountCodes() {
     if (!form.discountPercent) { setFormErr('Discount % is required'); return }
     const pct = parseFloat(form.discountPercent)
     if (isNaN(pct) || pct <= 0 || pct > 100) { setFormErr('Discount must be 1–100'); return }
+    if (form.durationType === 'repeating' && (!form.durationMonths || parseInt(form.durationMonths) < 1)) {
+      setFormErr('Duration months required for "For X months"'); return
+    }
 
     setSaving(true); setFormErr(''); setFormOk('')
     try {
-      await createDiscountCode({
-        code: form.code,
-        discountPercent: pct,
-        maxUses: form.maxUses ? parseInt(form.maxUses) : null,
-        expiresAt: form.expiresAt || null,
+      const token = await getAccessToken()
+      const res = await fetch('/api/create-discount-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          code: form.code,
+          discountPercent: pct,
+          durationType: form.durationType,
+          durationMonths: form.durationMonths ? parseInt(form.durationMonths) : null,
+          maxUses: form.maxUses ? parseInt(form.maxUses) : null,
+          expiresAt: form.expiresAt || null,
+          appliesToTier: form.appliesToTier || 'all',
+        }),
       })
-      setForm({ code: '', discountPercent: '', maxUses: '', expiresAt: '' })
-      setFormOk('Code created!')
+      const data = await res.json()
+      if (!res.ok || data.error) throw new Error(data.error || 'Failed to create code')
+      setForm(EMPTY_FORM)
+      setFormOk(`Code created! Stripe coupon: ${data.stripeCouponId}`)
       loadCodes()
     } catch (e) { setFormErr(e.message) }
     finally { setSaving(false) }
@@ -115,9 +164,22 @@ export default function AdminDiscountCodes() {
   }
 
   async function handleDelete(code) {
-    if (!window.confirm(`Delete code "${code.code}"?`)) return
+    if (!window.confirm(`Delete code "${code.code}"? This will also delete the Stripe coupon.`)) return
     try {
-      await deleteDiscountCode(code.id)
+      const token = await getAccessToken()
+      const res = await fetch('/api/delete-discount-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          codeId: code.id,
+          stripeCouponId: code.stripe_coupon_id || null,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok || data.error) throw new Error(data.error || 'Failed to delete code')
       loadCodes()
     } catch (e) { alert('Error: ' + e.message) }
   }
@@ -136,6 +198,8 @@ export default function AdminDiscountCodes() {
               <tr>
                 <th style={S.th}>Code</th>
                 <th style={S.th}>Discount</th>
+                <th style={S.th}>Duration</th>
+                <th style={S.th}>Applies To</th>
                 <th style={S.th}>Uses</th>
                 <th style={S.th}>Expires</th>
                 <th style={S.th}>Status</th>
@@ -143,9 +207,9 @@ export default function AdminDiscountCodes() {
               </tr>
             </thead>
             <tbody>
-              {loading && <tr><td colSpan={6} style={{ ...S.td, color: '#444', textAlign: 'center' }}>Loading…</td></tr>}
+              {loading && <tr><td colSpan={8} style={{ ...S.td, color: '#444', textAlign: 'center' }}>Loading…</td></tr>}
               {!loading && codes.length === 0 && (
-                <tr><td colSpan={6} style={S.empty}>No codes yet. Create one →</td></tr>
+                <tr><td colSpan={8} style={S.empty}>No codes yet. Create one →</td></tr>
               )}
               {codes.map(code => {
                 const expired = isExpired(code.expires_at)
@@ -157,6 +221,8 @@ export default function AdminDiscountCodes() {
                   >
                     <td style={{ ...S.td, ...S.codeCell }}>{code.code}</td>
                     <td style={{ ...S.td, color: '#f0c040', fontWeight: 700 }}>{code.discount_percent}%</td>
+                    <td style={{ ...S.td, color: '#aaa', fontSize: 12 }}>{formatDuration(code)}</td>
+                    <td style={{ ...S.td, color: '#aaa', fontSize: 12 }}>{formatTier(code.applies_to_tier)}</td>
                     <td style={{ ...S.td, color: '#aaa' }}>
                       {code.used_count || 0}{code.max_uses ? ` / ${code.max_uses}` : ' / ∞'}
                     </td>
@@ -206,6 +272,42 @@ export default function AdminDiscountCodes() {
                 onChange={e => setForm(f => ({ ...f, discountPercent: e.target.value }))}
                 placeholder="e.g. 20"
               />
+            </div>
+            <div>
+              <div style={S.label}>Duration *</div>
+              <select
+                style={S.select}
+                value={form.durationType}
+                onChange={e => setForm(f => ({ ...f, durationType: e.target.value, durationMonths: '' }))}
+              >
+                <option value="once">Once</option>
+                <option value="repeating">For X months</option>
+                <option value="forever">Forever</option>
+              </select>
+            </div>
+            {form.durationType === 'repeating' && (
+              <div>
+                <div style={S.label}>Duration Months *</div>
+                <input
+                  type="number" style={S.input} min={1} max={24}
+                  value={form.durationMonths}
+                  onChange={e => setForm(f => ({ ...f, durationMonths: e.target.value }))}
+                  placeholder="e.g. 3"
+                />
+              </div>
+            )}
+            <div>
+              <div style={S.label}>Applies To</div>
+              <select
+                style={S.select}
+                value={form.appliesToTier}
+                onChange={e => setForm(f => ({ ...f, appliesToTier: e.target.value }))}
+              >
+                <option value="all">All plans</option>
+                <option value="capture_i">Capture I</option>
+                <option value="intelligence_ii">Intelligence II</option>
+                <option value="command_iii">Command III</option>
+              </select>
             </div>
             <div>
               <div style={S.label}>Max Uses (blank = unlimited)</div>

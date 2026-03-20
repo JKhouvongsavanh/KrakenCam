@@ -218,7 +218,7 @@ export async function getDiscountCodes() {
   const supabase = getAdminClient()
   const { data, error } = await supabase
     .from('discount_codes')
-    .select('*')
+    .select('id, code, discount_percent, max_uses, used_count, expires_at, enabled, created_at, updated_at, duration_type, duration_months, stripe_coupon_id, stripe_promotion_code_id, applies_to_tier')
     .order('created_at', { ascending: false })
   if (error) throw error
   return data || []
