@@ -7,10 +7,10 @@ import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
 export default function ForgotPassword({ onBack }) {
-  const [email, setEmail]     = useState('');
+  const [email, setEmail]         = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -24,11 +24,9 @@ export default function ForgotPassword({ onBack }) {
     setLoading(true);
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${window.location.origin}/`,
     });
 
-    // SECURITY: Always show success message even if email doesn't exist.
-    // This prevents email enumeration attacks.
     if (error) {
       console.error('[ForgotPassword] Error:', error);
     }
@@ -42,7 +40,8 @@ export default function ForgotPassword({ onBack }) {
       <div className="auth-page">
         <div className="auth-card">
           <div className="auth-logo">
-            <img src="/krakencam-icon.png" alt="" className="auth-logo-icon" /><img src="/krakencam-logo.png" alt="KrakenCam" className="auth-logo-text" />
+            <img src="/krakencam-icon.png" alt="" className="auth-logo-icon" />
+            <img src="/krakencam-logo.png" alt="KrakenCam" className="auth-logo-text" />
           </div>
           <h1>Check Your Email</h1>
           <p className="auth-subtitle">
@@ -50,7 +49,7 @@ export default function ForgotPassword({ onBack }) {
             reset link. Check your spam folder if you don't see it.
           </p>
           <div className="auth-links">
-            <Link to="/login">← Back to Sign In</Link>
+            <button className="btn-link" onClick={onBack}>← Back to Sign In</button>
           </div>
         </div>
       </div>
@@ -61,7 +60,8 @@ export default function ForgotPassword({ onBack }) {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-logo">
-          <img src="/krakencam-icon.png" alt="" className="auth-logo-icon" /><img src="/krakencam-logo.png" alt="KrakenCam" className="auth-logo-text" />
+          <img src="/krakencam-icon.png" alt="" className="auth-logo-icon" />
+          <img src="/krakencam-logo.png" alt="KrakenCam" className="auth-logo-text" />
         </div>
 
         <h1>Reset Password</h1>
@@ -95,7 +95,7 @@ export default function ForgotPassword({ onBack }) {
         </form>
 
         <div className="auth-links">
-          <Link to="/login">← Back to Sign In</Link>
+          <button className="btn-link" onClick={onBack}>← Back to Sign In</button>
         </div>
       </div>
     </div>
