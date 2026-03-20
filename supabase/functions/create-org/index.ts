@@ -103,6 +103,26 @@ serve(async (req: Request) => {
       )
     }
 
+    // Send welcome email (fire-and-forget, don't fail signup if email fails)
+    try {
+      const internalSecret = Deno.env.get('INTERNAL_EMAIL_SECRET') || 'krakencam-internal-2024'
+      await fetch(`${Deno.env.get('APP_URL') || 'https://app.krakencam.com'}/api/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Internal-Secret': internalSecret,
+        },
+        body: JSON.stringify({
+          type: 'welcome',
+          to: email,
+          firstName: fullName.split(' ')[0],
+          orgName,
+        })
+      })
+    } catch(e) {
+      console.error('Welcome email failed (non-fatal):', e)
+    }
+
     return new Response(
       JSON.stringify({ success: true, orgId }),
       { status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
