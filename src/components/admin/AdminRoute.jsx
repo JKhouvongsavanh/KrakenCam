@@ -4,8 +4,8 @@
  * If not authenticated or not super_admin → redirects to login page.
  */
 
-import React, { useContext, useEffect, useState } from 'react'
-import { AuthContext } from '../AuthProvider.jsx'
+import React, { useEffect, useState } from 'react'
+import { useAuth } from '../AuthProvider.jsx'
 import { isSuperAdmin } from '../../lib/admin.js'
 
 const styles = {
@@ -43,7 +43,7 @@ const styles = {
 }
 
 export default function AdminRoute({ children, onGoLogin }) {
-  const { session, loading: authLoading } = useContext(AuthContext)
+  const { session, loading: authLoading } = useAuth()
   const [checking, setChecking] = useState(true)
   const [allowed, setAllowed] = useState(false)
 

@@ -65,10 +65,9 @@ const PLANS = {
   },
 };
 
-export default function PricingPage() {
+export default function PricingPage({ onSelectPlan }) {
   const [billing, setBilling] = useState('monthly'); // 'monthly' | 'annual'
   const { session, isAdmin } = useAuth();
-  const navigate = useNavigate();
 
   function annualSavings(plan) {
     const monthlyCost = plan.monthlyAdmin * 12;
@@ -77,15 +76,8 @@ export default function PricingPage() {
   }
 
   function handleSelectPlan(tierId) {
-    if (!session) {
-      // Not logged in → go to signup with tier pre-selected
-      navigate(`/signup?tier=${tierId}&billing=${billing}`);
-    } else if (isAdmin) {
-      // Logged in admin → go to billing to upgrade
-      navigate(`/billing?upgrade=${tierId}&billing=${billing}`);
-    } else {
-      // Regular user → only admin can manage billing
-      navigate('/billing');
+    if (typeof onSelectPlan === 'function') {
+      onSelectPlan(tierId, billing);
     }
   }
 

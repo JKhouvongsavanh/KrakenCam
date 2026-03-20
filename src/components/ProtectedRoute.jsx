@@ -1,27 +1,15 @@
 /**
  * ProtectedRoute.jsx
- *
  * Guards routes that require authentication and an active/trialing subscription.
- *
- * Usage:
- *   <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
- *   <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminPage /></ProtectedRoute>} />
- *
- * Redirect logic:
- * - Not logged in → /login
- * - Logged in but subscription cancelled/expired → /billing?status=cancelled
- * - Logged in but admin required and user is not admin → /dashboard (403)
+ * NOTE: Currently not used - AppRouter handles routing directly.
  */
 
 import React from 'react';
-// react-router-dom removed - using AppRouter pattern
 import { useAuth } from './AuthProvider';
 
 export default function ProtectedRoute({ children, requireAdmin = false }) {
   const { session, profile, subscription, loading } = useAuth();
-  const location = useLocation();
 
-  // While auth is initializing, show a loading screen
   if (loading) {
     return (
       <div className="loading-screen" aria-label="Loading...">
@@ -30,12 +18,15 @@ export default function ProtectedRoute({ children, requireAdmin = false }) {
     );
   }
 
-  // Not authenticated → redirect to login, preserving the intended URL
   if (!session || !profile) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return (
+      <div className="error-screen">
+        <h1>Not Authenticated</h1>
+        <p>Please log in to continue.</p>
+      </div>
+    );
   }
 
-  // Inactive account (admin deactivated this user)
   if (profile.is_active === false) {
     return (
       <div className="error-screen">
@@ -45,16 +36,23 @@ export default function ProtectedRoute({ children, requireAdmin = false }) {
     );
   }
 
-  // Check subscription status
-  // Allow trialing and active. Block cancelled and expired.
   const blockedStatuses = ['cancelled', 'expired'];
   if (subscription && blockedStatuses.includes(subscription.status)) {
-    return <Navigate to="/billing?status=cancelled" replace />;
+    return (
+      <div className="error-screen">
+        <h1>Subscription Inactive</h1>
+        <p>Your subscription has ended. Please update your billing to continue.</p>
+      </div>
+    );
   }
 
-  // Admin-only routes
   if (requireAdmin && profile.role !== 'admin') {
-    return <Navigate to="/dashboard" replace />;
+    return (
+      <div className="error-screen">
+        <h1>Access Denied</h1>
+        <p>You do not have permission to view this page.</p>
+      </div>
+    );
   }
 
   return children;
