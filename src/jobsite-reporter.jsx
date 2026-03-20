@@ -26,6 +26,18 @@ import {
   updateTask      as dbUpdateTaskDB,
   deleteTask      as dbDeleteTaskDB,
 } from "./lib/tasks.js";
+import {
+  uploadVoiceNote as dbUploadVoiceNote,
+  deleteVoiceNote as dbDeleteVoiceNote,
+} from "./lib/voiceNotes.js";
+import {
+  saveSketch      as dbSaveSketch,
+  deleteSketch    as dbDeleteSketch,
+} from "./lib/sketches.js";
+import {
+  uploadVideo     as dbUploadVideo,
+  deleteVideo     as dbDeleteVideo,
+} from "./lib/videos.js";
 // ── Icons ──────────────────────────────────────────────────────────────────────
 const Icon = ({ d, size = 20, stroke = "currentColor", fill = "none", strokeWidth = 1.8 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
@@ -4650,7 +4662,7 @@ function VideosTab({ project, onUpdateProject, onOpenCamera }) {
 
 // ── Photos Tab ────────────────────────────────────────────────────────────────
 // ── Embed code builder — lives outside JSX so </div> strings don't confuse the parser ──
-function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdateProject, onSendToDirectMessage }) {
+function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdateProject, onSendToDirectMessage, orgId }) {
   const voiceNotes = project.voiceNotes || [];
   const [recState, setRecState] = useState("idle");
   const [recMs, setRecMs] = useState(0);
@@ -4678,6 +4690,7 @@ function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdateProject
   }, []);
 
   const persistVoiceNote = (blob) => {
+    const durationMs = Math.max(1000, Date.now() - startedAtRef.current);
     const reader = new FileReader();
     reader.onloadend = () => {
       const note = {
@@ -4686,7 +4699,7 @@ function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdateProject
         createdAt: new Date().toISOString(),
         createdById: "__admin__",
         createdByName: authorName,
-        durationMs: Math.max(1000, Date.now() - startedAtRef.current),
+        durationMs,
         mimeType: blob.type || "audio/webm",
         size: blob.size || 0,
         dataUrl: reader.result,
@@ -4694,6 +4707,13 @@ function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdateProject
       onUpdateProject({ ...project, voiceNotes: [note, ...voiceNotes] });
       setRecState("idle");
       setRecMs(0);
+      // ── Fire-and-forget: upload to Supabase storage ──
+      if (orgId && project.id) {
+        const durationSeconds = Math.round(durationMs / 1000);
+        dbUploadVoiceNote(project.id, orgId, blob, durationSeconds).catch(err =>
+          console.warn("[KrakenCam] Voice note Supabase upload failed:", err.message || err)
+        );
+      }
     };
     reader.readAsDataURL(blob);
   };
@@ -8789,6 +8809,7 @@ function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onEdit, on
           settings={settings}
           onUpdateProject={onUpdateProject}
           onSendToDirectMessage={onSendVoiceNoteToChat}
+          orgId={orgId}
         />
       )}
 
@@ -8885,6 +8906,33 @@ function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onEdit, on
               };
             }
             onUpdateProject(updatedProj);
+            // ── Fire-and-forget: persist sketch to Supabase ──
+            if (orgId && project.id && savedSketch.dataUrl) {
+              try {
+                // Convert dataUrl PNG to Blob
+                const arr = savedSketch.dataUrl.split(",");
+                const mime = (arr[0].match(/:(.*?);/) || [])[1] || "image/png";
+                const bstr = atob(arr[1] || "");
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while (n--) u8arr[n] = bstr.charCodeAt(n);
+                const imageBlob = new Blob([u8arr], { type: mime });
+                const canvasData = {
+                  elements: savedSketch.elements || [],
+                  scale: savedSketch.scale,
+                  roomTag: savedSketch.roomTag,
+                  editorMode: savedSketch.editorMode,
+                  floorLabel: savedSketch.floorLabel,
+                  snapToGrid: savedSketch.snapToGrid,
+                  notes: savedSketch.notes,
+                };
+                dbSaveSketch(project.id, orgId, savedSketch.title || "Sketch", canvasData, imageBlob).catch(err =>
+                  console.warn("[KrakenCam] Sketch Supabase save failed:", err.message || err)
+                );
+              } catch (convErr) {
+                console.warn("[KrakenCam] Could not convert sketch dataUrl for upload:", convErr);
+              }
+            }
             setEditingSketch(null);
           }}
           onClose={() => setEditingSketch(null)}
@@ -20202,6 +20250,22 @@ export default function App() {
           } catch (convErr) {
             console.warn("[KrakenCam] Could not convert photo dataUrl for upload:", convErr);
           }
+        }
+      });
+    }
+    // ── Upload camera-captured videos to Supabase storage (fire-and-forget) ──
+    if (orgId && latestProj.id && newVideos.length > 0) {
+      newVideos.forEach(video => {
+        // Videos are stored as blob: URLs in session — need the original blob
+        // The blob is accessible from the reviewVideo flow; here we have dataUrl (blob: URL)
+        // We can only upload if we have an actual Blob reference (not a blob: URL)
+        // Videos with blob.type set are passed from acceptVideo — we skip blob: URLs
+        if (video._blob) {
+          const title = video.name || `${latestProj.title} - Video`;
+          const durationSeconds = video.duration || null;
+          dbUploadVideo(latestProj.id, orgId, video._blob, title, durationSeconds).catch(err =>
+            console.warn("[KrakenCam] Camera video Supabase upload failed:", err.message || err)
+          );
         }
       });
     }
