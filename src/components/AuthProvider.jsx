@@ -68,7 +68,7 @@ export function AuthProvider({ children }) {
     setUser(session.user);
 
     const profileData = await loadProfile(session.user.id);
-    setProfile(profileData);
+    setProfile(profileData); // may be null if no profile yet — that's ok
 
     if (profileData?.organization_id) {
       const subData = await loadSubscription(profileData.organization_id);
@@ -77,10 +77,18 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    // Get current session on mount
+    // Get current session on mount — with 5s timeout fallback
+    const timeout = setTimeout(() => setLoading(false), 5000);
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      hydrateUser(session).finally(() => setLoading(false));
+      hydrateUser(session).finally(() => {
+        clearTimeout(timeout);
+        setLoading(false);
+      });
+    }).catch(() => {
+      clearTimeout(timeout);
+      setLoading(false);
     });
 
     // Listen for auth state changes (login, logout, token refresh)

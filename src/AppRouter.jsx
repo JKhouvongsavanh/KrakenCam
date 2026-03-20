@@ -14,14 +14,20 @@ export default function AppRouter() {
   const isAdmin = window.location.pathname.startsWith('/admin')
   const isBilling = window.location.pathname === '/billing'
 
-  // If already logged in, go straight to app
   if (loading) {
     return (
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100vh', background: '#0a0a0a', color: '#fff', fontSize: 18
+        height: '100vh', background: '#0a0c10', color: '#6b7280', fontSize: 16,
+        flexDirection: 'column', gap: 16, fontFamily: 'Inter, sans-serif'
       }}>
-        Loading...
+        <div style={{
+          width: 36, height: 36, border: '3px solid #1e2638',
+          borderTop: '3px solid #2563eb', borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite'
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <span>Loading...</span>
       </div>
     )
   }
