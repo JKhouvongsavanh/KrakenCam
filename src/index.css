@@ -26,6 +26,11 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(0, 120, 255, 0.35) 0%, transparent 60%),
+    radial-gradient(ellipse at 30% 20%, rgba(0, 180, 255, 0.15) 0%, transparent 45%),
+    linear-gradient(180deg, #051428 0%, #040d1a 30%, #02080f 60%, #000000 100%);
+  background-attachment: fixed;
 }
 
 h1 {

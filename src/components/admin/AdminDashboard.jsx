@@ -23,7 +23,7 @@ const S = {
   root: {
     display: 'flex',
     minHeight: '100vh',
-    background: '#0f0f0f',
+    background: 'transparent',
     fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
     color: '#e8e8e8',
   },
@@ -31,8 +31,8 @@ const S = {
   sidebar: (open) => ({
     width: open ? 220 : 60,
     minHeight: '100vh',
-    background: '#111',
-    borderRight: '1px solid #222',
+    background: 'rgba(5, 10, 20, 0.85)',
+    borderRight: '1px solid rgba(30, 60, 120, 0.3)',
     display: 'flex',
     flexDirection: 'column',
     transition: 'width 0.22s ease',
@@ -45,7 +45,7 @@ const S = {
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '18px 14px 14px',
-    borderBottom: '1px solid #222',
+    borderBottom: '1px solid rgba(30,60,120,0.3)',
     gap: 8,
     minHeight: 60,
   },
@@ -172,7 +172,7 @@ const SETTINGS_PANEL_STYLE = {
   zIndex: 200,
 }
 const SETTINGS_BOX_STYLE = {
-  background: '#1a1a1a',
+  background: 'rgba(10,20,40,0.7)',
   border: '1px solid #2a2a2a',
   borderRadius: 12,
   padding: '28px 32px',
@@ -194,9 +194,9 @@ function SettingsPanel({ onClose }) {
         <div style={{ color: '#666', fontSize: 13, lineHeight: 1.6 }}>
           <div style={{ marginBottom: 12, color: '#aaa', fontWeight: 600 }}>Panel Info</div>
           <div>This is the KrakenCam Super Admin console.</div>
-          <div style={{ marginTop: 8 }}>Access is restricted to users with <code style={{ color: '#00d4ff', background: '#111', padding: '1px 6px', borderRadius: 4 }}>super_admin</code> role.</div>
+          <div style={{ marginTop: 8 }}>Access is restricted to users with <code style={{ color: '#00d4ff', background: 'rgba(5,10,25,0.8)', padding: '1px 6px', borderRadius: 4 }}>super_admin</code> role.</div>
         </div>
-        <div style={{ background: '#111', borderRadius: 8, padding: '12px 14px', fontSize: 12, color: '#555' }}>
+        <div style={{ background: 'rgba(5,10,25,0.8)', borderRadius: 8, padding: '12px 14px', fontSize: 12, color: '#555' }}>
           <div style={{ color: '#444', fontWeight: 600, marginBottom: 6 }}>Environment</div>
           <div>Supabase project: nszoateefidwhhsyexjd</div>
           <div>Version: 1.0.0</div>
