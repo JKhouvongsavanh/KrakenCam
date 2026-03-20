@@ -1,13 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { AuthContext } from './components/AuthProvider.jsx'
+import React, { useState } from 'react'
+import { useAuth } from './components/AuthProvider.jsx'
 import LoginPage from './components/LoginPage.jsx'
 import SignupPage from './components/SignupPage.jsx'
 import ForgotPassword from './components/ForgotPassword.jsx'
 import App from './jobsite-reporter.jsx'
+import AdminRoute from './components/admin/AdminRoute.jsx'
+import AdminDashboard from './components/admin/AdminDashboard.jsx'
 
 export default function AppRouter() {
-  const { session, loading } = useContext(AuthContext)
+  const { session, loading } = useAuth()
   const [page, setPage] = useState('login')
+  const isAdmin = window.location.pathname.startsWith('/admin')
 
   // If already logged in, go straight to app
   if (loading) {
@@ -19,6 +22,14 @@ export default function AppRouter() {
         Loading...
       </div>
     )
+  }
+
+  // /admin route — protected by AdminRoute
+  if (isAdmin) {
+    if (!session) {
+      return <LoginPage onSignup={() => setPage('signup')} onForgotPassword={() => setPage('forgot')} />
+    }
+    return <AdminRoute><AdminDashboard /></AdminRoute>
   }
 
   // Logged in → show the main app
