@@ -722,11 +722,30 @@ function WebhookTab() {
 
 function SecurityTab() {
   const [sessionTimeout, setSessionTimeout] = useState('8h')
-  const [saved, setSaved] = useState(false)
+  const [saved, setSaved] = useState(null) // null | 'saving' | 'ok' | 'error'
 
-  function handleSave() {
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+  // Load saved value on mount
+  useEffect(() => {
+    supabase.from('app_settings').select('value').eq('key', 'session_policy').single()
+      .then(({ data }) => { if (data?.value?.sessionTimeout) setSessionTimeout(data.value.sessionTimeout) })
+      .catch(() => {})
+  }, [])
+
+  async function handleSave() {
+    setSaved('saving')
+    try {
+      const { error } = await supabase.from('app_settings').upsert({
+        key: 'session_policy',
+        value: { sessionTimeout },
+        updated_at: new Date().toISOString(),
+      })
+      if (error) throw error
+      setSaved('ok')
+    } catch (e) {
+      console.error('Security save error:', e)
+      setSaved('error')
+    }
+    setTimeout(() => setSaved(null), 3000)
   }
 
   return (
@@ -763,8 +782,11 @@ function SecurityTab() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
-          <button style={S.btn} onClick={handleSave}>Save Session Policy</button>
-          {saved && <span style={S.statusMsg(true)}>✓ Saved</span>}
+          <button style={S.btn} onClick={handleSave} disabled={saved === 'saving'}>
+            {saved === 'saving' ? '⏳ Saving…' : 'Save Session Policy'}
+          </button>
+          {saved === 'ok'    && <span style={S.statusMsg(true)}>✓ Saved</span>}
+          {saved === 'error' && <span style={S.statusMsg(false)}>✗ Failed to save</span>}
         </div>
       </div>
 
