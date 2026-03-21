@@ -47,14 +47,11 @@ export default function AdminSupport() {
   const [impStatus,   setImpStatus]   = useState(null)
 
   // Search orgs
-  const [debugInfo, setDebugInfo] = useState('')
-
   const searchOrgs = useCallback(async (q) => {
-    if (!q.trim()) { setOrgs([]); setDebugInfo(''); return }
+    if (!q.trim()) { setOrgs([]); return }
     setLoading(true)
     try {
-      // Skip supabase.auth.getSession() entirely — Brave's lock breaks it.
-      // RPC is security definer so anon key works fine.
+      // Use raw fetch — bypasses Supabase auth lock issues on Brave/privacy browsers
       const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
       const res = await fetch(`${supabaseUrl}/rest/v1/rpc/admin_search_orgs`, {
@@ -67,11 +64,10 @@ export default function AdminSupport() {
         body: JSON.stringify({ search_term: q }),
       })
       const data = await res.json()
-      setDebugInfo(`status:${res.status} data:${JSON.stringify(data).slice(0,100)}`)
       const results = Array.isArray(data) ? data : data ? [data] : []
       setOrgs(results)
     } catch (e) {
-      setDebugInfo(`fetch err: ${e.message}`)
+      console.warn('[AdminSupport] search error:', e.message)
       setOrgs([])
     }
     setLoading(false)
@@ -151,7 +147,7 @@ export default function AdminSupport() {
         />
         {loading && <div style={{ fontSize:12, color:'#555', marginTop:8 }}>Searching…</div>}
         {!loading && search && orgs.length === 0 && <div style={{ fontSize:12, color:'#555', marginTop:8 }}>No results</div>}
-        {debugInfo && <div style={{ fontSize:11, color:'#fbbf24', marginTop:8, fontFamily:'monospace', wordBreak:'break-all', background:'rgba(0,0,0,.4)', padding:'6px 8px', borderRadius:6 }}>{debugInfo}</div>}
+
         {orgs.length > 0 && (
           <div style={{ marginTop:10, display:'flex', flexDirection:'column', gap:6 }}>
             {orgs.map(o => (
