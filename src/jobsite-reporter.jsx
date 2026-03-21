@@ -1098,13 +1098,14 @@ const CSS = `
 
 // ── Camera Component ───────────────────────────────────────────────────────────
 function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
-  const videoRef     = useRef(null);
-  const canvasRef    = useRef(null);
-  const flashRef     = useRef(null);
-  const streamRef    = useRef(null);
-  const mediaRecRef  = useRef(null);
-  const chunksRef    = useRef([]);
-  const recTimerRef  = useRef(null);
+  const videoRef        = useRef(null);
+  const canvasRef       = useRef(null);
+  const flashRef        = useRef(null);
+  const streamRef       = useRef(null);
+  const imageCaptureRef = useRef(null); // persistent ImageCapture instance
+  const mediaRecRef     = useRef(null);
+  const chunksRef       = useRef([]);
+  const recTimerRef     = useRef(null);
 
   const [camState,    setCamState]    = useState("starting");
   const [facing,      setFacing]      = useState("environment");
@@ -1210,14 +1211,19 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
       }
       // Reset flash when switching cameras
       setFlashMode("off");
-      // Pre-warm ImageCapture so fillLightMode:'flash' is ready on first shot
+      // Create a persistent ImageCapture instance and fully warm it up
       try {
         const t = stream.getVideoTracks()[0];
         if (t && typeof ImageCapture !== "undefined") {
           const ic = new ImageCapture(t);
-          ic.getPhotoCapabilities().catch(() => {});
+          imageCaptureRef.current = ic;
+          // Warmup: capabilities + a no-flash grab so the pipeline is hot
+          await ic.getPhotoCapabilities().catch(() => {});
+          await ic.grabFrame().catch(() => {});
+        } else {
+          imageCaptureRef.current = null;
         }
-      } catch { /* ignore */ }
+      } catch { imageCaptureRef.current = null; }
       setCamState("live");
     } catch (e) {
       setCamState(e.name === "NotAllowedError" || e.name === "PermissionDeniedError" ? "denied" : "error");
@@ -1273,13 +1279,14 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
     // ── ImageCapture path (Chrome Android — supports fillLightMode:'flash') ──
     const track = streamRef.current?.getVideoTracks()[0];
     if (flashMode === "on" && facing === "environment") {
-      if (track && typeof ImageCapture !== "undefined") {
+      const ic = imageCaptureRef.current;
+      if (ic) {
         try {
-          const imageCapture = new ImageCapture(track);
-          // Call getPhotoCapabilities first — this warms up the ImageCapture API
-          // and makes fillLightMode:'flash' fire reliably on Chrome Android
-          await imageCapture.getPhotoCapabilities().catch(() => {});
-          const blob = await imageCapture.takePhoto({ fillLightMode: "flash" });
+          // Re-warm capabilities each shot + small settle delay
+          // so the flash hardware is ready every time, not just sometimes
+          await ic.getPhotoCapabilities().catch(() => {});
+          await new Promise(r => setTimeout(r, 80));
+          const blob = await ic.takePhoto({ fillLightMode: "flash" });
           const bmp = await createImageBitmap(blob);
           const vw = bmp.width, vh = bmp.height;
           const scale = Math.min(maxRes / vw, maxRes / vh, 1);
