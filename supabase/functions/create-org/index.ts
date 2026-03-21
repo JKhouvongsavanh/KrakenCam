@@ -23,7 +23,7 @@ serve(async (req: Request) => {
 
   try {
     const body = await req.json()
-    const { orgName, userId, fullName, email, dateOfBirth, tier } = body
+    const { orgName, userId, fullName, email, dateOfBirth, tier, refCode } = body
 
     // Validate required fields
     if (!orgName || !userId || !fullName || !email || !dateOfBirth) {
@@ -101,6 +101,15 @@ serve(async (req: Request) => {
         JSON.stringify({ error: `Failed to create profile: ${profileError.message}` }),
         { status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
       )
+    }
+
+    // Track referral if a ref code was provided (fire-and-forget)
+    if (refCode) {
+      try {
+        await supabase.rpc('track_referral', { p_ref_code: refCode, p_org_id: orgId })
+      } catch(e) {
+        console.error('Referral tracking failed (non-fatal):', e)
+      }
     }
 
     // Send welcome email (fire-and-forget, don't fail signup if email fails)
