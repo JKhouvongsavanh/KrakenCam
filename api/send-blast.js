@@ -15,7 +15,9 @@ const SUPABASE_URL          = process.env.SUPABASE_URL || 'https://nszoateefidwh
 const SUPABASE_SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY
 const FROM_EMAIL            = 'KrakenCam <noreply@krakencam.com>'
 const REPLY_TO              = 'support@krakencam.com'
-const MAX_BATCH             = 50  // Resend free tier: 100 emails/day, be conservative
+// Free tier: 100/day → keep at 50. Pro tier ($20/mo): 50k/mo → raise to 500+.
+// Change this when upgrading Resend plan.
+const MAX_BATCH             = 50
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
