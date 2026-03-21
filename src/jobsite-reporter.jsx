@@ -1232,36 +1232,53 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
   }, [zoom]);
 
   // ── Torch / flashlight ──
+  // Chrome/Brave require torch to be in the getUserMedia constraints, not applyConstraints.
+  // We restart the stream with torch:true/false baked in — the video keeps playing seamlessly.
   const toggleTorch = useCallback(async () => {
-    const track = streamRef.current?.getVideoTracks()[0];
-    if (!track) return;
     const next = !torchOn;
     try {
-      // Primary method: applyConstraints on the live track
-      await track.applyConstraints({ advanced: [{ torch: next }] });
+      // Stop existing tracks
+      if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+
+      const photoResMap = {
+        low:      { width: { ideal: 1280 }, height: { ideal: 720  } },
+        moderate: { width: { ideal: 1920 }, height: { ideal: 1080 } },
+        high:     { width: { ideal: 3840 }, height: { ideal: 2160 } },
+      };
+      const streamRes = photoResMap[settings?.photoQuality] ?? photoResMap.moderate;
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { exact: "environment" },
+          ...streamRes,
+          torch: next,          // Chrome/Brave: torch here in the top-level video constraints
+          advanced: [{ torch: next }], // Safari/Firefox fallback
+        },
+        audio: false,
+      });
+
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play().catch(() => {});
+      }
       setTorchOn(next);
     } catch (err) {
-      console.warn("[KrakenCam] applyConstraints torch failed, trying re-request:", err?.message || err);
-      // Fallback: re-acquire the stream with torch baked into getUserMedia
-      try {
-        if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment", advanced: [{ torch: next }] },
-          audio: false,
-        });
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(() => {});
-        }
-        setTorchOn(next);
-      } catch (err2) {
-        console.warn("[KrakenCam] Torch re-request also failed:", err2?.message || err2);
+      console.warn("[KrakenCam] Torch toggle failed:", err?.message || err);
+      // If torch:true failed, try once more without torch constraint to restore stream
+      if (next) {
+        try {
+          const fallback = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { exact: "environment" } },
+            audio: false,
+          });
+          streamRef.current = fallback;
+          if (videoRef.current) { videoRef.current.srcObject = fallback; videoRef.current.play().catch(() => {}); }
+        } catch { /* ignore */ }
         setTorchOn(false);
-        // Don't hide the button — let user try again
       }
     }
-  }, [torchOn]);
+  }, [torchOn, settings?.photoQuality]);
 
   // ── Photo capture ──
   const doSnap = useCallback(() => {
