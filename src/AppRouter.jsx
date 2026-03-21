@@ -12,6 +12,7 @@ import AcceptInvite from './components/AcceptInvite.jsx'
 import ResetPassword from './components/ResetPassword.jsx'
 import AnnouncementPopup from './components/AnnouncementPopup.jsx'
 import { FlagsProvider } from './lib/featureFlags.js'
+import WhatsNewPopup from './components/WhatsNewPopup.jsx'
 import { supabase } from './lib/supabase.js'
 
 function MaintenanceScreen({ message }) {
@@ -158,6 +159,7 @@ export default function AppRouter() {
     return (
       <FlagsProvider orgTier={orgTier} orgId={orgId}>
         <AnnouncementPopup userRole={userRole} />
+        <WhatsNewPopup />
         <SubscriptionGate>
           <App />
         </SubscriptionGate>

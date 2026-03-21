@@ -18,6 +18,8 @@ import AdminSupport from './AdminSupport.jsx'
 import AdminTrials from './AdminTrials.jsx'
 import AdminEmailBlast from './AdminEmailBlast.jsx'
 import AdminFeatureFlags from './AdminFeatureFlags.jsx'
+import AdminReferrals from './AdminReferrals.jsx'
+import AdminReleases from './AdminReleases.jsx'
 
 const NAV_ITEMS = [
   { id: 'overview',      label: 'Overview',        icon: '📊' },
@@ -27,6 +29,8 @@ const NAV_ITEMS = [
   { id: 'support',       label: 'Support',         icon: '🎧' },
   { id: 'email_blast',   label: 'Email Blast',     icon: '📨' },
   { id: 'feature_flags', label: 'Feature Flags',   icon: '🚩' },
+  { id: 'referrals',     label: 'Referrals',       icon: '🤝' },
+  { id: 'releases',      label: 'Release Notes',   icon: '📦' },
   { id: 'analytics',     label: 'Analytics',       icon: '📈' },
   { id: 'enterprise',    label: 'Enterprise',      icon: '💎' },
   { id: 'discounts',     label: 'Discount Codes',  icon: '🏷️' },
@@ -199,6 +203,8 @@ export default function AdminDashboard() {
       case 'support':       return <AdminSupport />
       case 'email_blast':   return <AdminEmailBlast />
       case 'feature_flags': return <AdminFeatureFlags />
+      case 'referrals':     return <AdminReferrals />
+      case 'releases':      return <AdminReleases />
       case 'analytics':     return <AdminAnalytics />
       case 'enterprise':    return <AdminEnterprise />
       case 'discounts':     return <AdminDiscountCodes />
