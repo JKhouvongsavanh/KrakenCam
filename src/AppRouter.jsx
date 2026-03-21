@@ -11,7 +11,7 @@ import SubscriptionGate from './components/SubscriptionGate.jsx'
 import AcceptInvite from './components/AcceptInvite.jsx'
 import ResetPassword from './components/ResetPassword.jsx'
 import AnnouncementPopup from './components/AnnouncementPopup.jsx'
-import { FlagsProvider } from './lib/featureFlags.js'
+import { FlagsProvider } from './lib/featureFlags.jsx'
 import WhatsNewPopup from './components/WhatsNewPopup.jsx'
 import { supabase } from './lib/supabase.js'
 
