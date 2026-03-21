@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../lib/supabase'
+import { adminRpc, adminInsert, adminUpdate } from '../../lib/adminFetch'
 
 const S = {
   card: { background:'#1a1a1a', border:'1px solid #252525', borderRadius:10, padding:'20px 22px', marginBottom:16 },
@@ -42,7 +43,7 @@ export default function AdminTrials() {
 
   const load = useCallback(async () => {
     setLoading(true)
-    const { data } = await supabase.rpc('admin_get_trialing_orgs')
+    const data = await adminRpc('admin_get_trialing_orgs')
     setOrgs(data || [])
     setLoading(false)
   }, [])
@@ -63,18 +64,10 @@ export default function AdminTrials() {
     try {
       const current = new Date(extending.trial_ends_at || Date.now())
       const newEnd = new Date(current.getTime() + extDays * 24 * 60 * 60 * 1000)
-      const { error } = await supabase
-        .from('organizations')
-        .update({ trial_ends_at: newEnd.toISOString() })
-        .eq('id', extending.id)
-      if (error) throw error
-      // Log to audit
-      const { data: me } = await supabase.auth.getUser()
-      await supabase.from('audit_log').insert({
-        admin_id: me?.user?.id,
-        event_type: 'trial.extended',
-        target_org_id: extending.id,
-        details: { org_name: extending.name, extended_by_days: extDays, new_end: newEnd.toISOString() }
+      await adminRpc('admin_extend_trial', {
+        p_org_id: extending.id,
+        p_new_end: newEnd.toISOString(),
+        p_days: extDays,
       })
       setExtStatus('ok')
       await load()
@@ -93,17 +86,9 @@ export default function AdminTrials() {
     if (!converting) return
     setConvStatus('saving')
     try {
-      const { error } = await supabase
-        .from('organizations')
-        .update({ subscription_status: 'active', trial_ends_at: null })
-        .eq('id', converting.id)
-      if (error) throw error
-      const { data: me } = await supabase.auth.getUser()
-      await supabase.from('audit_log').insert({
-        admin_id: me?.user?.id,
-        event_type: 'trial.converted_to_paid',
-        target_org_id: converting.id,
-        details: { org_name: converting.name, tier: converting.tier }
+      await adminRpc('admin_convert_trial', {
+        p_org_id: converting.id,
+        p_tier: converting.subscription_tier,
       })
       setConvStatus('ok')
       await load()

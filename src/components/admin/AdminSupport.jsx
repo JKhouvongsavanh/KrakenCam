@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../lib/supabase'
+import { adminRpc } from '../../lib/adminFetch'
 
 const S = {
   card: { background:'#1a1a1a', border:'1px solid #252525', borderRadius:10, padding:'20px 22px', marginBottom:16 },
@@ -94,12 +95,7 @@ export default function AdminSupport() {
   const addNote = async () => {
     if (!newNote.trim() || !selected) return
     setSavingNote(true)
-    const { data: me } = await supabase.auth.getUser()
-    await supabase.from('org_support_notes').insert({
-      org_id: selected.id,
-      note: newNote.trim(),
-      admin_id: me?.user?.id,
-    })
+    await adminRpc('admin_add_org_note', { p_org_id: selected.id, p_note: newNote.trim() })
     setNewNote('')
     const { data: n } = await supabase.rpc('admin_get_org_notes', { p_org_id: selected.id })
     setNotes(n || [])
@@ -109,7 +105,7 @@ export default function AdminSupport() {
   const saveFlag = async (val) => {
     if (!selected) return
     setSavingFlag(true)
-    await supabase.from('org_flags').upsert({ org_id: selected.id, flag: val }, { onConflict: 'org_id' })
+    await adminRpc('admin_set_org_flag', { p_org_id: selected.id, p_flag: val })
     setFlag(val)
     setSavingFlag(false)
   }
