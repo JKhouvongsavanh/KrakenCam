@@ -20870,9 +20870,9 @@ export default function App() {
               );
               if (item.id === "help") {
                 return (
-                  <a key={item.id} href="mailto:support@krakencam.com" className="nav-item" title="Email support@krakencam.com" style={{ textDecoration:"none",color:"inherit" }}>
+                  <div key={item.id} className="nav-item" title="Help & Support" onClick={() => window.open("https://www.krakencam.com/support", "_blank", "noopener,noreferrer")}>
                     <Icon d={item.icon} size={15} /><span className="nav-item-label">{item.label}</span>
-                  </a>
+                  </div>
                 );
               }
               return (
