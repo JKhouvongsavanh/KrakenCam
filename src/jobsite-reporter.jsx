@@ -1282,33 +1282,38 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
     if (flashMode === "on" && facing === "environment") {
       const ic = imageCaptureRef.current;
       if (ic) {
-        try {
-          // Check which fillLightMode values this device actually supports
-          const caps = await ic.getPhotoCapabilities().catch(() => null);
-          const supported = caps?.fillLightMode || [];
-          // Prefer "torch" (keeps LED on during capture = reliable),
-          // fall back to "flash" if torch not listed, or no constraint if neither
-          const lightMode = supported.includes("torch") ? "torch"
-                          : supported.includes("flash") ? "flash"
-                          : null;
-          setFlashDebug(`caps:[${supported.join(",")}] using:${lightMode||"none"}`);
-          const photoOpts = lightMode ? { fillLightMode: lightMode } : {};
-          const blob = await ic.takePhoto(photoOpts);
-          const bmp = await createImageBitmap(blob);
-          const vw = bmp.width, vh = bmp.height;
-          const scale = Math.min(maxRes / vw, maxRes / vh, 1);
-          canvas.width  = Math.round(vw * scale);
-          canvas.height = Math.round(vh * scale);
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
-          drawOverlay(canvas);
-          setReviewImg(canvas.toDataURL("image/jpeg", jpegQuality));
-          setTimeout(() => setFiring(false), 200);
-          return;
-        } catch (e) {
-          console.warn("[KrakenCam] ImageCapture flash failed, falling back:", e?.message);
-          // fall through to canvas path below
+        // getPhotoCapabilities() lies on many devices (returns []) — ignore it.
+        // Try "torch" first (LED stays on = most reliable), then "flash".
+        let blob = null;
+        let usedMode = "none";
+        for (const mode of ["torch", "flash"]) {
+          try {
+            blob = await ic.takePhoto({ fillLightMode: mode });
+            usedMode = mode;
+            break;
+          } catch (e) {
+            console.warn(`[KrakenCam] fillLightMode:${mode} failed:`, e?.message);
+          }
         }
+        setFlashDebug(`mode:${usedMode} blob:${!!blob}`);
+        if (blob) {
+          try {
+            const bmp = await createImageBitmap(blob);
+            const vw = bmp.width, vh = bmp.height;
+            const scale = Math.min(maxRes / vw, maxRes / vh, 1);
+            canvas.width  = Math.round(vw * scale);
+            canvas.height = Math.round(vh * scale);
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+            drawOverlay(canvas);
+            setReviewImg(canvas.toDataURL("image/jpeg", jpegQuality));
+            setTimeout(() => setFiring(false), 200);
+            return;
+          } catch (e) {
+            console.warn("[KrakenCam] createImageBitmap failed:", e?.message);
+          }
+        }
+        // fall through to canvas path below
       }
     }
 
