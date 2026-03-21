@@ -1237,13 +1237,29 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
     if (!track) return;
     const next = !torchOn;
     try {
+      // Primary method: applyConstraints on the live track
       await track.applyConstraints({ advanced: [{ torch: next }] });
       setTorchOn(next);
     } catch (err) {
-      // Constraint rejected — this device/browser doesn't support torch
-      console.warn("[KrakenCam] Torch not supported:", err?.message || err);
-      setTorchOn(false);
-      setTorchSupported(false);
+      console.warn("[KrakenCam] applyConstraints torch failed, trying re-request:", err?.message || err);
+      // Fallback: re-acquire the stream with torch baked into getUserMedia
+      try {
+        if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment", advanced: [{ torch: next }] },
+          audio: false,
+        });
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play().catch(() => {});
+        }
+        setTorchOn(next);
+      } catch (err2) {
+        console.warn("[KrakenCam] Torch re-request also failed:", err2?.message || err2);
+        setTorchOn(false);
+        // Don't hide the button — let user try again
+      }
     }
   }, [torchOn]);
 
@@ -1635,16 +1651,6 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
                   {timerSec > 0 ? <span style={{ fontWeight:700,fontSize:13 }}>{timerSec}s</span> : <Icon d={ic.timer} size={18} />}
                 </div>
                 <div className={`cam-icon-btn ${gridOn?"lit":""}`} title="Grid" onClick={() => setGridOn(g => !g)}><Icon d={ic.grid} size={18} /></div>
-                {torchSupported && facing === "environment" && (
-                  <div
-                    className={`cam-icon-btn ${torchOn ? "lit" : ""}`}
-                    title={torchOn ? "Flash on (tap to turn off)" : "Flash off (tap to turn on)"}
-                    onClick={toggleTorch}
-                    style={torchOn ? { color:"#ffe066", borderColor:"#ffe066" } : {}}
-                  >
-                    <Icon d={ic.zap} size={18} />
-                  </div>
-                )}
               </>
             )}
             {mode === "video" && recState === "idle" && (
@@ -1665,8 +1671,20 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
           }
 
           {/* Right controls */}
-          <div style={{ display:"flex",gap:10,alignItems:"center",minWidth:0 }}>
-            <div className="cam-icon-btn" title="Flip camera" onClick={flipCam}><Icon d={ic.rotateCw} size={18} /></div>
+          <div style={{ display:"flex",flexDirection:"column",gap:10,alignItems:"center",minWidth:0 }}>
+            <div style={{ display:"flex",gap:10,alignItems:"center" }}>
+              {torchSupported && facing === "environment" && mode === "photo" && (
+                <div
+                  className={`cam-icon-btn ${torchOn ? "lit" : ""}`}
+                  title={torchOn ? "Flash on — tap to turn off" : "Flash off — tap to turn on"}
+                  onClick={toggleTorch}
+                  style={torchOn ? { color:"#ffe066", borderColor:"rgba(255,224,102,.6)", background:"rgba(255,200,0,.25)" } : {}}
+                >
+                  <Icon d={ic.zap} size={18} />
+                </div>
+              )}
+              <div className="cam-icon-btn" title="Flip camera" onClick={flipCam}><Icon d={ic.rotateCw} size={18} /></div>
+            </div>
             {mode === "photo" && (
               <div style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:3 }}>
                 <span style={{ fontSize:10,color:"rgba(255,255,255,.6)",fontWeight:600 }}>{zoom.toFixed(1)}×</span>
