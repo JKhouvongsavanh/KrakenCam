@@ -48,10 +48,7 @@ export default function AdminBilling() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('organizations')
-        .select('id,name,slug,subscription_tier,subscription_status,trial_ends_at,stripe_customer_id,stripe_subscription_id,created_at,custom_admin_price,custom_seat_price,custom_price_override')
-        .order('created_at', { ascending: false })
+      const { data, error } = await supabase.rpc('admin_get_all_orgs')
       if (error) throw error
       setOrgs(data || [])
     } catch (e) {

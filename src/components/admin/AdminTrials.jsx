@@ -42,11 +42,7 @@ export default function AdminTrials() {
 
   const load = useCallback(async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('organizations')
-      .select('id,name,slug,subscription_tier,subscription_status,trial_ends_at,created_at')
-      .eq('subscription_status', 'trialing')
-      .order('trial_ends_at', { ascending: true })
+    const { data } = await supabase.rpc('admin_get_trialing_orgs')
     setOrgs(data || [])
     setLoading(false)
   }, [])

@@ -50,11 +50,7 @@ export default function AdminSupport() {
   const searchOrgs = useCallback(async (q) => {
     if (!q.trim()) { setOrgs([]); return }
     setLoading(true)
-    const { data } = await supabase
-      .from('organizations')
-      .select('id,name,slug,subscription_tier,subscription_status,created_at')
-      .ilike('name', `%${q}%`)
-      .limit(10)
+    const { data } = await supabase.rpc('admin_search_orgs', { search_term: q })
     setOrgs(data || [])
     setLoading(false)
   }, [])
@@ -69,26 +65,12 @@ export default function AdminSupport() {
     setSelected(org)
     setUsers([]); setNotes([]); setFlag('none')
     // Load users
-    const { data: u } = await supabase
-      .from('profiles')
-      .select('id,user_id,full_name,email,role,created_at,is_active')
-      .eq('organization_id', org.id)
-      .order('created_at')
+    const { data: u } = await supabase.rpc('admin_get_org_users', { org_id: org.id })
     setUsers(u || [])
-    // Load notes
-    const { data: n } = await supabase
-      .from('org_support_notes')
-      .select('*')
-      .eq('org_id', org.id)
-      .order('created_at', { ascending: false })
+    const { data: n } = await supabase.rpc('admin_get_org_notes', { org_id: org.id })
     setNotes(n || [])
-    // Load flag
-    const { data: f } = await supabase
-      .from('org_flags')
-      .select('flag')
-      .eq('org_id', org.id)
-      .single()
-    setFlag(f?.flag || 'none')
+    const { data: f } = await supabase.rpc('admin_get_org_flag', { org_id: org.id })
+    setFlag(f || 'none')
   }
 
   const addNote = async () => {
@@ -101,8 +83,7 @@ export default function AdminSupport() {
       admin_id: me?.user?.id,
     })
     setNewNote('')
-    // Reload notes
-    const { data: n } = await supabase.from('org_support_notes').select('*').eq('org_id', selected.id).order('created_at', { ascending: false })
+    const { data: n } = await supabase.rpc('admin_get_org_notes', { org_id: selected.id })
     setNotes(n || [])
     setSavingNote(false)
   }
