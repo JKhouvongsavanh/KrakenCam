@@ -806,8 +806,9 @@ const CSS = `
   .cam-guide-box::after{top:0;right:0;border-width:2px 2px 0 0;}
   .cam-guide-box span::before{bottom:0;left:0;border-width:0 0 2px 2px;}
   .cam-guide-box span::after{bottom:0;right:0;border-width:0 2px 2px 0;}
-  .cam-flash{position:absolute;inset:0;background:white;pointer-events:none;opacity:0;z-index:20;transition:opacity .04s;}
-  .cam-flash.on{opacity:1;}
+  .cam-flash{position:absolute;inset:0;background:white;pointer-events:none;opacity:0;z-index:20;transition:opacity .03s;}
+  .cam-flash.on{opacity:1;transition:opacity .03s;}
+  .cam-flash.off{opacity:0;transition:opacity .18s;}
   .cam-hud-top{position:absolute;top:0;left:0;right:0;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent);z-index:10;gap:8px;flex-wrap:wrap;}
   .cam-hud-bot{position:absolute;bottom:0;left:0;right:0;padding:12px 18px 22px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);z-index:10;}
   .shutter-outer{width:74px;height:74px;border-radius:50%;border:3px solid rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:transform .1s;flex-shrink:0;}
@@ -1131,7 +1132,7 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
   const [flashMode,      setFlashMode]      = useState("off");
   const [torchOn,        setTorchOn]        = useState(false);   // kept for compat, unused
   const [torchSupported, setTorchSupported] = useState(false);
-  const [flashDebug,     setFlashDebug]     = useState("");
+
 
 
   // Video mode state
@@ -1259,9 +1260,6 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
     if (video.readyState < 2 || video.videoWidth === 0) return;
     setFiring(true);
 
-    // Screen flash overlay
-    if (flashRef.current) { flashRef.current.classList.add("on"); setTimeout(() => flashRef.current?.classList.remove("on"), 140); }
-
     const qualityMap = { low: 0.5, moderate: 0.85, high: 0.97 };
     const jpegQuality = qualityMap[settings?.photoQuality] ?? 0.88;
     const resMap = { low: 1920, moderate: 2560, high: 3840 };
@@ -1277,20 +1275,26 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
       ctx.fillText(gps ? `GPS: ${gps.lat}, ${gps.lng}` : "GPS: unavailable", 18, cvs.height - 17);
     };
 
-    // ── ImageCapture path (Chrome Android — supports fillLightMode:'flash') ──
+    // ── Flash path ──
     const track = streamRef.current?.getVideoTracks()[0];
-    if (flashMode === "on" && facing === "environment") {
+    if (flashMode === "on") {
+      // Screen flash: white overlay at full brightness — fires instantly,
+      // illuminates the subject from the screen, and triggers camera AE.
+      // This is the most reliable fill-flash available in a web app.
+      if (flashRef.current) {
+        flashRef.current.classList.remove("off");
+        flashRef.current.classList.add("on");
+      }
+      // Wait for screen to reach peak brightness before capturing
+      await new Promise(r => setTimeout(r, 80));
+
+      // Also attempt LED via ImageCapture (fires when Chrome decides to, bonus if it does)
       if (track && typeof ImageCapture !== "undefined") {
         try {
-          // Fresh instance per shot — persistent ref proved less reliable.
-          // getPhotoCapabilities() is a required warmup call; without it Chrome
-          // treats fillLightMode:"flash" as auto and skips the LED.
           const ic = new ImageCapture(track);
-          await ic.getPhotoCapabilities().catch(() => {});
-          // Give the flash circuit time to charge after warmup
-          await new Promise(r => setTimeout(r, 200));
           const blob = await ic.takePhoto({ fillLightMode: "flash" });
-          setFlashDebug("ok");
+          // Fade screen flash out slowly
+          if (flashRef.current) { flashRef.current.classList.remove("on"); flashRef.current.classList.add("off"); setTimeout(() => flashRef.current?.classList.remove("off"), 300); }
           const bmp = await createImageBitmap(blob);
           const vw = bmp.width, vh = bmp.height;
           const scale = Math.min(maxRes / vw, maxRes / vh, 1);
@@ -1303,14 +1307,26 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
           setTimeout(() => setFiring(false), 200);
           return;
         } catch (e) {
-          setFlashDebug(`err:${e?.message}`);
-          console.warn("[KrakenCam] ImageCapture flash failed:", e?.message);
-          // fall through to canvas path below
+          console.warn("[KrakenCam] ImageCapture flash failed, using screen flash only:", e?.message);
         }
       }
+      // Screen-flash-only fallback: capture from video element while screen is white
+      const vwF = video.videoWidth || 1280, vhF = video.videoHeight || 720;
+      const scaleF = Math.min(maxRes / vwF, maxRes / vhF, 1);
+      canvas.width = Math.round(vwF * scaleF); canvas.height = Math.round(vhF * scaleF);
+      const ctxF = canvas.getContext("2d");
+      if (facing === "user") { ctxF.translate(canvas.width, 0); ctxF.scale(-1, 1); }
+      ctxF.drawImage(video, 0, 0, canvas.width, canvas.height);
+      ctxF.setTransform(1, 0, 0, 1, 0, 0);
+      drawOverlay(canvas);
+      setReviewImg(canvas.toDataURL("image/jpeg", jpegQuality));
+      if (flashRef.current) { flashRef.current.classList.remove("on"); flashRef.current.classList.add("off"); setTimeout(() => flashRef.current?.classList.remove("off"), 300); }
+      setTimeout(() => setFiring(false), 200);
+      return;
     }
 
-    // ── Canvas path (no flash / fallback) ──
+    // ── No-flash canvas path ──
+    if (flashRef.current) { flashRef.current.classList.add("on"); setTimeout(() => flashRef.current?.classList.remove("on"), 140); }
     const vw = video.videoWidth || 1280, vh = video.videoHeight || 720;
     const scale = Math.min(maxRes / vw, maxRes / vh, 1);
     canvas.width = Math.round(vw * scale); canvas.height = Math.round(vh * scale);
@@ -1572,13 +1588,6 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
             opacity: camState === "live" ? 1 : 0,
             transition:"opacity .3s" }} />
         <div ref={flashRef} className="cam-flash" />
-        {flashDebug !== "" && (
-          <div style={{ position:"absolute",bottom:160,left:0,right:0,zIndex:30,textAlign:"center",pointerEvents:"none" }}>
-            <span style={{ background:"rgba(0,0,0,.85)",color:"#ffe066",fontSize:11,padding:"4px 10px",borderRadius:6,fontFamily:"monospace",wordBreak:"break-all" }}>
-              {flashDebug}
-            </span>
-          </div>
-        )}
         {gridOn && camState === "live" && mode === "photo" && (
           <svg className="cam-grid-svg" style={{ opacity:.22 }}>
             <line x1="33.33%" y1="0" x2="33.33%" y2="100%" stroke="white" strokeWidth="1" />
