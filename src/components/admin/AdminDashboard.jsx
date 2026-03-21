@@ -195,7 +195,21 @@ export default function AdminDashboard() {
   }, [])
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    try {
+      // Use raw fetch to avoid Brave IndexedDB lock on supabase.auth.signOut()
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+      const url     = import.meta.env.VITE_SUPABASE_URL
+      // Get token from localStorage directly (bypass supabase.auth.getSession lock)
+      const storageKey = Object.keys(localStorage).find(k => k.includes('auth-token') || k.includes('supabase'))
+      const stored = storageKey ? JSON.parse(localStorage.getItem(storageKey) || '{}') : {}
+      const token = stored?.access_token || stored?.currentSession?.access_token || anonKey
+      await fetch(`${url}/auth/v1/logout`, {
+        method: 'POST',
+        headers: { apikey: anonKey, Authorization: `Bearer ${token}` },
+      })
+    } catch { /* ignore */ }
+    // Clear all supabase auth keys from localStorage
+    Object.keys(localStorage).filter(k => k.includes('supabase') || k.includes('sb-')).forEach(k => localStorage.removeItem(k))
     window.location.href = '/'
   }
 
