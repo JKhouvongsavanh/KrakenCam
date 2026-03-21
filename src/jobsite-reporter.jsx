@@ -1231,19 +1231,7 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
     if (caps?.zoom) track.applyConstraints({ advanced: [{ zoom }] }).catch(() => {});
   }, [zoom]);
 
-  // ── Flash helpers ──
-  // applyTorch: turn LED on or off on the current live track
-  const applyTorch = useCallback(async (on) => {
-    const track = streamRef.current?.getVideoTracks()[0];
-    if (!track) return;
-    try {
-      await track.applyConstraints({ advanced: [{ torch: on }] });
-    } catch (e) {
-      console.warn("[KrakenCam] torch applyConstraints:", e?.message);
-    }
-  }, []);
-
-  // toggleTorch: just cycles flashMode between off/on (no LED change here)
+  // toggleFlash: cycles flashMode between off/on
   const toggleTorch = useCallback(() => {
     setFlashMode(m => m === "off" ? "on" : "off");
   }, []);
@@ -1255,12 +1243,6 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
     if (video.readyState < 2 || video.videoWidth === 0) return;
     setFiring(true);
 
-    // Fire LED flash if enabled — turn on, wait for light, snap, turn off
-    if (flashMode === "on" && facing === "environment") {
-      await applyTorch(true);
-      await new Promise(r => setTimeout(r, 120)); // let LED illuminate
-    }
-
     // Screen flash overlay
     if (flashRef.current) { flashRef.current.classList.add("on"); setTimeout(() => flashRef.current?.classList.remove("on"), 140); }
 
@@ -1268,6 +1250,41 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
     const jpegQuality = qualityMap[settings?.photoQuality] ?? 0.88;
     const resMap = { low: 1920, moderate: 2560, high: 3840 };
     const maxRes = resMap[settings?.photoQuality] ?? 2560;
+
+    const drawOverlay = (cvs) => {
+      const ctx = cvs.getContext("2d");
+      ctx.fillStyle = "rgba(0,0,0,0.52)";
+      ctx.fillRect(10, cvs.height - 58, 480, 46);
+      ctx.fillStyle = "white"; ctx.font = "bold 13px sans-serif";
+      ctx.fillText(`${project?.title || "Jobsite"} — ${selRoom}  •  ${new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} ${new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:(settings?.timeFormat!=="24hr")})}`, 18, cvs.height - 37);
+      ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.font = "12px sans-serif";
+      ctx.fillText(gps ? `GPS: ${gps.lat}, ${gps.lng}` : "GPS: unavailable", 18, cvs.height - 17);
+    };
+
+    // ── ImageCapture path (Chrome Android — supports fillLightMode:'flash') ──
+    const track = streamRef.current?.getVideoTracks()[0];
+    if (flashMode === "on" && facing === "environment" && track && typeof ImageCapture !== "undefined") {
+      try {
+        const imageCapture = new ImageCapture(track);
+        const blob = await imageCapture.takePhoto({ fillLightMode: "flash" });
+        const bmp  = await createImageBitmap(blob);
+        const vw = bmp.width, vh = bmp.height;
+        const scale = Math.min(maxRes / vw, maxRes / vh, 1);
+        canvas.width  = Math.round(vw * scale);
+        canvas.height = Math.round(vh * scale);
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+        drawOverlay(canvas);
+        setReviewImg(canvas.toDataURL("image/jpeg", jpegQuality));
+        setTimeout(() => setFiring(false), 200);
+        return;
+      } catch (e) {
+        console.warn("[KrakenCam] ImageCapture flash failed, falling back:", e?.message);
+        // fall through to canvas path below
+      }
+    }
+
+    // ── Canvas path (no flash / fallback) ──
     const vw = video.videoWidth || 1280, vh = video.videoHeight || 720;
     const scale = Math.min(maxRes / vw, maxRes / vh, 1);
     canvas.width = Math.round(vw * scale); canvas.height = Math.round(vh * scale);
@@ -1275,21 +1292,10 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
     if (facing === "user") { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = "rgba(0,0,0,0.52)";
-    ctx.fillRect(10, canvas.height - 58, 480, 46);
-    ctx.fillStyle = "white"; ctx.font = "bold 13px sans-serif";
-    ctx.fillText(`${project?.title || "Jobsite"} — ${selRoom}  •  ${new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} ${new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:(settings?.timeFormat!=="24hr")})}`, 18, canvas.height - 37);
-    ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.font = "12px sans-serif";
-    ctx.fillText(gps ? `GPS: ${gps.lat}, ${gps.lng}` : "GPS: unavailable", 18, canvas.height - 17);
+    drawOverlay(canvas);
     setReviewImg(canvas.toDataURL("image/jpeg", jpegQuality));
-
-    // Turn LED off after capture
-    if (flashMode === "on" && facing === "environment") {
-      await applyTorch(false);
-    }
-
     setTimeout(() => setFiring(false), 200);
-  }, [facing, gps, selRoom, project, settings?.photoQuality, flashMode, applyTorch]);
+  }, [facing, gps, selRoom, project, settings?.photoQuality, flashMode]);
 
   const handleShutter = () => {
     if (timerSec === 0) { doSnap(); return; }
