@@ -13,16 +13,22 @@ import AdminAnalytics from './AdminAnalytics.jsx'
 import AdminSettings from './AdminSettings.jsx'
 import AdminAuditLog from './AdminAuditLog.jsx'
 import AdminPricing from './AdminPricing.jsx'
+import AdminBilling from './AdminBilling.jsx'
+import AdminSupport from './AdminSupport.jsx'
+import AdminTrials from './AdminTrials.jsx'
 
 const NAV_ITEMS = [
   { id: 'overview',      label: 'Overview',        icon: '📊' },
-  { id: 'organizations', label: 'Organizations',    icon: '🏢' },
-  { id: 'analytics',    label: 'Analytics',        icon: '📈' },
-  { id: 'enterprise',   label: 'Enterprise',       icon: '💎' },
-  { id: 'discounts',    label: 'Discount Codes',   icon: '🏷️' },
-  { id: 'pricing',      label: 'Pricing',          icon: '💰' },
-  { id: 'audit_log',    label: 'Audit Log',        icon: '📋' },
-  { id: 'settings',     label: 'Settings',         icon: '⚙️' },
+  { id: 'billing',       label: 'Billing',         icon: '💳' },
+  { id: 'trials',        label: 'Trials',          icon: '⏳' },
+  { id: 'organizations', label: 'Organizations',   icon: '🏢' },
+  { id: 'support',       label: 'Support',         icon: '🎧' },
+  { id: 'analytics',     label: 'Analytics',       icon: '📈' },
+  { id: 'enterprise',    label: 'Enterprise',      icon: '💎' },
+  { id: 'discounts',     label: 'Discount Codes',  icon: '🏷️' },
+  { id: 'pricing',       label: 'Pricing',         icon: '💰' },
+  { id: 'audit_log',     label: 'Audit Log',       icon: '📋' },
+  { id: 'settings',      label: 'Settings',        icon: '⚙️' },
 ]
 
 const S = {
@@ -183,7 +189,10 @@ export default function AdminDashboard() {
   function renderSection() {
     switch (activeSection) {
       case 'overview':      return <AdminOverview />
+      case 'billing':       return <AdminBilling />
+      case 'trials':        return <AdminTrials />
       case 'organizations': return <AdminOrganizations />
+      case 'support':       return <AdminSupport />
       case 'analytics':     return <AdminAnalytics />
       case 'enterprise':    return <AdminEnterprise />
       case 'discounts':     return <AdminDiscountCodes />
