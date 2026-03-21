@@ -156,7 +156,7 @@ export default function AdminEmailBlast() {
             <select style={S.select} value={target} onChange={e => { setTarget(e.target.value); setResult(null); setDryResult(null); setConfirmed(false) }}>
               {TARGETS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
-            {targetMeta && <div style={{ fontSize:11, color:'#555', marginTop:5 }}>{targetMeta.desc}</div>}
+            {targetMeta && <div style={{ fontSize:11, color:'#8b9ab8', marginTop:5 }}>{targetMeta.desc}</div>}
           </div>
           <div>
             <label style={S.label}>Template</label>
@@ -169,13 +169,13 @@ export default function AdminEmailBlast() {
         <div style={{ marginBottom:14 }}>
           <label style={S.label}>Subject line</label>
           <input style={S.input} value={subject} onChange={e => setSubject(e.target.value)} placeholder="Email subject…" />
-          <div style={{ fontSize:11, color:'#555', marginTop:4 }}>Use {'{{first_name}}'} for personalisation</div>
+          <div style={{ fontSize:11, color:'#8b9ab8', marginTop:4 }}>Use {'{{first_name}}'} for personalisation</div>
         </div>
 
         {/* Compose / Preview tabs */}
         <div style={{ display:'flex', gap:4, marginBottom:12, borderBottom:'1px solid #222', paddingBottom:0 }}>
           {['compose','preview'].map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{ padding:'7px 16px', background:'transparent', border:'none', borderBottom: tab===t?'2px solid #00d4ff':'2px solid transparent', color:tab===t?'#00d4ff':'#666', fontSize:12, fontWeight:tab===t?600:400, cursor:'pointer', marginBottom:-1, textTransform:'capitalize' }}>{t}</button>
+            <button key={t} onClick={() => setTab(t)} style={{ padding:'7px 16px', background:'transparent', border:'none', borderBottom: tab===t?'2px solid #00d4ff':'2px solid transparent', color:tab===t?'#00d4ff':'#9aaabb', fontSize:12, fontWeight:tab===t?600:400, cursor:'pointer', marginBottom:-1, textTransform:'capitalize' }}>{t}</button>
           ))}
         </div>
 
@@ -188,7 +188,7 @@ export default function AdminEmailBlast() {
 
         {tab === 'preview' && (
           <div>
-            <div style={{ fontSize:11, color:'#555', marginBottom:8 }}>Preview (rendered HTML — {'{{first_name}}'} will be personalised per recipient)</div>
+            <div style={{ fontSize:11, color:'#8b9ab8', marginBottom:8 }}>Preview (rendered HTML — {'{{first_name}}'} will be personalised per recipient)</div>
             <div style={S.preview} dangerouslySetInnerHTML={{ __html: html.replace(/\{\{first_name\}\}/gi, 'Riley') }} />
           </div>
         )}
@@ -206,7 +206,7 @@ export default function AdminEmailBlast() {
           {dryResult && !dryResult.error && (
             <div style={{ marginTop:10, fontSize:13, color:'#4ade80' }}>
               ✓ <strong>{dryResult.recipient_count}</strong> recipient{dryResult.recipient_count!==1?'s':''} will receive this email
-              {dryResult.sample?.length > 0 && <span style={{ color:'#555', marginLeft:8 }}>({dryResult.sample.join(', ')}{dryResult.recipient_count > 5 ? '…' : ''})</span>}
+              {dryResult.sample?.length > 0 && <span style={{ color:'#8b9ab8', marginLeft:8 }}>({dryResult.sample.join(', ')}{dryResult.recipient_count > 5 ? '…' : ''})</span>}
             </div>
           )}
           {dryResult?.error && <div style={{ marginTop:8, fontSize:13, color:'#f87171' }}>✗ {dryResult.error}</div>}
@@ -241,8 +241,8 @@ export default function AdminEmailBlast() {
           </div>
         )}
 
-        <div style={{ marginTop:16, fontSize:12, color:'#444', lineHeight:1.7 }}>
-          💡 <strong style={{ color:'#555' }}>Notes:</strong> Emails send from <code style={{ color:'#60a5fa' }}>noreply@krakencam.com</code> with reply-to <code style={{ color:'#60a5fa' }}>support@krakencam.com</code>.
+        <div style={{ marginTop:16, fontSize:12, color:'#7a8a9a', lineHeight:1.7 }}>
+          💡 <strong style={{ color:'#8b9ab8' }}>Notes:</strong> Emails send from <code style={{ color:'#60a5fa' }}>noreply@krakencam.com</code> with reply-to <code style={{ color:'#60a5fa' }}>support@krakencam.com</code>.
           One email per org admin. Batches capped at 50 per send to stay within Resend limits.
           Use the dry run first to confirm recipient count.
         </div>

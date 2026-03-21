@@ -21,13 +21,13 @@ const S = {
   },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
   th: {
-    textAlign: 'left', padding: '8px 14px', color: '#555',
+    textAlign: 'left', padding: '8px 14px', color: '#8b9ab8',
     fontWeight: 600, fontSize: 11, letterSpacing: 0.7,
     textTransform: 'uppercase', borderBottom: '1px solid #222', background: '#141414',
   },
   td: { padding: '10px 14px', color: '#ccc', borderBottom: '1px solid #1a1a1a', verticalAlign: 'middle' },
   form: { padding: '18px', display: 'flex', flexDirection: 'column', gap: 14 },
-  label: { fontSize: 11, color: '#666', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
+  label: { fontSize: 11, color: '#9aaabb', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
   input: {
     background: '#111', border: '1px solid #2a2a2a', borderRadius: 7,
     color: '#e8e8e8', padding: '8px 12px', fontSize: 13, outline: 'none',
@@ -58,7 +58,7 @@ const S = {
   }),
   error: { color: '#ff6b6b', fontSize: 12 },
   success: { color: '#4ec9b0', fontSize: 12 },
-  empty: { padding: '28px', textAlign: 'center', color: '#444', fontSize: 13 },
+  empty: { padding: '28px', textAlign: 'center', color: '#7a8a9a', fontSize: 13 },
   codeCell: { fontFamily: 'monospace', fontWeight: 700, fontSize: 13, color: '#00d4ff', letterSpacing: 1 },
   expired: { color: '#ff6b6b', fontSize: 11 },
 }
@@ -207,7 +207,7 @@ export default function AdminDiscountCodes() {
               </tr>
             </thead>
             <tbody>
-              {loading && <tr><td colSpan={8} style={{ ...S.td, color: '#444', textAlign: 'center' }}>Loading…</td></tr>}
+              {loading && <tr><td colSpan={8} style={{ ...S.td, color: '#7a8a9a', textAlign: 'center' }}>Loading…</td></tr>}
               {!loading && codes.length === 0 && (
                 <tr><td colSpan={8} style={S.empty}>No codes yet. Create one →</td></tr>
               )}
@@ -231,7 +231,7 @@ export default function AdminDiscountCodes() {
                         ? <span style={expired ? S.expired : { color: '#aaa', fontSize: 12 }}>
                             {new Date(code.expires_at).toLocaleDateString()}{expired ? ' ⚠️' : ''}
                           </span>
-                        : <span style={{ color: '#444' }}>Never</span>
+                        : <span style={{ color: '#7a8a9a' }}>Never</span>
                       }
                     </td>
                     <td style={S.td}><span style={S.badge(code.enabled)}>{code.enabled ? 'Active' : 'Disabled'}</span></td>

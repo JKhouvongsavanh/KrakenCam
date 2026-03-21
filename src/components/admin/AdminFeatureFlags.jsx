@@ -17,9 +17,9 @@ const S = {
   card: { background: '#1a1a1a', border: '1px solid #252525', borderRadius: 10, padding: '18px 20px', marginBottom: 10 },
   row: { display: 'flex', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' },
   label: { fontSize: 13, fontWeight: 700, color: '#e8e8e8', marginBottom: 2 },
-  desc: { fontSize: 12, color: '#555', marginTop: 2, lineHeight: 1.5 },
+  desc: { fontSize: 12, color: '#8b9ab8', marginTop: 2, lineHeight: 1.5 },
   toggle: (on) => ({
-    width: 44, height: 24, borderRadius: 12, background: on ? '#00d4ff' : '#333',
+    width: 44, height: 24, borderRadius: 12, background: on ? '#00d4ff' : '#6a7a8a',
     border: 'none', cursor: 'pointer', position: 'relative', transition: 'background .2s', flexShrink: 0,
   }),
   thumb: (on) => ({
@@ -31,15 +31,15 @@ const S = {
     display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px',
     borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: 'pointer',
     background: active ? `${color}22` : 'rgba(255,255,255,.04)',
-    color: active ? color : '#555',
-    border: `1px solid ${active ? color + '55' : '#333'}`,
+    color: active ? color : '#8b9ab8',
+    border: `1px solid ${active ? color + '55' : '#6a7a8a'}`,
     transition: 'all .15s',
   }),
   orgBadge: { display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2px 8px', borderRadius: 20, fontSize: 11, background: 'rgba(0,212,255,.1)', color: '#00d4ff', border: '1px solid rgba(0,212,255,.2)' },
   input: { background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: 6, color: '#e8e8e8', padding: '7px 10px', fontSize: 12, outline: 'none', flex: 1, fontFamily: 'Inter,sans-serif' },
   btn: { background: 'rgba(37,99,235,.15)', border: '1px solid rgba(37,99,235,.3)', color: '#60a5fa', borderRadius: 6, padding: '6px 12px', fontSize: 12, cursor: 'pointer', fontWeight: 600 },
-  removeBtn: { background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: 13, lineHeight: 1, padding: '0 2px' },
-  saving: { fontSize: 11, color: '#555', fontStyle: 'italic' },
+  removeBtn: { background: 'none', border: 'none', color: '#8b9ab8', cursor: 'pointer', fontSize: 13, lineHeight: 1, padding: '0 2px' },
+  saving: { fontSize: 11, color: '#8b9ab8', fontStyle: 'italic' },
 }
 
 async function saveFlag(key, patch) {
@@ -113,14 +113,14 @@ function FlagRow({ flag, orgs, onUpdated }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={S.label}>{flag.label || flag.key}</span>
-            <code style={{ fontSize: 10, color: '#555', background: '#111', padding: '1px 6px', borderRadius: 4 }}>{flag.key}</code>
+            <code style={{ fontSize: 10, color: '#8b9ab8', background: '#111', padding: '1px 6px', borderRadius: 4 }}>{flag.key}</code>
             {saving && <span style={S.saving}>saving…</span>}
           </div>
           <div style={S.desc}>{flag.description}</div>
 
           {/* Tier toggles */}
           <div style={{ marginTop: 10, display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-            <span style={{ fontSize: 11, color: '#444', marginRight: 2 }}>Tiers:</span>
+            <span style={{ fontSize: 11, color: '#7a8a9a', marginRight: 2 }}>Tiers:</span>
             {TIERS.map(t => (
               <span key={t} style={S.tierBadge(flag.allowed_tiers?.includes(t), TIER_COLOR[t])} onClick={() => toggleTier(t)}>
                 {flag.allowed_tiers?.includes(t) ? '✓' : '+'} {TIER_LABEL[t]}
@@ -130,7 +130,7 @@ function FlagRow({ flag, orgs, onUpdated }) {
 
           {/* Org overrides */}
           <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-            <span style={{ fontSize: 11, color: '#444', marginRight: 2 }}>Org overrides:</span>
+            <span style={{ fontSize: 11, color: '#7a8a9a', marginRight: 2 }}>Org overrides:</span>
             {(flag.allowed_org_ids || []).map(orgId => {
               const org = orgs.find(o => o.id === orgId)
               return (
@@ -161,7 +161,7 @@ function FlagRow({ flag, orgs, onUpdated }) {
                 </div>
               )}
               {orgSearch && filteredOrgs.length === 0 && (
-                <div style={{ fontSize: 12, color: '#555', padding: '6px 0', alignSelf: 'center' }}>No matches</div>
+                <div style={{ fontSize: 12, color: '#8b9ab8', padding: '6px 0', alignSelf: 'center' }}>No matches</div>
               )}
             </div>
           )}
@@ -209,7 +209,7 @@ export default function AdminFeatureFlags() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#ccc' }}>🚩 Feature Flags</div>
-          <div style={{ fontSize: 12, color: '#555', marginTop: 2 }}>Toggle features per tier or specific org — no deploy needed.</div>
+          <div style={{ fontSize: 12, color: '#8b9ab8', marginTop: 2 }}>Toggle features per tier or specific org — no deploy needed.</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button style={S.btn} onClick={load}>↻ Refresh</button>
@@ -245,12 +245,12 @@ export default function AdminFeatureFlags() {
       )}
 
       {loading
-        ? <div style={{ color: '#555', fontSize: 13 }}>Loading flags…</div>
+        ? <div style={{ color: '#8b9ab8', fontSize: 13 }}>Loading flags…</div>
         : flags.map(flag => <FlagRow key={flag.key} flag={flag} orgs={orgs} onUpdated={load} />)
       }
 
-      <div style={{ fontSize: 12, color: '#333', marginTop: 16, lineHeight: 1.7 }}>
-        💡 <strong style={{ color: '#444' }}>How to use in code:</strong> import {'{ useFlag }'} from <code style={{ color: '#60a5fa' }}>../lib/featureFlags</code> and check <code style={{ color: '#60a5fa' }}>useFlag('ai_report_writer')</code>. Wrap the app with <code style={{ color: '#60a5fa' }}>{'<FlagsProvider>'}</code> to enable.
+      <div style={{ fontSize: 12, color: '#6a7a8a', marginTop: 16, lineHeight: 1.7 }}>
+        💡 <strong style={{ color: '#7a8a9a' }}>How to use in code:</strong> import {'{ useFlag }'} from <code style={{ color: '#60a5fa' }}>../lib/featureFlags</code> and check <code style={{ color: '#60a5fa' }}>useFlag('ai_report_writer')</code>. Wrap the app with <code style={{ color: '#60a5fa' }}>{'<FlagsProvider>'}</code> to enable.
       </div>
     </div>
   )

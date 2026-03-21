@@ -15,7 +15,7 @@ const S = {
   dangerBtn: { background:'rgba(239,68,68,.12)', border:'1px solid rgba(239,68,68,.3)', color:'#f87171', borderRadius:7, padding:'8px 16px', fontSize:13, cursor:'pointer', fontWeight:600 },
   greenBtn: { background:'rgba(34,197,94,.12)', border:'1px solid rgba(34,197,94,.3)', color:'#4ade80', borderRadius:7, padding:'8px 16px', fontSize:13, cursor:'pointer', fontWeight:600 },
   table: { width:'100%', borderCollapse:'collapse', fontSize:13 },
-  th: { textAlign:'left', padding:'9px 14px', background:'#111', color:'#555', fontWeight:600, fontSize:11, textTransform:'uppercase', letterSpacing:.6, borderBottom:'1px solid #222' },
+  th: { textAlign:'left', padding:'9px 14px', background:'#111', color:'#8b9ab8', fontWeight:600, fontSize:11, textTransform:'uppercase', letterSpacing:.6, borderBottom:'1px solid #222' },
   td: { padding:'10px 14px', borderBottom:'1px solid #1e1e1e', color:'#ccc', verticalAlign:'middle' },
   badge: (color) => ({ display:'inline-block', padding:'2px 9px', borderRadius:20, fontSize:11, fontWeight:600, background:`${color}22`, color, border:`1px solid ${color}44` }),
   flag: (color) => ({ display:'inline-flex', alignItems:'center', gap:4, padding:'2px 9px', borderRadius:20, fontSize:11, fontWeight:600, background:`${color}22`, color }),
@@ -24,7 +24,7 @@ const S = {
 }
 
 const FLAG_OPTIONS = [
-  { value:'none',      label:'No flag',    color:'#555' },
+  { value:'none',      label:'No flag',    color:'#8b9ab8' },
   { value:'at_risk',   label:'⚠️ At risk',  color:'#fbbf24' },
   { value:'vip',       label:'⭐ VIP',      color:'#c792ea' },
   { value:'follow_up', label:'📌 Follow up',color:'#60a5fa' },
@@ -127,7 +127,7 @@ export default function AdminSupport() {
 
   const TIER_COLOR = { capture_i:'#4ec9b0', intelligence_ii:'#00d4ff', command_iii:'#c792ea' }
   const TIER_LABEL = { capture_i:'Capture I', intelligence_ii:'Intelligence II', command_iii:'Command III' }
-  const STATUS_COLOR = { active:'#4ec9b0', trialing:'#fbbf24', past_due:'#f87171', cancelled:'#666', suspended:'#f87171' }
+  const STATUS_COLOR = { active:'#4ec9b0', trialing:'#fbbf24', past_due:'#f87171', cancelled:'#9aaabb', suspended:'#f87171' }
 
   return (
     <div>
@@ -141,8 +141,8 @@ export default function AdminSupport() {
           onChange={e => { setSearch(e.target.value); setSelected(null) }}
           autoFocus
         />
-        {loading && <div style={{ fontSize:12, color:'#555', marginTop:8 }}>Searching…</div>}
-        {!loading && search && orgs.length === 0 && <div style={{ fontSize:12, color:'#555', marginTop:8 }}>No results</div>}
+        {loading && <div style={{ fontSize:12, color:'#8b9ab8', marginTop:8 }}>Searching…</div>}
+        {!loading && search && orgs.length === 0 && <div style={{ fontSize:12, color:'#8b9ab8', marginTop:8 }}>No results</div>}
 
         {orgs.length > 0 && (
           <div style={{ marginTop:10, display:'flex', flexDirection:'column', gap:6 }}>
@@ -153,11 +153,11 @@ export default function AdminSupport() {
               >
                 <div>
                   <span style={{ fontWeight:600, color:'#e8e8e8', fontSize:13 }}>{o.name}</span>
-                  <span style={{ fontSize:11, color:'#555', marginLeft:8 }}>/{o.slug}</span>
+                  <span style={{ fontSize:11, color:'#8b9ab8', marginLeft:8 }}>/{o.slug}</span>
                 </div>
                 <div style={{ display:'flex', gap:6 }}>
                   <span style={S.badge(TIER_COLOR[o.subscription_tier]||'#888')}>{TIER_LABEL[o.subscription_tier]||o.subscription_tier}</span>
-                  <span style={S.badge(STATUS_COLOR[o.subscription_status]||'#555')}>{o.subscription_status}</span>
+                  <span style={S.badge(STATUS_COLOR[o.subscription_status]||'#8b9ab8')}>{o.subscription_status}</span>
                 </div>
               </div>
             ))}
@@ -172,13 +172,13 @@ export default function AdminSupport() {
           <div style={S.card}>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
               <div style={S.sectionTitle}>🚩 Account Flag — {selected.name}</div>
-              {savingFlag && <span style={{ fontSize:12, color:'#555' }}>Saving…</span>}
+              {savingFlag && <span style={{ fontSize:12, color:'#8b9ab8' }}>Saving…</span>}
             </div>
             <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
               {FLAG_OPTIONS.map(f => (
                 <button key={f.value}
                   onClick={() => saveFlag(f.value)}
-                  style={{ ...S.btn, background: flag===f.value ? `${f.color}33` : 'rgba(255,255,255,.04)', border:`1px solid ${flag===f.value ? f.color : '#333'}`, color: flag===f.value ? f.color : '#888', fontWeight: flag===f.value ? 700 : 400 }}
+                  style={{ ...S.btn, background: flag===f.value ? `${f.color}33` : 'rgba(255,255,255,.04)', border:`1px solid ${flag===f.value ? f.color : '#6a7a8a'}`, color: flag===f.value ? f.color : '#888', fontWeight: flag===f.value ? 700 : 400 }}
                 >{f.label}</button>
               ))}
             </div>
@@ -188,7 +188,7 @@ export default function AdminSupport() {
           <div style={S.card}>
             <div style={S.sectionTitle}>👥 Users — {selected.name}</div>
             {users.length === 0
-              ? <div style={{ fontSize:13, color:'#555' }}>No users found</div>
+              ? <div style={{ fontSize:13, color:'#8b9ab8' }}>No users found</div>
               : <table style={S.table}>
                   <thead><tr>
                     <th style={S.th}>Name</th>
@@ -220,10 +220,10 @@ export default function AdminSupport() {
                   <>
                     <div style={{ fontSize:13, color:'#4ade80', fontWeight:600, marginBottom:6 }}>✓ Impersonation link ready for {impStatus.name}</div>
                     <a href={impStatus.link} target="_blank" rel="noopener noreferrer" style={{ fontSize:12, color:'#60a5fa', wordBreak:'break-all' }}>{impStatus.link}</a>
-                    <div style={{ fontSize:11, color:'#555', marginTop:6 }}>⚠️ Link expires in 1 hour. Opens in a new tab logged in as this user.</div>
+                    <div style={{ fontSize:11, color:'#8b9ab8', marginTop:6 }}>⚠️ Link expires in 1 hour. Opens in a new tab logged in as this user.</div>
                   </>
                 ) : (
-                  <div style={{ fontSize:13, color:'#f87171' }}>✗ Impersonation failed: {impStatus.error}<br/><span style={{ fontSize:11, color:'#555' }}>Make sure the admin-impersonate edge function is deployed.</span></div>
+                  <div style={{ fontSize:13, color:'#f87171' }}>✗ Impersonation failed: {impStatus.error}<br/><span style={{ fontSize:11, color:'#8b9ab8' }}>Make sure the admin-impersonate edge function is deployed.</span></div>
                 )}
               </div>
             )}
@@ -233,11 +233,11 @@ export default function AdminSupport() {
           <div style={S.card}>
             <div style={S.sectionTitle}>📝 Admin Notes — {selected.name}</div>
             <div style={{ display:'flex', flexDirection:'column', gap:6, marginBottom:14 }}>
-              {notes.length === 0 && <div style={{ fontSize:13, color:'#555' }}>No notes yet. Add one below.</div>}
+              {notes.length === 0 && <div style={{ fontSize:13, color:'#8b9ab8' }}>No notes yet. Add one below.</div>}
               {notes.map(n => (
                 <div key={n.id} style={S.noteItem}>
                   <div style={{ fontSize:13, color:'#e8e8e8', lineHeight:1.6 }}>{n.note}</div>
-                  <div style={{ fontSize:11, color:'#444', marginTop:4 }}>{fmtDate(n.created_at)}</div>
+                  <div style={{ fontSize:11, color:'#7a8a9a', marginTop:4 }}>{fmtDate(n.created_at)}</div>
                 </div>
               ))}
             </div>

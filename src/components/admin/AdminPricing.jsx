@@ -122,7 +122,7 @@ const S = {
     fontWeight: 700,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
-    color: '#666',
+    color: '#9aaabb',
     marginBottom: 10,
   },
   inputRow: {
@@ -152,11 +152,11 @@ const S = {
   },
   inputUnit: {
     fontSize: 11,
-    color: '#555',
+    color: '#8b9ab8',
   },
   metaText: {
     fontSize: 10,
-    color: '#444',
+    color: '#7a8a9a',
     marginTop: 2,
   },
   actionRow: {
@@ -183,7 +183,7 @@ const S = {
   },
   confirmHint: {
     fontSize: 11,
-    color: '#666',
+    color: '#9aaabb',
   },
   btn: (disabled, danger) => ({
     padding: '10px 22px',
@@ -225,7 +225,7 @@ const S = {
     fontSize: 13,
   },
   loadingMsg: {
-    color: '#555',
+    color: '#8b9ab8',
     fontSize: 13,
     padding: '20px 0',
   },
@@ -255,7 +255,7 @@ function PriceInputGrid({ values, rawRows, onChange }) {
                         {type === 'admin' ? 'Admin' : 'Per Seat'}
                       </label>
                       <div style={S.inputWrapper}>
-                        <span style={{ color: '#666', fontSize: 13 }}>$</span>
+                        <span style={{ color: '#9aaabb', fontSize: 13 }}>$</span>
                         <input
                           type="number"
                           min="1"

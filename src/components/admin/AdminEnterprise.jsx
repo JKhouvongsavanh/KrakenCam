@@ -28,13 +28,13 @@ const S = {
   },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
   th: {
-    textAlign: 'left', padding: '8px 14px', color: '#555',
+    textAlign: 'left', padding: '8px 14px', color: '#8b9ab8',
     fontWeight: 600, fontSize: 11, letterSpacing: 0.7,
     textTransform: 'uppercase', borderBottom: '1px solid #222', background: '#141414',
   },
   td: { padding: '10px 14px', color: '#ccc', borderBottom: '1px solid #1a1a1a', verticalAlign: 'middle' },
   form: { padding: '18px', display: 'flex', flexDirection: 'column', gap: 14 },
-  label: { fontSize: 11, color: '#666', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
+  label: { fontSize: 11, color: '#9aaabb', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
   input: {
     background: '#111', border: '1px solid #2a2a2a', borderRadius: 7,
     color: '#e8e8e8', padding: '8px 12px', fontSize: 13, outline: 'none',
@@ -65,9 +65,9 @@ const S = {
     background: hover ? '#252525' : 'transparent',
     borderBottom: '1px solid #2a2a2a',
   }),
-  empty: { padding: '28px', textAlign: 'center', color: '#444', fontSize: 13 },
+  empty: { padding: '28px', textAlign: 'center', color: '#7a8a9a', fontSize: 13 },
   priceHighlight: { color: '#c792ea', fontWeight: 700, fontFamily: 'monospace' },
-  standardPrice: { color: '#444', fontSize: 12 },
+  standardPrice: { color: '#7a8a9a', fontSize: 12 },
 }
 
 // Org search dropdown
@@ -121,7 +121,7 @@ function OrgSearch({ onSelect }) {
               onMouseDown={() => handleSelect(o)}
             >
               <strong>{o.name}</strong>
-              {o.slug && <span style={{ color: '#555', marginLeft: 6, fontSize: 11 }}>/{o.slug}</span>}
+              {o.slug && <span style={{ color: '#8b9ab8', marginLeft: 6, fontSize: 11 }}>/{o.slug}</span>}
               <span style={{ float: 'right', color: TIER_META[o.subscription_tier]?.color || '#888', fontSize: 11 }}>
                 {TIER_META[o.subscription_tier]?.label || o.subscription_tier}
               </span>
@@ -211,7 +211,7 @@ export default function AdminEnterprise() {
               </tr>
             </thead>
             <tbody>
-              {loading && <tr><td colSpan={6} style={{ ...S.td, color: '#444', textAlign: 'center' }}>Loading…</td></tr>}
+              {loading && <tr><td colSpan={6} style={{ ...S.td, color: '#7a8a9a', textAlign: 'center' }}>Loading…</td></tr>}
               {!loading && enterpriseOrgs.length === 0 && (
                 <tr><td colSpan={6} style={S.empty}>No enterprise orgs yet. Use the form to add one →</td></tr>
               )}
@@ -232,7 +232,7 @@ export default function AdminEnterprise() {
                   </td>
                   <td style={{ ...S.td, ...S.priceHighlight }}>${org.custom_admin_price}</td>
                   <td style={{ ...S.td, ...S.priceHighlight }}>${org.custom_seat_price}</td>
-                  <td style={{ ...S.td, color: '#666', fontStyle: 'italic', fontSize: 12 }}>
+                  <td style={{ ...S.td, color: '#9aaabb', fontStyle: 'italic', fontSize: 12 }}>
                     {org.custom_price_notes || '—'}
                   </td>
                   <td style={S.td}>
@@ -283,8 +283,8 @@ export default function AdminEnterprise() {
             </div>
 
             {/* Standard rates reference */}
-            <div style={{ background: '#111', borderRadius: 7, padding: '10px 12px', fontSize: 11, color: '#555' }}>
-              <div style={{ marginBottom: 4, color: '#444', fontWeight: 600 }}>Standard Rates Reference</div>
+            <div style={{ background: '#111', borderRadius: 7, padding: '10px 12px', fontSize: 11, color: '#8b9ab8' }}>
+              <div style={{ marginBottom: 4, color: '#7a8a9a', fontWeight: 600 }}>Standard Rates Reference</div>
               <div>Capture I: $39 admin / $29 seat</div>
               <div>Intelligence II: $59 admin / $29 seat</div>
               <div>Command III: $79 admin / $29 seat</div>

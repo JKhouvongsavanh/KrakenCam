@@ -27,7 +27,7 @@ const S = {
   },
   cardLabel: {
     fontSize: 11,
-    color: '#666',
+    color: '#9aaabb',
     fontWeight: 600,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
@@ -40,7 +40,7 @@ const S = {
   },
   cardSub: {
     fontSize: 12,
-    color: '#555',
+    color: '#8b9ab8',
     marginTop: 2,
   },
   sectionTitle: {
@@ -58,7 +58,7 @@ const S = {
   th: {
     textAlign: 'left',
     padding: '9px 14px',
-    color: '#555',
+    color: '#8b9ab8',
     fontWeight: 600,
     fontSize: 11,
     letterSpacing: 0.7,
@@ -220,7 +220,7 @@ export default function AdminOverview() {
           <div key={key} style={S.tierCard(color)}>
             <span style={S.tierLabel(color)}>{label}</span>
             <span style={S.tierCount}>{tierCounts[key] || 0}</span>
-            <span style={{ fontSize: 11, color: '#555' }}>active orgs</span>
+            <span style={{ fontSize: 11, color: '#8b9ab8' }}>active orgs</span>
           </div>
         ))}
       </div>
@@ -240,7 +240,7 @@ export default function AdminOverview() {
           </thead>
           <tbody>
             {recentOrgs.length === 0 && (
-              <tr><td colSpan={5} style={{ ...S.td, color: '#444', textAlign: 'center' }}>No data yet</td></tr>
+              <tr><td colSpan={5} style={{ ...S.td, color: '#7a8a9a', textAlign: 'center' }}>No data yet</td></tr>
             )}
             {recentOrgs.map((org, i) => (
               <tr key={org.id || i} style={{ transition: 'background 0.12s' }}
@@ -255,7 +255,7 @@ export default function AdminOverview() {
                 </td>
                 <td style={S.td}>{statusBadge(org.subscription_status)}</td>
                 <td style={{ ...S.td, color: '#aaa' }}>—</td>
-                <td style={{ ...S.td, color: '#666' }}>
+                <td style={{ ...S.td, color: '#9aaabb' }}>
                   {org.created_at ? new Date(org.created_at).toLocaleDateString() : '—'}
                 </td>
               </tr>

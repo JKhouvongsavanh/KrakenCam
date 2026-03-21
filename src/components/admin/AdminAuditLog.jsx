@@ -129,7 +129,7 @@ export default function AdminAuditLog() {
       fontWeight: 700,
       letterSpacing: 0.8,
       textTransform: 'uppercase',
-      color: '#555',
+      color: '#8b9ab8',
       background: '#0f0f1a',
       borderBottom: '1px solid #1e1e2e',
     },
@@ -172,7 +172,7 @@ export default function AdminAuditLog() {
     empty: {
       textAlign: 'center',
       padding: '48px 24px',
-      color: '#555',
+      color: '#8b9ab8',
       fontSize: 14,
     },
     error: {
@@ -239,7 +239,7 @@ export default function AdminAuditLog() {
                 </td>
                 <td style={{ ...S.td, fontSize: 12, color: '#999' }}>
                   {entry.target_type && (
-                    <span style={{ color: '#555', marginRight: 4 }}>{entry.target_type}:</span>
+                    <span style={{ color: '#8b9ab8', marginRight: 4 }}>{entry.target_type}:</span>
                   )}
                   <span style={{ fontFamily: 'monospace' }}>
                     {entry.target_id ? entry.target_id.slice(0, 12) + '…' : '—'}
@@ -256,7 +256,7 @@ export default function AdminAuditLog() {
 
       {/* Pagination */}
       <div style={S.pagination}>
-        <span style={{ fontSize: 13, color: '#555' }}>
+        <span style={{ fontSize: 13, color: '#8b9ab8' }}>
           Page {page + 1}
         </span>
         <button

@@ -307,14 +307,14 @@ function PreviewModal({ template, onClose }) {
             <div style={{ fontSize: 15, fontWeight: 700, color: '#e8e8e8' }}>
               Preview: {template.name}
             </div>
-            <div style={{ fontSize: 11, color: '#666', marginTop: 3 }}>{trigger}</div>
+            <div style={{ fontSize: 11, color: '#9aaabb', marginTop: 3 }}>{trigger}</div>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: 20, lineHeight: 1 }}>✕</button>
         </div>
         <div style={{ background: '#fff', borderRadius: 8, padding: '20px 24px', overflowY: 'auto' }}>
           <div dangerouslySetInnerHTML={{ __html: html }} />
         </div>
-        <div style={{ fontSize: 11, color: '#555', fontStyle: 'italic' }}>
+        <div style={{ fontSize: 11, color: '#8b9ab8', fontStyle: 'italic' }}>
           Note: {'{{'} variables {'}}' } will be replaced at send time. This is a preview only — actual delivery is handled by the backend.
         </div>
         <button onClick={onClose} style={S.btn}>Close Preview</button>
@@ -422,12 +422,12 @@ function GeneralTab() {
         <div style={S.row}>
           <span style={S.label}>Admin / Backend</span>
           <div style={S.readOnly}>krakencamco@gmail.com</div>
-          <span style={{ fontSize:11, color:'#555' }}>Admin logins, backend ops</span>
+          <span style={{ fontSize:11, color:'#8b9ab8' }}>Admin logins, backend ops</span>
         </div>
         <div style={S.row}>
           <span style={S.label}>General / Sales</span>
           <div style={S.readOnly}>info@krakencam.com</div>
-          <span style={{ fontSize:11, color:'#555' }}>General inquiries, sales, form submissions</span>
+          <span style={{ fontSize:11, color:'#8b9ab8' }}>General inquiries, sales, form submissions</span>
         </div>
         <div style={S.row}>
           <span style={S.label}>Support</span>
@@ -437,7 +437,7 @@ function GeneralTab() {
             onChange={e => setSupportEmail(e.target.value)}
             placeholder="support@krakencam.com"
           />
-          <span style={{ fontSize:11, color:'#555' }}>Support issues, reply-to on emails</span>
+          <span style={{ fontSize:11, color:'#8b9ab8' }}>Support issues, reply-to on emails</span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
@@ -522,7 +522,7 @@ function EmailTemplatesTab() {
     <div>
       <div style={S.card}>
         <div style={S.sectionHeader}>Email Templates</div>
-        <div style={{ fontSize: 12, color: '#555', marginBottom: 16, lineHeight: 1.6 }}>
+        <div style={{ fontSize: 12, color: '#8b9ab8', marginBottom: 16, lineHeight: 1.6 }}>
           {loadError
             ? '⚠️ Could not load templates from database — showing defaults. DB changes will still be attempted on save.'
             : 'Click a template row to expand and edit its subject and HTML body. Password Reset is managed by Supabase Auth.'}
@@ -551,11 +551,11 @@ function EmailTemplatesTab() {
                 <div style={{ minWidth: 200, flexShrink: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#e8e8e8', display: 'flex', alignItems: 'center', gap: 6 }}>
                     {!isSupabase && (
-                      <span style={{ fontSize: 11, color: '#555', transition: 'transform 0.15s', display: 'inline-block', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
+                      <span style={{ fontSize: 11, color: '#8b9ab8', transition: 'transform 0.15s', display: 'inline-block', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
                     )}
                     {t.name}
                   </div>
-                  <div style={{ fontSize: 11, color: '#555', marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: '#8b9ab8', marginTop: 2 }}>
                     {t.trigger_event ?? t.trigger}
                   </div>
                 </div>
@@ -628,7 +628,7 @@ function EmailTemplatesTab() {
                       onChange={e => handleBodyChange(t.id, e.target.value)}
                       placeholder="<div>Email HTML body...</div>"
                     />
-                    <div style={{ fontSize: 11, color: '#444', marginTop: 4 }}>
+                    <div style={{ fontSize: 11, color: '#7a8a9a', marginTop: 4 }}>
                       Supports {'{{first_name}}'}, {'{{org_name}}'}, {'{{trial_end_date}}'} and other template variables.
                     </div>
                   </div>
@@ -664,7 +664,7 @@ function EmailTemplatesTab() {
 
               {/* Supabase-managed note when expanded would be — show inline */}
               {isSupabase && (
-                <div style={{ padding: '0 10px 14px', fontSize: 12, color: '#555', fontStyle: 'italic' }}>
+                <div style={{ padding: '0 10px 14px', fontSize: 12, color: '#8b9ab8', fontStyle: 'italic' }}>
                   🔐 Managed by Supabase Auth. Customize at{' '}
                   <a href="https://supabase.com/dashboard/project/nszoateefidwhhsyexjd/auth/templates" target="_blank" rel="noreferrer" style={{ color: '#00d4ff' }}>
                     Supabase → Auth → Email Templates
@@ -828,7 +828,7 @@ function SecurityTab() {
         <div style={S.row}>
           <span style={S.label}>Data Retention</span>
           <div style={S.readOnly}>60 days after cancellation</div>
-          <span style={{ fontSize: 11, color: '#555' }}>per ToS</span>
+          <span style={{ fontSize: 11, color: '#8b9ab8' }}>per ToS</span>
         </div>
 
         <div style={{ marginTop: 16 }}>
@@ -944,7 +944,7 @@ function DangerZoneTab() {
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#e8e8e8', marginBottom: 2 }}>
                   🔧 Maintenance Mode
                 </div>
-                <div style={{ fontSize: 12, color: '#666', lineHeight: 1.5 }}>
+                <div style={{ fontSize: 12, color: '#9aaabb', lineHeight: 1.5 }}>
                   When enabled, all users see a maintenance screen. Admins on <code style={S.code}>/admin</code> are unaffected.
                 </div>
               </div>
@@ -982,7 +982,7 @@ function DangerZoneTab() {
             <div style={{ fontSize: 13, fontWeight: 600, color: '#e8e8e8', marginBottom: 4 }}>
               Trigger Analytics Snapshot
             </div>
-            <div style={{ fontSize: 12, color: '#666', marginBottom: 10, lineHeight: 1.6 }}>
+            <div style={{ fontSize: 12, color: '#9aaabb', marginBottom: 10, lineHeight: 1.6 }}>
               Manually run <code style={S.code}>upsert_analytics_snapshot()</code> to refresh the analytics materialized data.
               This runs automatically on a schedule but can be triggered manually here.
             </div>
@@ -1006,7 +1006,7 @@ function DangerZoneTab() {
             <div style={{ fontSize: 13, fontWeight: 600, color: '#e8e8e8', marginBottom: 4 }}>
               Export All Organizations
             </div>
-            <div style={{ fontSize: 12, color: '#666', marginBottom: 10, lineHeight: 1.6 }}>
+            <div style={{ fontSize: 12, color: '#9aaabb', marginBottom: 10, lineHeight: 1.6 }}>
               Download a CSV of all organizations including name, slug, subscription tier, status, and creation date.
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -1120,13 +1120,13 @@ function AnnouncementsTab() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div>
             <div style={S.sectionHeader}>📣 App Announcements</div>
-            <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>Push a popup notice to all users, admins, or managers. Users dismiss it once and won't see it again.</div>
+            <div style={{ fontSize: 12, color: '#9aaabb', marginTop: 2 }}>Push a popup notice to all users, admins, or managers. Users dismiss it once and won't see it again.</div>
           </div>
           <button style={{ ...S.btn, flexShrink: 0, marginLeft: 16 }} onClick={openNew}>+ New Announcement</button>
         </div>
 
-        {loading && <div style={{ color: '#666', fontSize: 13 }}>Loading…</div>}
-        {!loading && !announcements.length && <div style={{ color: '#666', fontSize: 13 }}>No announcements yet.</div>}
+        {loading && <div style={{ color: '#9aaabb', fontSize: 13 }}>Loading…</div>}
+        {!loading && !announcements.length && <div style={{ color: '#9aaabb', fontSize: 13 }}>No announcements yet.</div>}
 
         {!loading && announcements.map(a => (
           <div key={a.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '14px 16px', marginBottom: 10, display: 'flex', alignItems: 'flex-start', gap: 12 }}>

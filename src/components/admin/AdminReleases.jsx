@@ -104,7 +104,7 @@ export default function AdminReleases() {
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20 }}>
         <div>
           <div style={{ fontSize:14, fontWeight:600, color:'#ccc' }}>📦 Release Notes</div>
-          <div style={{ fontSize:12, color:'#555', marginTop:2 }}>Manage app versions and publish "What's New" notes to users.</div>
+          <div style={{ fontSize:12, color:'#8b9ab8', marginTop:2 }}>Manage app versions and publish "What's New" notes to users.</div>
         </div>
         <div style={{ display:'flex', gap:8 }}>
           <button style={S.btn} onClick={load}>↻ Refresh</button>
@@ -112,18 +112,18 @@ export default function AdminReleases() {
         </div>
       </div>
 
-      {loading && <div style={{ color:'#555', fontSize:13 }}>Loading…</div>}
-      {!loading && versions.length === 0 && <div style={{ color:'#555', fontSize:13, padding:20, textAlign:'center' }}>No versions yet. Create your first release.</div>}
+      {loading && <div style={{ color:'#8b9ab8', fontSize:13 }}>Loading…</div>}
+      {!loading && versions.length === 0 && <div style={{ color:'#8b9ab8', fontSize:13, padding:20, textAlign:'center' }}>No versions yet. Create your first release.</div>}
 
       {versions.map(v => (
-        <div key={v.version} style={{ ...S.card, borderLeft:`3px solid ${v.published?'#4ade80':'#333'}` }}>
+        <div key={v.version} style={{ ...S.card, borderLeft:`3px solid ${v.published?'#4ade80':'#6a7a8a'}` }}>
           <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
             <div style={{ flex:1 }}>
               <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
                 <span style={{ fontSize:16, fontWeight:700, color:'#e8e8e8' }}>v{v.version}</span>
                 <span style={{ fontSize:14, color:'#8b9ab8' }}>{v.title}</span>
-                <span style={S.badge(v.published?'#4ade80':'#555')}>{v.published?'Published':'Draft'}</span>
-                <span style={{ fontSize:11, color:'#444' }}>{v.release_date}</span>
+                <span style={S.badge(v.published?'#4ade80':'#8b9ab8')}>{v.published?'Published':'Draft'}</span>
+                <span style={{ fontSize:11, color:'#7a8a9a' }}>{v.release_date}</span>
               </div>
               <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
                 {(v.notes||[]).map((n,i) => (
@@ -148,8 +148,8 @@ export default function AdminReleases() {
         </div>
       ))}
 
-      <div style={{ fontSize:12, color:'#333', marginTop:8, lineHeight:1.8 }}>
-        💡 <strong style={{ color:'#444' }}>Published</strong> versions show as a "What's New" popup to users the first time they log in after a release. Users dismiss it once and won't see it again.
+      <div style={{ fontSize:12, color:'#6a7a8a', marginTop:8, lineHeight:1.8 }}>
+        💡 <strong style={{ color:'#7a8a9a' }}>Published</strong> versions show as a "What's New" popup to users the first time they log in after a release. Users dismiss it once and won't see it again.
       </div>
 
       {/* Form modal */}

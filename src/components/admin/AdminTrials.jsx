@@ -11,7 +11,7 @@ const S = {
   card: { background:'#1a1a1a', border:'1px solid #252525', borderRadius:10, padding:'20px 22px', marginBottom:16 },
   sectionTitle: { fontSize:14, fontWeight:600, color:'#ccc', marginBottom:12, letterSpacing:.3 },
   table: { width:'100%', borderCollapse:'collapse', fontSize:13 },
-  th: { textAlign:'left', padding:'9px 14px', background:'#111', color:'#555', fontWeight:600, fontSize:11, textTransform:'uppercase', letterSpacing:.6, borderBottom:'1px solid #222' },
+  th: { textAlign:'left', padding:'9px 14px', background:'#111', color:'#8b9ab8', fontWeight:600, fontSize:11, textTransform:'uppercase', letterSpacing:.6, borderBottom:'1px solid #222' },
   td: { padding:'10px 14px', borderBottom:'1px solid #1e1e1e', color:'#ccc', verticalAlign:'middle' },
   badge: (c) => ({ display:'inline-block', padding:'2px 9px', borderRadius:20, fontSize:11, fontWeight:600, background:`${c}22`, color:c, border:`1px solid ${c}44` }),
   btn: { background:'rgba(37,99,235,.15)', border:'1px solid rgba(37,99,235,.3)', color:'#60a5fa', borderRadius:6, padding:'5px 11px', fontSize:11, cursor:'pointer', fontWeight:600 },
@@ -19,8 +19,8 @@ const S = {
   input: { background:'#0f0f0f', border:'1px solid #2a2a2a', borderRadius:6, color:'#e8e8e8', padding:'6px 10px', fontSize:12, outline:'none', width:60, textAlign:'center' },
   refreshBtn: { marginLeft:'auto', background:'transparent', border:'1px solid #333', borderRadius:7, color:'#888', padding:'6px 12px', fontSize:12, cursor:'pointer' },
   filterBar: { display:'flex', gap:8, marginBottom:16, alignItems:'center', flexWrap:'wrap' },
-  filterBtn: (active) => ({ padding:'6px 14px', borderRadius:16, fontSize:12, fontWeight: active ? 700 : 400, border:`1px solid ${active ? '#00d4ff' : '#333'}`, background: active ? 'rgba(0,212,255,.08)' : 'transparent', color: active ? '#00d4ff' : '#888', cursor:'pointer' }),
-  empty: { textAlign:'center', padding:'32px', color:'#444', fontSize:13 },
+  filterBtn: (active) => ({ padding:'6px 14px', borderRadius:16, fontSize:12, fontWeight: active ? 700 : 400, border:`1px solid ${active ? '#00d4ff' : '#6a7a8a'}`, background: active ? 'rgba(0,212,255,.08)' : 'transparent', color: active ? '#00d4ff' : '#888', cursor:'pointer' }),
+  empty: { textAlign:'center', padding:'32px', color:'#7a8a9a', fontSize:13 },
   modal: { position:'fixed', inset:0, background:'rgba(0,0,0,.75)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 20px' },
   modalBox: { background:'#0f1521', border:'1px solid rgba(255,255,255,.1)', borderRadius:16, padding:'28px 24px', width:'100%', maxWidth:420 },
 }
@@ -102,7 +102,7 @@ export default function AdminTrials() {
   const ending  = orgs.filter(o => { const d = daysUntil(o.trial_ends_at); return d !== null && d <= 7 && d > 3 })
   const expired = orgs.filter(o => { const d = daysUntil(o.trial_ends_at); return d !== null && d <= 0 })
 
-  if (loading) return <div style={{ color:'#555', fontSize:13, padding:20 }}>Loading trials…</div>
+  if (loading) return <div style={{ color:'#8b9ab8', fontSize:13, padding:20 }}>Loading trials…</div>
 
   return (
     <div>
@@ -115,7 +115,7 @@ export default function AdminTrials() {
           { label:'Expired',        value:expired.length, color: expired.length ? '#f87171' : '#4ec9b0' },
         ].map(m => (
           <div key={m.label} style={{ background:'#1a1a1a', border:'1px solid #252525', borderRadius:10, padding:'16px 18px' }}>
-            <div style={{ fontSize:11, color:'#555', fontWeight:600, textTransform:'uppercase', letterSpacing:.7, marginBottom:6 }}>{m.label}</div>
+            <div style={{ fontSize:11, color:'#8b9ab8', fontWeight:600, textTransform:'uppercase', letterSpacing:.7, marginBottom:6 }}>{m.label}</div>
             <div style={{ fontSize:28, fontWeight:700, color:m.color }}>{m.value}</div>
           </div>
         ))}
@@ -149,12 +149,12 @@ export default function AdminTrials() {
               <tbody>
                 {filtered.map(o => {
                   const d = daysUntil(o.trial_ends_at)
-                  const dColor = d === null ? '#555' : d <= 0 ? '#f87171' : d <= 3 ? '#f87171' : d <= 7 ? '#fbbf24' : '#4ec9b0'
+                  const dColor = d === null ? '#8b9ab8' : d <= 0 ? '#f87171' : d <= 3 ? '#f87171' : d <= 7 ? '#fbbf24' : '#4ec9b0'
                   return (
                     <tr key={o.id}>
                       <td style={S.td}>
                         <div style={{ fontWeight:600, color:'#e8e8e8' }}>{o.name}</div>
-                        <div style={{ fontSize:11, color:'#555' }}>/{o.slug}</div>
+                        <div style={{ fontSize:11, color:'#8b9ab8' }}>/{o.slug}</div>
                       </td>
                       <td style={S.td}><span style={S.badge(TIER_COLOR[o.subscription_tier]||'#888')}>{TIER_LABEL[o.subscription_tier]||o.subscription_tier}</span></td>
                       <td style={S.td}>{fmtDate(o.trial_ends_at)}</td>
@@ -190,7 +190,7 @@ export default function AdminTrials() {
               <input style={S.input} type="number" min={1} max={90} value={extDays} onChange={e => setExtDays(Number(e.target.value))} />
               <span style={{ fontSize:13, color:'#ccc' }}>days</span>
             </div>
-            <div style={{ fontSize:12, color:'#555', marginBottom:20 }}>
+            <div style={{ fontSize:12, color:'#8b9ab8', marginBottom:20 }}>
               New trial end: <strong style={{ color:'#fbbf24' }}>{fmtDate(new Date(new Date(extending.trial_ends_at||Date.now()).getTime() + extDays*24*60*60*1000).toISOString())}</strong>
             </div>
             {extStatus === 'ok'    && <div style={{ fontSize:13, color:'#4ade80', marginBottom:12 }}>✓ Trial extended successfully</div>}

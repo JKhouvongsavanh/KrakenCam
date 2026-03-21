@@ -80,7 +80,7 @@ const S = {
   },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
   th: {
-    textAlign: 'left', padding: '9px 14px', color: '#555',
+    textAlign: 'left', padding: '9px 14px', color: '#8b9ab8',
     fontWeight: 600, fontSize: 11, letterSpacing: 0.7,
     textTransform: 'uppercase', borderBottom: '1px solid #222',
     background: '#141414',
@@ -104,7 +104,7 @@ const S = {
   detailBlock: {
     display: 'flex', flexDirection: 'column', gap: 4,
   },
-  detailLabel: { fontSize: 10, color: '#555', textTransform: 'uppercase', letterSpacing: 0.8 },
+  detailLabel: { fontSize: 10, color: '#8b9ab8', textTransform: 'uppercase', letterSpacing: 0.8 },
   detailValue: { fontSize: 13, color: '#ccc' },
   actions: { display: 'flex', gap: 8, flexWrap: 'wrap', marginLeft: 'auto' },
   btn: (variant) => {
@@ -137,8 +137,8 @@ const S = {
   modalLabel: { fontSize: 12, color: '#888', marginBottom: 4 },
   modalRow: { display: 'flex', gap: 8 },
   error: { color: '#ff6b6b', fontSize: 12 },
-  empty: { padding: '32px', textAlign: 'center', color: '#444', fontSize: 13 },
-  count: { fontSize: 12, color: '#555', marginBottom: 10 },
+  empty: { padding: '32px', textAlign: 'center', color: '#7a8a9a', fontSize: 13 },
+  count: { fontSize: 12, color: '#8b9ab8', marginBottom: 10 },
 }
 
 // ── Tier Change Modal ──────────────────────────────────────────────────────────
@@ -362,7 +362,7 @@ export default function AdminOrganizations() {
           </thead>
           <tbody>
             {loading && (
-              <tr><td colSpan={7} style={{ ...S.td, textAlign: 'center', color: '#444' }}>Loading…</td></tr>
+              <tr><td colSpan={7} style={{ ...S.td, textAlign: 'center', color: '#7a8a9a' }}>Loading…</td></tr>
             )}
             {!loading && orgs.length === 0 && (
               <tr><td colSpan={7} style={S.empty}>No organizations found</td></tr>
@@ -377,7 +377,7 @@ export default function AdminOrganizations() {
                 >
                   <td style={{ ...S.td, fontWeight: 500 }}>
                     {org.name}
-                    {org.slug && <span style={{ color: '#444', fontSize: 11, marginLeft: 6 }}>/{org.slug}</span>}
+                    {org.slug && <span style={{ color: '#7a8a9a', fontSize: 11, marginLeft: 6 }}>/{org.slug}</span>}
                   </td>
                   <td style={S.td}>
                     <span style={S.badge(TIER_META[org.subscription_tier]?.color || '#888')}>
@@ -393,10 +393,10 @@ export default function AdminOrganizations() {
                   <td style={{ ...S.td, color: org.custom_price_override ? '#c792ea' : '#333', fontSize: 12 }}>
                     {org.custom_price_override ? '✓ Custom' : '—'}
                   </td>
-                  <td style={{ ...S.td, color: '#666' }}>
+                  <td style={{ ...S.td, color: '#9aaabb' }}>
                     {org.created_at ? new Date(org.created_at).toLocaleDateString() : '—'}
                   </td>
-                  <td style={{ ...S.td, color: '#555', fontSize: 14 }}>
+                  <td style={{ ...S.td, color: '#8b9ab8', fontSize: 14 }}>
                     {expandedId === org.id ? '▲' : '▼'}
                   </td>
                 </tr>

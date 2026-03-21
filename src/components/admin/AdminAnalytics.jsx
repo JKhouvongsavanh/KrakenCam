@@ -17,9 +17,9 @@ const S = {
   cardTitle: { fontSize: 13, fontWeight: 600, color: '#ccc', marginBottom: 16 },
   statRow: { display: 'flex', gap: 24, flexWrap: 'wrap' },
   statItem: { display: 'flex', flexDirection: 'column', gap: 4 },
-  statLabel: { fontSize: 11, color: '#555', textTransform: 'uppercase', letterSpacing: 0.8 },
+  statLabel: { fontSize: 11, color: '#8b9ab8', textTransform: 'uppercase', letterSpacing: 0.8 },
   statValue: (color = '#00d4ff') => ({ fontSize: 28, fontWeight: 700, color }),
-  statSub: { fontSize: 12, color: '#555' },
+  statSub: { fontSize: 12, color: '#8b9ab8' },
   legendRow: { display: 'flex', gap: 16, flexWrap: 'wrap', marginTop: 12 },
   legendItem: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#888' },
   legendDot: (color) => ({ width: 10, height: 10, borderRadius: 2, background: color, flexShrink: 0 }),
@@ -47,7 +47,7 @@ const TIER_LABELS = {
 
 // ── Bar Chart (SVG) ────────────────────────────────────────────────────────────
 function BarChart({ data, label = 'newOrgs', color = '#00d4ff', height = 160 }) {
-  if (!data || data.length === 0) return <div style={{ color: '#444', textAlign: 'center', padding: 24 }}>No data</div>
+  if (!data || data.length === 0) return <div style={{ color: '#7a8a9a', textAlign: 'center', padding: 24 }}>No data</div>
 
   const values = data.map(d => d[label] || 0)
   const maxVal = Math.max(...values, 1)
@@ -103,7 +103,7 @@ function BarChart({ data, label = 'newOrgs', color = '#00d4ff', height = 160 }) 
 // ── Donut Chart (SVG) ──────────────────────────────────────────────────────────
 function DonutChart({ data }) {
   const total = Object.values(data).reduce((a, b) => a + b, 0)
-  if (total === 0) return <div style={{ color: '#444', textAlign: 'center', padding: 24 }}>No active orgs</div>
+  if (total === 0) return <div style={{ color: '#7a8a9a', textAlign: 'center', padding: 24 }}>No active orgs</div>
 
   const cx = 90, cy = 90, r = 70, innerR = 46
   let startAngle = -Math.PI / 2
@@ -143,7 +143,7 @@ function DonutChart({ data }) {
             <div style={{ width: 10, height: 10, borderRadius: 2, background: seg.color }} />
             <span style={{ fontSize: 12, color: '#aaa' }}>{TIER_LABELS[seg.key]}</span>
             <span style={{ fontSize: 12, color: seg.color, fontWeight: 700, marginLeft: 4 }}>
-              {seg.count} <span style={{ color: '#555', fontWeight: 400 }}>({(seg.pct * 100).toFixed(0)}%)</span>
+              {seg.count} <span style={{ color: '#8b9ab8', fontWeight: 400 }}>({(seg.pct * 100).toFixed(0)}%)</span>
             </span>
           </div>
         ))}
@@ -160,8 +160,8 @@ function ConversionBar({ label, value, max, color }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
         <span style={{ fontSize: 12, color: '#aaa' }}>{label}</span>
         <span style={{ fontSize: 12, color, fontWeight: 700 }}>
-          {value} <span style={{ color: '#555', fontWeight: 400 }}>/ {max}</span>
-          <span style={{ color: '#555', marginLeft: 8, fontWeight: 400 }}>({pct.toFixed(1)}%)</span>
+          {value} <span style={{ color: '#8b9ab8', fontWeight: 400 }}>/ {max}</span>
+          <span style={{ color: '#8b9ab8', marginLeft: 8, fontWeight: 400 }}>({pct.toFixed(1)}%)</span>
         </span>
       </div>
       <div style={{ background: '#2a2a2a', borderRadius: 4, height: 8, overflow: 'hidden' }}>
@@ -252,7 +252,7 @@ export default function AdminAnalytics() {
         <div style={S.cardTitle}>Conversion & Retention</div>
         <ConversionBar label="Trial → Paid Conversion" value={activePaid} max={totalTrials} color="#4ec9b0" />
         <ConversionBar label="Churned Accounts" value={cancelled} max={totalTrials} color="#ff6b6b" />
-        <div style={{ fontSize: 12, color: '#444', marginTop: 10 }}>
+        <div style={{ fontSize: 12, color: '#7a8a9a', marginTop: 10 }}>
           * Rates are all-time. Monthly churn tracking requires recurring analytics_snapshots data.
         </div>
       </div>

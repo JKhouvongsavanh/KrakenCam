@@ -12,7 +12,7 @@ const S = {
   card: { background:'#1a1a1a', border:'1px solid #252525', borderRadius:10, padding:'20px 22px', marginBottom:14 },
   title: { fontSize:14, fontWeight:600, color:'#ccc', marginBottom:12, letterSpacing:.3 },
   table: { width:'100%', borderCollapse:'collapse', fontSize:13 },
-  th: { textAlign:'left', padding:'9px 14px', background:'#111', color:'#555', fontWeight:600, fontSize:11, textTransform:'uppercase', letterSpacing:.6, borderBottom:'1px solid #222' },
+  th: { textAlign:'left', padding:'9px 14px', background:'#111', color:'#8b9ab8', fontWeight:600, fontSize:11, textTransform:'uppercase', letterSpacing:.6, borderBottom:'1px solid #222' },
   td: { padding:'10px 14px', borderBottom:'1px solid #1e1e1e', color:'#ccc', verticalAlign:'middle' },
   badge: (c) => ({ display:'inline-block', padding:'2px 9px', borderRadius:20, fontSize:11, fontWeight:600, background:`${c}22`, color:c, border:`1px solid ${c}44` }),
   btn: { background:'rgba(37,99,235,.15)', border:'1px solid rgba(37,99,235,.3)', color:'#60a5fa', borderRadius:7, padding:'7px 14px', fontSize:12, cursor:'pointer', fontWeight:600 },
@@ -20,10 +20,10 @@ const S = {
   input: { background:'#0f0f0f', border:'1px solid #2a2a2a', borderRadius:7, color:'#e8e8e8', padding:'8px 11px', fontSize:13, outline:'none', width:'100%', boxSizing:'border-box', fontFamily:'Inter,sans-serif' },
   modal: { position:'fixed', inset:0, background:'rgba(0,0,0,.75)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 20px' },
   modalBox: { background:'#0f1521', border:'1px solid rgba(255,255,255,.1)', borderRadius:16, padding:'28px 24px', width:'100%', maxWidth:460, maxHeight:'90vh', overflowY:'auto' },
-  empty: { textAlign:'center', padding:'32px', color:'#444', fontSize:13 },
+  empty: { textAlign:'center', padding:'32px', color:'#7a8a9a', fontSize:13 },
 }
 
-const STATUS_COLOR = { pending:'#fbbf24', converted:'#4ade80', paid:'#4ec9b0', cancelled:'#555' }
+const STATUS_COLOR = { pending:'#fbbf24', converted:'#4ade80', paid:'#4ec9b0', cancelled:'#8b9ab8' }
 function fmt$(n) { return '$'+(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) }
 function fmtDate(s) { if(!s) return '—'; return new Date(s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) }
 
@@ -107,7 +107,7 @@ export default function AdminReferrals() {
           { label:'Commission paid',   value:fmt$(totalPaid), color:'#4ec9b0' },
         ].map(m => (
           <div key={m.label} style={{ background:'#1a1a1a', border:'1px solid #252525', borderRadius:10, padding:'16px 18px' }}>
-            <div style={{ fontSize:11, color:'#555', fontWeight:600, textTransform:'uppercase', letterSpacing:.7, marginBottom:6 }}>{m.label}</div>
+            <div style={{ fontSize:11, color:'#8b9ab8', fontWeight:600, textTransform:'uppercase', letterSpacing:.7, marginBottom:6 }}>{m.label}</div>
             <div style={{ fontSize:24, fontWeight:700, color:m.color }}>{m.value}</div>
           </div>
         ))}
@@ -116,13 +116,13 @@ export default function AdminReferrals() {
       {/* Tabs */}
       <div style={{ display:'flex', gap:4, marginBottom:16, borderBottom:'1px solid #222' }}>
         {[['affiliates','🤝 Affiliates'],['referrals','📋 Referrals']].map(([id,label]) => (
-          <button key={id} onClick={() => setTab(id)} style={{ padding:'8px 18px', background:'transparent', border:'none', borderBottom:tab===id?'2px solid #00d4ff':'2px solid transparent', color:tab===id?'#00d4ff':'#666', fontSize:13, fontWeight:tab===id?600:400, cursor:'pointer', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={() => setTab(id)} style={{ padding:'8px 18px', background:'transparent', border:'none', borderBottom:tab===id?'2px solid #00d4ff':'2px solid transparent', color:tab===id?'#00d4ff':'#9aaabb', fontSize:13, fontWeight:tab===id?600:400, cursor:'pointer', marginBottom:-1 }}>{label}</button>
         ))}
         <button style={{ ...S.btn, marginLeft:'auto', fontSize:11, padding:'5px 12px' }} onClick={load}>↻</button>
         {tab === 'affiliates' && <button style={{ ...S.greenBtn, fontSize:11, padding:'5px 12px' }} onClick={openNew}>+ New Affiliate</button>}
       </div>
 
-      {loading && <div style={{ color:'#555', fontSize:13 }}>Loading…</div>}
+      {loading && <div style={{ color:'#8b9ab8', fontSize:13 }}>Loading…</div>}
 
       {/* Affiliates table */}
       {!loading && tab === 'affiliates' && (
@@ -144,14 +144,14 @@ export default function AdminReferrals() {
                 <tbody>
                   {affiliates.map(a => (
                     <tr key={a.id}>
-                      <td style={S.td}><div style={{ fontWeight:600, color:'#e8e8e8' }}>{a.name}</div><div style={{ fontSize:11, color:'#555' }}>{a.email}</div></td>
+                      <td style={S.td}><div style={{ fontWeight:600, color:'#e8e8e8' }}>{a.name}</div><div style={{ fontSize:11, color:'#8b9ab8' }}>{a.email}</div></td>
                       <td style={S.td}><code style={{ background:'#111', padding:'2px 8px', borderRadius:4, fontSize:12, color:'#00d4ff' }}>{a.code}</code></td>
                       <td style={S.td}>{a.commission_flat ? fmt$(a.commission_flat)+' flat' : `${a.commission_pct}%`}</td>
                       <td style={{ ...S.td, textAlign:'center' }}>{a.total_referrals}</td>
                       <td style={{ ...S.td, textAlign:'center' }}>{a.total_conversions}</td>
                       <td style={{ ...S.td, color:'#fbbf24', fontWeight:600 }}>{fmt$(a.total_commission_owed - a.total_commission_paid)}</td>
                       <td style={{ ...S.td, color:'#4ec9b0' }}>{fmt$(a.total_commission_paid)}</td>
-                      <td style={S.td}><span style={S.badge(a.active?'#4ade80':'#555')}>{a.active?'Active':'Inactive'}</span></td>
+                      <td style={S.td}><span style={S.badge(a.active?'#4ade80':'#8b9ab8')}>{a.active?'Active':'Inactive'}</span></td>
                       <td style={S.td}><button style={{ ...S.btn, fontSize:11, padding:'4px 10px' }} onClick={() => openEdit(a)}>Edit</button></td>
                     </tr>
                   ))}
@@ -184,7 +184,7 @@ export default function AdminReferrals() {
                       <td style={S.td}><code style={{ fontSize:11, color:'#00d4ff' }}>{r.ref_code}</code></td>
                       <td style={S.td}>{fmtDate(r.created_at)}</td>
                       <td style={{ ...S.td, color:'#fbbf24' }}>{r.commission_amount ? fmt$(r.commission_amount) : '—'}</td>
-                      <td style={S.td}><span style={S.badge(STATUS_COLOR[r.status]||'#555')}>{r.status}</span></td>
+                      <td style={S.td}><span style={S.badge(STATUS_COLOR[r.status]||'#8b9ab8')}>{r.status}</span></td>
                       <td style={S.td}>
                         <div style={{ display:'flex', gap:6 }}>
                           {r.status === 'pending'   && <button style={{ ...S.greenBtn, fontSize:11, padding:'3px 9px' }} onClick={() => markConverted(r)}>Mark converted</button>}
@@ -201,7 +201,7 @@ export default function AdminReferrals() {
 
       {/* Referral link helper */}
       {tab === 'affiliates' && affiliates.length > 0 && (
-        <div style={{ ...S.card, marginTop:16, fontSize:12, color:'#555', lineHeight:1.8 }}>
+        <div style={{ ...S.card, marginTop:16, fontSize:12, color:'#8b9ab8', lineHeight:1.8 }}>
           💡 <strong style={{ color:'#888' }}>Referral link format:</strong> <code style={{ color:'#60a5fa' }}>https://app.krakencam.com/signup?ref=CODE</code><br/>
           Share this link with affiliates — the <code style={{ color:'#60a5fa' }}>ref</code> code is captured at signup and tracked automatically.
         </div>

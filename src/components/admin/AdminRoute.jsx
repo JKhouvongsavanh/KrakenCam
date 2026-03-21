@@ -36,7 +36,7 @@ const styles = {
     fontWeight: 600,
   },
   deniedSub: {
-    color: '#666',
+    color: '#9aaabb',
     fontSize: 13,
     marginTop: 4,
   },

@@ -43,7 +43,7 @@ const S = {
   root: {
     display: 'flex',
     minHeight: '100vh',
-    background: 'transparent',
+    background: '#0a0a0a',
     fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
     color: '#e8e8e8',
   },
@@ -138,7 +138,7 @@ const S = {
     justifyContent: open ? 'flex-start' : 'center',
     gap: 8,
     fontSize: 11,
-    color: '#444',
+    color: '#7a8a9a',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
   }),
@@ -179,6 +179,7 @@ const S = {
     flex: 1,
     padding: '28px 28px',
     overflowY: 'auto',
+    background: '#0a0a0a',
   },
 }
 

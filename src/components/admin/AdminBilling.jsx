@@ -11,17 +11,17 @@ import { supabase } from '../../lib/supabase'
 const S = {
   grid: { display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(190px,1fr))', gap:14, marginBottom:28 },
   metaCard: { background:'#1a1a1a', border:'1px solid #252525', borderRadius:10, padding:'18px 20px', display:'flex', flexDirection:'column', gap:5 },
-  metaLabel: { fontSize:11, color:'#555', fontWeight:600, letterSpacing:.8, textTransform:'uppercase' },
+  metaLabel: { fontSize:11, color:'#8b9ab8', fontWeight:600, letterSpacing:.8, textTransform:'uppercase' },
   metaValue: (color='#00d4ff') => ({ fontSize:30, fontWeight:700, color, lineHeight:1 }),
-  metaSub: { fontSize:12, color:'#555', marginTop:2 },
+  metaSub: { fontSize:12, color:'#8b9ab8', marginTop:2 },
   section: { marginBottom:28 },
   sectionTitle: { fontSize:14, fontWeight:600, color:'#ccc', marginBottom:12, letterSpacing:.3, display:'flex', alignItems:'center', gap:8 },
   card: { background:'#1a1a1a', border:'1px solid #252525', borderRadius:10, overflow:'hidden' },
   table: { width:'100%', borderCollapse:'collapse', fontSize:13 },
-  th: { textAlign:'left', padding:'9px 14px', background:'#111', color:'#555', fontWeight:600, fontSize:11, textTransform:'uppercase', letterSpacing:.6, borderBottom:'1px solid #222' },
+  th: { textAlign:'left', padding:'9px 14px', background:'#111', color:'#8b9ab8', fontWeight:600, fontSize:11, textTransform:'uppercase', letterSpacing:.6, borderBottom:'1px solid #222' },
   td: { padding:'10px 14px', borderBottom:'1px solid #1e1e1e', color:'#ccc', verticalAlign:'middle' },
   badge: (color) => ({ display:'inline-block', padding:'2px 9px', borderRadius:20, fontSize:11, fontWeight:600, background:`${color}22`, color, border:`1px solid ${color}44` }),
-  empty: { textAlign:'center', padding:'32px', color:'#444', fontSize:13 },
+  empty: { textAlign:'center', padding:'32px', color:'#7a8a9a', fontSize:13 },
   refreshBtn: { marginLeft:'auto', background:'transparent', border:'1px solid #333', borderRadius:7, color:'#888', padding:'6px 12px', fontSize:12, cursor:'pointer' },
   actionBtn: { background:'rgba(37,99,235,.15)', border:'1px solid rgba(37,99,235,.3)', color:'#60a5fa', borderRadius:6, padding:'4px 10px', fontSize:11, cursor:'pointer', fontWeight:600 },
   dangerBtn: { background:'rgba(239,68,68,.12)', border:'1px solid rgba(239,68,68,.3)', color:'#f87171', borderRadius:6, padding:'4px 10px', fontSize:11, cursor:'pointer', fontWeight:600 },
@@ -127,7 +127,7 @@ export default function AdminBilling() {
     { id:'revenue',  label:'💰 Revenue by Tier' },
   ]
 
-  if (loading) return <div style={{ color:'#555', fontSize:13, padding:20 }}>Loading billing data…</div>
+  if (loading) return <div style={{ color:'#8b9ab8', fontSize:13, padding:20 }}>Loading billing data…</div>
 
   return (
     <div>
@@ -154,7 +154,7 @@ export default function AdminBilling() {
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{
             padding:'8px 16px', background:'transparent', border:'none', borderBottom: tab===t.id ? '2px solid #00d4ff' : '2px solid transparent',
-            color: tab===t.id ? '#00d4ff' : '#666', fontSize:13, fontWeight: tab===t.id ? 600 : 400, cursor:'pointer', marginBottom:-1,
+            color: tab===t.id ? '#00d4ff' : '#9aaabb', fontSize:13, fontWeight: tab===t.id ? 600 : 400, cursor:'pointer', marginBottom:-1,
           }}>{t.label}</button>
         ))}
         <button style={S.refreshBtn} onClick={load}>↻ Refresh</button>
@@ -225,7 +225,7 @@ export default function AdminBilling() {
                 </table>
             }
           </div>
-          <div style={{ fontSize:12, color:'#444', marginTop:10 }}>
+          <div style={{ fontSize:12, color:'#7a8a9a', marginTop:10 }}>
             💡 Stripe automatically retries failed payments. Use the Retry button to log an attempt and get a direct link to Stripe Dashboard.
           </div>
         </div>
@@ -280,10 +280,10 @@ export default function AdminBilling() {
           <div style={S.sectionTitle}>💰 Revenue by Tier (Active orgs)</div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))', gap:14, marginBottom:24 }}>
             {byTier.map(({ tier, count, rev }) => (
-              <div key={tier} style={{ ...S.metaCard, borderTop:`3px solid ${TIER_COLOR[tier]||'#555'}` }}>
+              <div key={tier} style={{ ...S.metaCard, borderTop:`3px solid ${TIER_COLOR[tier]||'#8b9ab8'}` }}>
                 <div style={{ fontSize:13, fontWeight:700, color: TIER_COLOR[tier]||'#888' }}>{TIER_LABEL[tier]}</div>
-                <div style={{ fontSize:28, fontWeight:700, color:'#e8e8e8' }}>{fmt$(rev)}<span style={{ fontSize:13, color:'#555', fontWeight:400 }}>/mo</span></div>
-                <div style={{ fontSize:12, color:'#555' }}>{count} active org{count!==1?'s':''}</div>
+                <div style={{ fontSize:28, fontWeight:700, color:'#e8e8e8' }}>{fmt$(rev)}<span style={{ fontSize:13, color:'#8b9ab8', fontWeight:400 }}>/mo</span></div>
+                <div style={{ fontSize:12, color:'#8b9ab8' }}>{count} active org{count!==1?'s':''}</div>
               </div>
             ))}
           </div>
