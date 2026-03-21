@@ -47,11 +47,13 @@ export default function AdminSupport() {
   const [impStatus,   setImpStatus]   = useState(null)
 
   // Search orgs
+  const [debugInfo, setDebugInfo] = useState('')
+
   const searchOrgs = useCallback(async (q) => {
-    if (!q.trim()) { setOrgs([]); return }
+    if (!q.trim()) { setOrgs([]); setDebugInfo(''); return }
     setLoading(true)
     const { data, error } = await supabase.rpc('admin_search_orgs', { search_term: q })
-    console.log('[Support search]', { q, data, error })
+    setDebugInfo(`data:${JSON.stringify(data)} err:${JSON.stringify(error)}`)
     const results = Array.isArray(data) ? data : data ? [data] : []
     setOrgs(results)
     setLoading(false)
@@ -131,6 +133,7 @@ export default function AdminSupport() {
         />
         {loading && <div style={{ fontSize:12, color:'#555', marginTop:8 }}>Searching…</div>}
         {!loading && search && orgs.length === 0 && <div style={{ fontSize:12, color:'#555', marginTop:8 }}>No results</div>}
+        {debugInfo && <div style={{ fontSize:11, color:'#fbbf24', marginTop:8, fontFamily:'monospace', wordBreak:'break-all', background:'rgba(0,0,0,.4)', padding:'6px 8px', borderRadius:6 }}>{debugInfo}</div>}
         {orgs.length > 0 && (
           <div style={{ marginTop:10, display:'flex', flexDirection:'column', gap:6 }}>
             {orgs.map(o => (
