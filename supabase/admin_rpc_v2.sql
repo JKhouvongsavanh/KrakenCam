@@ -47,7 +47,7 @@ $$;
 grant execute on function public.admin_search_orgs(text) to authenticated;
 
 -- Get users in an org
-create or replace function public.admin_get_org_users(org_id uuid)
+create or replace function public.admin_get_org_users(p_org_id uuid)
 returns table (
   id uuid, user_id uuid, full_name text, email text,
   role text, created_at timestamptz, is_active boolean
@@ -64,14 +64,14 @@ begin
     select p.id, p.user_id, p.full_name, p.email,
            p.role, p.created_at, p.is_active
     from public.profiles p
-    where p.organization_id = org_id
+    where p.organization_id = p_org_id
     order by p.created_at;
 end;
 $$;
 grant execute on function public.admin_get_org_users(uuid) to authenticated;
 
 -- Get support notes for org
-create or replace function public.admin_get_org_notes(org_id uuid)
+create or replace function public.admin_get_org_notes(p_org_id uuid)
 returns table (
   id uuid, org_id uuid, admin_id uuid, note text, created_at timestamptz
 )
@@ -86,14 +86,14 @@ begin
   return query
     select n.id, n.org_id, n.admin_id, n.note, n.created_at
     from public.org_support_notes n
-    where n.org_id = admin_get_org_notes.org_id
+    where n.org_id = p_org_id
     order by n.created_at desc;
 end;
 $$;
 grant execute on function public.admin_get_org_notes(uuid) to authenticated;
 
 -- Get flag for org
-create or replace function public.admin_get_org_flag(org_id uuid)
+create or replace function public.admin_get_org_flag(p_org_id uuid)
 returns text
 language plpgsql
 security definer
@@ -107,7 +107,7 @@ begin
   end if;
   select f.flag into result
   from public.org_flags f
-  where f.org_id = admin_get_org_flag.org_id;
+  where f.org_id = p_org_id;
   return coalesce(result, 'none');
 end;
 $$;

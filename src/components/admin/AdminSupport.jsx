@@ -65,11 +65,11 @@ export default function AdminSupport() {
     setSelected(org)
     setUsers([]); setNotes([]); setFlag('none')
     // Load users
-    const { data: u } = await supabase.rpc('admin_get_org_users', { org_id: org.id })
+    const { data: u } = await supabase.rpc('admin_get_org_users', { p_org_id: org.id })
     setUsers(u || [])
-    const { data: n } = await supabase.rpc('admin_get_org_notes', { org_id: org.id })
+    const { data: n } = await supabase.rpc('admin_get_org_notes', { p_org_id: org.id })
     setNotes(n || [])
-    const { data: f } = await supabase.rpc('admin_get_org_flag', { org_id: org.id })
+    const { data: f } = await supabase.rpc('admin_get_org_flag', { p_org_id: org.id })
     setFlag(f || 'none')
   }
 
@@ -83,7 +83,7 @@ export default function AdminSupport() {
       admin_id: me?.user?.id,
     })
     setNewNote('')
-    const { data: n } = await supabase.rpc('admin_get_org_notes', { org_id: selected.id })
+    const { data: n } = await supabase.rpc('admin_get_org_notes', { p_org_id: selected.id })
     setNotes(n || [])
     setSavingNote(false)
   }
