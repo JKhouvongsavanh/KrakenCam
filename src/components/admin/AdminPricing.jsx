@@ -14,6 +14,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../lib/supabase'
 import { getPricingConfigRaw } from '../../lib/pricing'
+import { adminRpc } from '../../lib/adminFetch'
 
 // ── Tier metadata ─────────────────────────────────────────────────────────────
 
@@ -325,12 +326,11 @@ export default function AdminPricing() {
 
   // Load active org count for global tab
   const loadActiveOrgs = useCallback(async () => {
-    const { count } = await supabase
-      .from('organizations')
-      .select('*', { count: 'exact', head: true })
-      .eq('subscription_status', 'active')
-      .neq('plan_type', 'enterprise')
-    setActiveOrgCount(count ?? 0)
+    try {
+      const rows = await adminRpc('admin_get_all_orgs')
+      const active = rows.filter(o => o.subscription_status === 'active')
+      setActiveOrgCount(active.length)
+    } catch { setActiveOrgCount(0) }
   }, [])
 
   useEffect(() => {
