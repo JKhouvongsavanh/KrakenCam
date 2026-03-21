@@ -16,6 +16,7 @@ import AdminPricing from './AdminPricing.jsx'
 import AdminBilling from './AdminBilling.jsx'
 import AdminSupport from './AdminSupport.jsx'
 import AdminTrials from './AdminTrials.jsx'
+import AdminEmailBlast from './AdminEmailBlast.jsx'
 
 const NAV_ITEMS = [
   { id: 'overview',      label: 'Overview',        icon: '📊' },
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { id: 'trials',        label: 'Trials',          icon: '⏳' },
   { id: 'organizations', label: 'Organizations',   icon: '🏢' },
   { id: 'support',       label: 'Support',         icon: '🎧' },
+  { id: 'email_blast',   label: 'Email Blast',     icon: '📨' },
   { id: 'analytics',     label: 'Analytics',       icon: '📈' },
   { id: 'enterprise',    label: 'Enterprise',      icon: '💎' },
   { id: 'discounts',     label: 'Discount Codes',  icon: '🏷️' },
@@ -193,6 +195,7 @@ export default function AdminDashboard() {
       case 'trials':        return <AdminTrials />
       case 'organizations': return <AdminOrganizations />
       case 'support':       return <AdminSupport />
+      case 'email_blast':   return <AdminEmailBlast />
       case 'analytics':     return <AdminAnalytics />
       case 'enterprise':    return <AdminEnterprise />
       case 'discounts':     return <AdminDiscountCodes />
