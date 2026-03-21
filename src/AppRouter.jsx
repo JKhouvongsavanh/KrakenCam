@@ -11,6 +11,7 @@ import SubscriptionGate from './components/SubscriptionGate.jsx'
 import AcceptInvite from './components/AcceptInvite.jsx'
 import ResetPassword from './components/ResetPassword.jsx'
 import AnnouncementPopup from './components/AnnouncementPopup.jsx'
+import { FlagsProvider } from './lib/featureFlags.js'
 import { supabase } from './lib/supabase.js'
 
 function MaintenanceScreen({ message }) {
@@ -45,6 +46,8 @@ export default function AppRouter() {
   const [isRecovery, setIsRecovery] = useState(false)
   const [maintenance, setMaintenance] = useState(null) // null=loading, false=off, {message}=on
   const [userRole,    setUserRole]    = useState('user')
+  const [orgId,       setOrgId]       = useState(null)
+  const [orgTier,     setOrgTier]     = useState(null)
   const isAdmin = window.location.pathname.startsWith('/admin')
   const isBilling = window.location.pathname === '/billing'
   const isAcceptInvite = window.location.pathname === '/accept-invite'
@@ -75,11 +78,17 @@ export default function AppRouter() {
     return () => clearTimeout(timeout)
   }, [])
 
-  // Fetch user role for announcement targeting
+  // Fetch user profile + org tier for announcements and feature flags
   useEffect(() => {
     if (!session) return
-    supabase.from('profiles').select('role').eq('id', session.user.id).single()
-      .then(({ data }) => { if (data?.role) setUserRole(data.role) })
+    supabase.from('profiles')
+      .select('role, organization_id, organizations(subscription_tier)')
+      .eq('user_id', session.user.id).single()
+      .then(({ data }) => {
+        if (data?.role)            setUserRole(data.role)
+        if (data?.organization_id) setOrgId(data.organization_id)
+        if (data?.organizations?.subscription_tier) setOrgTier(data.organizations.subscription_tier)
+      })
       .catch(() => {})
   }, [session])
 
@@ -132,10 +141,10 @@ export default function AppRouter() {
       return <LoginPage onSignup={null} onForgotPassword={() => setPage('forgot')} />
     }
     return (
-      <>
+      <FlagsProvider orgTier={orgTier} orgId={orgId}>
         <AnnouncementPopup userRole={userRole} />
         <AdminRoute><AdminDashboard /></AdminRoute>
-      </>
+      </FlagsProvider>
     )
   }
 
@@ -147,12 +156,12 @@ export default function AppRouter() {
   // Logged in → show the main app (wrapped in SubscriptionGate)
   if (session) {
     return (
-      <>
+      <FlagsProvider orgTier={orgTier} orgId={orgId}>
         <AnnouncementPopup userRole={userRole} />
         <SubscriptionGate>
           <App />
         </SubscriptionGate>
-      </>
+      </FlagsProvider>
     )
   }
 
