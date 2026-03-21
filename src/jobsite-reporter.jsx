@@ -129,6 +129,7 @@ const ic = {
   calendarIcon: "M8 2v3M16 2v3M3 8h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z",
   dispatch: "M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v4H3z M14 14h7v4h-7z M7 17h4m-2-2v4",
   pieChart: "M21.21 15.89A10 10 0 118 2.83 M22 12A10 10 0 0012 2v10z",
+  zap:      "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
 };
 
 // ── Seed data helpers ──────────────────────────────────────────────────────────
@@ -1125,6 +1126,10 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
   const [batchTagsInput, setBatchTagsInput] = useState("");
   const [showApplyAll, setShowApplyAll] = useState(false);
 
+  // Torch / flash state
+  const [torchOn,        setTorchOn]        = useState(false);
+  const [torchSupported, setTorchSupported] = useState(false);
+
   // Video mode state
   const [mode,        setMode]        = useState("photo");  // "photo" | "video"
   const [recState,    setRecState]    = useState("idle");   // "idle" | "recording" | "review"
@@ -1201,6 +1206,12 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
           setTimeout(resolve, 2000);
         });
       }
+      // Detect torch support on the new stream
+      const track = stream.getVideoTracks()[0];
+      const caps  = track?.getCapabilities?.();
+      const hasTorch = !!(caps?.torch);
+      setTorchSupported(hasTorch);
+      if (!hasTorch) setTorchOn(false); // reset if new camera doesn't support it
       setCamState("live");
     } catch (e) {
       setCamState(e.name === "NotAllowedError" || e.name === "PermissionDeniedError" ? "denied" : "error");
@@ -1222,6 +1233,20 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
     const caps = track.getCapabilities?.();
     if (caps?.zoom) track.applyConstraints({ advanced: [{ zoom }] }).catch(() => {});
   }, [zoom]);
+
+  // ── Torch / flashlight ──
+  const toggleTorch = useCallback(async () => {
+    const track = streamRef.current?.getVideoTracks()[0];
+    if (!track) return;
+    const next = !torchOn;
+    try {
+      await track.applyConstraints({ advanced: [{ torch: next }] });
+      setTorchOn(next);
+    } catch {
+      // torch constraint rejected (device doesn't support it at runtime)
+      setTorchSupported(false);
+    }
+  }, [torchOn]);
 
   // ── Photo capture ──
   const doSnap = useCallback(() => {
@@ -1611,6 +1636,16 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
                   {timerSec > 0 ? <span style={{ fontWeight:700,fontSize:13 }}>{timerSec}s</span> : <Icon d={ic.timer} size={18} />}
                 </div>
                 <div className={`cam-icon-btn ${gridOn?"lit":""}`} title="Grid" onClick={() => setGridOn(g => !g)}><Icon d={ic.grid} size={18} /></div>
+                {torchSupported && (
+                  <div
+                    className={`cam-icon-btn ${torchOn ? "lit" : ""}`}
+                    title={torchOn ? "Flash on (tap to turn off)" : "Flash off (tap to turn on)"}
+                    onClick={toggleTorch}
+                    style={torchOn ? { color:"#ffe066", borderColor:"#ffe066" } : {}}
+                  >
+                    <Icon d={ic.zap} size={18} />
+                  </div>
+                )}
               </>
             )}
             {mode === "video" && recState === "idle" && (
