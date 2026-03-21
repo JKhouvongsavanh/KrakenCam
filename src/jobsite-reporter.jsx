@@ -1126,8 +1126,9 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
   const [batchTagsInput, setBatchTagsInput] = useState("");
   const [showApplyAll, setShowApplyAll] = useState(false);
 
-  // Torch / flash state
-  const [torchOn,        setTorchOn]        = useState(false);
+  // Flash mode state ("off" | "on")
+  const [flashMode,      setFlashMode]      = useState("off");
+  const [torchOn,        setTorchOn]        = useState(false);   // kept for compat, unused
   const [torchSupported, setTorchSupported] = useState(false);
 
   // Video mode state
@@ -1206,9 +1207,8 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
           setTimeout(resolve, 2000);
         });
       }
-      // Reset torch when switching cameras
-      setTorchOn(false);
-      setTorchSupported(true); // assume supported until proven otherwise on first tap
+      // Reset flash when switching cameras
+      setFlashMode("off");
       setCamState("live");
     } catch (e) {
       setCamState(e.name === "NotAllowedError" || e.name === "PermissionDeniedError" ? "denied" : "error");
@@ -1231,63 +1231,39 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
     if (caps?.zoom) track.applyConstraints({ advanced: [{ zoom }] }).catch(() => {});
   }, [zoom]);
 
-  // ── Torch / flashlight ──
-  // Chrome/Brave require torch to be in the getUserMedia constraints, not applyConstraints.
-  // We restart the stream with torch:true/false baked in — the video keeps playing seamlessly.
-  const toggleTorch = useCallback(async () => {
-    const next = !torchOn;
+  // ── Flash helpers ──
+  // applyTorch: turn LED on or off on the current live track
+  const applyTorch = useCallback(async (on) => {
+    const track = streamRef.current?.getVideoTracks()[0];
+    if (!track) return;
     try {
-      // Stop existing tracks
-      if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
-
-      const photoResMap = {
-        low:      { width: { ideal: 1280 }, height: { ideal: 720  } },
-        moderate: { width: { ideal: 1920 }, height: { ideal: 1080 } },
-        high:     { width: { ideal: 3840 }, height: { ideal: 2160 } },
-      };
-      const streamRes = photoResMap[settings?.photoQuality] ?? photoResMap.moderate;
-
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { exact: "environment" },
-          ...streamRes,
-          torch: next,          // Chrome/Brave: torch here in the top-level video constraints
-          advanced: [{ torch: next }], // Safari/Firefox fallback
-        },
-        audio: false,
-      });
-
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play().catch(() => {});
-      }
-      setTorchOn(next);
-    } catch (err) {
-      console.warn("[KrakenCam] Torch toggle failed:", err?.message || err);
-      // If torch:true failed, try once more without torch constraint to restore stream
-      if (next) {
-        try {
-          const fallback = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: { exact: "environment" } },
-            audio: false,
-          });
-          streamRef.current = fallback;
-          if (videoRef.current) { videoRef.current.srcObject = fallback; videoRef.current.play().catch(() => {}); }
-        } catch { /* ignore */ }
-        setTorchOn(false);
-      }
+      await track.applyConstraints({ advanced: [{ torch: on }] });
+    } catch (e) {
+      console.warn("[KrakenCam] torch applyConstraints:", e?.message);
     }
-  }, [torchOn, settings?.photoQuality]);
+  }, []);
+
+  // toggleTorch: just cycles flashMode between off/on (no LED change here)
+  const toggleTorch = useCallback(() => {
+    setFlashMode(m => m === "off" ? "on" : "off");
+  }, []);
 
   // ── Photo capture ──
-  const doSnap = useCallback(() => {
+  const doSnap = useCallback(async () => {
     const video = videoRef.current, canvas = canvasRef.current;
     if (!video || !canvas) return;
-    // Bail if video hasn't rendered a real frame yet (prevents black captures)
     if (video.readyState < 2 || video.videoWidth === 0) return;
     setFiring(true);
+
+    // Fire LED flash if enabled — turn on, wait for light, snap, turn off
+    if (flashMode === "on" && facing === "environment") {
+      await applyTorch(true);
+      await new Promise(r => setTimeout(r, 120)); // let LED illuminate
+    }
+
+    // Screen flash overlay
     if (flashRef.current) { flashRef.current.classList.add("on"); setTimeout(() => flashRef.current?.classList.remove("on"), 140); }
+
     const qualityMap = { low: 0.5, moderate: 0.85, high: 0.97 };
     const jpegQuality = qualityMap[settings?.photoQuality] ?? 0.88;
     const resMap = { low: 1920, moderate: 2560, high: 3840 };
@@ -1306,8 +1282,14 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
     ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.font = "12px sans-serif";
     ctx.fillText(gps ? `GPS: ${gps.lat}, ${gps.lng}` : "GPS: unavailable", 18, canvas.height - 17);
     setReviewImg(canvas.toDataURL("image/jpeg", jpegQuality));
+
+    // Turn LED off after capture
+    if (flashMode === "on" && facing === "environment") {
+      await applyTorch(false);
+    }
+
     setTimeout(() => setFiring(false), 200);
-  }, [facing, gps, selRoom, project, settings?.photoQuality]);
+  }, [facing, gps, selRoom, project, settings?.photoQuality, flashMode, applyTorch]);
 
   const handleShutter = () => {
     if (timerSec === 0) { doSnap(); return; }
@@ -1690,12 +1672,14 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
           {/* Right controls */}
           <div style={{ display:"flex",flexDirection:"column",gap:10,alignItems:"center",minWidth:0 }}>
             <div style={{ display:"flex",gap:10,alignItems:"center" }}>
-              {torchSupported && facing === "environment" && mode === "photo" && (
+              {facing === "environment" && mode === "photo" && (
                 <div
-                  className={`cam-icon-btn ${torchOn ? "lit" : ""}`}
-                  title={torchOn ? "Flash on — tap to turn off" : "Flash off — tap to turn on"}
+                  className="cam-icon-btn"
+                  title={flashMode === "on" ? "Flash on — tap to turn off" : "Flash off — tap to turn on"}
                   onClick={toggleTorch}
-                  style={torchOn ? { color:"#ffe066", borderColor:"rgba(255,224,102,.6)", background:"rgba(255,200,0,.25)" } : {}}
+                  style={flashMode === "on"
+                    ? { color:"#ffe066", borderColor:"rgba(255,224,102,.6)", background:"rgba(255,200,0,.25)" }
+                    : { color:"rgba(255,255,255,.5)" }}
                 >
                   <Icon d={ic.zap} size={18} />
                 </div>
