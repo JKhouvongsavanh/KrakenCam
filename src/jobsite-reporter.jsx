@@ -1595,7 +1595,7 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
             {project && <div className="pill"><Icon d={ic.briefcase} size={11} />{project.title}</div>}
             <div className="pill"><Icon d={ic.mapPin} size={11} stroke={gps ? "#3dba7e" : "#8b9ab8"} />{gpsLabel}</div>
             <div className="pill" style={{ cursor:"pointer" }} onClick={() => setRoomMenuOpen(o => !o)}>
-              {project?.rooms?.find(r => r.name === selRoom)?.icon || "📦"} {selRoom} ▾
+              <RoomIcon name={selRoom} size={12} stroke="white" /> {selRoom} ▾
             </div>
           </div>
         </div>
@@ -1605,7 +1605,7 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
             {roomList.map(r => (
               <div key={r} onClick={() => { setSelRoom(r); setRoomMenuOpen(false); }}
                 style={{ padding:"8px 16px",cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",gap:8,background:selRoom===r?"var(--accent-glow)":"transparent",color:selRoom===r?"var(--accent)":"var(--text)" }}>
-                {project?.rooms?.find(rm => rm.name===r)?.icon || "📦"} {r}
+                <RoomIcon name={r} size={13} stroke={selRoom===r?"var(--accent)":"var(--text2)"} /> {r}
               </div>
             ))}
           </div>
