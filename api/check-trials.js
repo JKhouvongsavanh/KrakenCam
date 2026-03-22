@@ -2,9 +2,12 @@
  * api/check-trials.js
  *
  * Vercel cron job — runs daily at 9:00 AM UTC.
- * Finds orgs whose trial ends within the next 3 days and sends a reminder email.
+ * Handles TWO checks in one function to stay within Vercel Hobby 12-function limit:
  *
- * Secured with CRON_SECRET header (set in Vercel env vars).
+ *  1. Trial ending reminder — orgs whose trial ends within 3 days
+ *  2. Deletion warning — cancelled orgs whose data_delete_at is ~15 days away
+ *
+ * Secured with CRON_SECRET header.
  * Schedule: "0 9 * * *" (see vercel.json)
  */
 
@@ -13,12 +16,34 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 const APP_URL = process.env.APP_URL || 'https://app.krakencam.com'
 const INTERNAL_EMAIL_SECRET = process.env.INTERNAL_EMAIL_SECRET || 'krakencam-internal-2024'
 
+const HEADERS = {
+  'apikey': SUPABASE_SERVICE_KEY,
+  'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+}
+
+async function getAdminEmail(orgId) {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/profiles?organization_id=eq.${orgId}&role=eq.admin&select=email,full_name&limit=1`,
+    { headers: HEADERS }
+  )
+  const profiles = await res.json()
+  return profiles?.[0] || null
+}
+
+async function sendEmail(body) {
+  const res = await fetch(`${APP_URL}/api/send-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Internal-Secret': INTERNAL_EMAIL_SECRET },
+    body: JSON.stringify(body),
+  })
+  return res.ok
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  // Verify cron secret (Vercel sends this automatically when CRON_SECRET is set)
   const cronSecret = process.env.CRON_SECRET
   if (cronSecret) {
     const authHeader = req.headers['authorization']
@@ -27,96 +52,57 @@ export default async function handler(req, res) {
     }
   }
 
+  const now = new Date()
+  let trialsSent = 0
+  let deletionsSent = 0
+
   try {
-    const now = new Date()
+    // ── 1. Trial ending reminders (within 3 days) ──────────────────────────
     const in3Days = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
-
-    // Query orgs with trials ending within 3 days
-    const orgsRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/organizations?` +
-      `subscription_status=eq.trialing` +
-      `&trial_ends_at=gte.${now.toISOString()}` +
-      `&trial_ends_at=lte.${in3Days.toISOString()}` +
+    const trialsRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/organizations?subscription_status=eq.trialing` +
+      `&trial_ends_at=gte.${now.toISOString()}&trial_ends_at=lte.${in3Days.toISOString()}` +
       `&select=id,name,trial_ends_at`,
-      {
-        headers: {
-          'apikey': SUPABASE_SERVICE_KEY,
-          'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
-        }
-      }
+      { headers: HEADERS }
     )
+    const trialingOrgs = await trialsRes.json()
 
-    if (!orgsRes.ok) {
-      const err = await orgsRes.text()
-      console.error('[check-trials] Failed to query orgs:', err)
-      return res.status(500).json({ error: 'Failed to query organizations' })
-    }
-
-    const orgs = await orgsRes.json()
-
-    if (!orgs || orgs.length === 0) {
-      console.log('[check-trials] No trials ending soon')
-      return res.status(200).json({ sent: 0 })
-    }
-
-    let sent = 0
-
-    for (const org of orgs) {
+    for (const org of (trialingOrgs || [])) {
       try {
-        // Get the admin profile for this org
-        const profileRes = await fetch(
-          `${SUPABASE_URL}/rest/v1/profiles?organization_id=eq.${org.id}&role=eq.admin&select=email,full_name&limit=1`,
-          {
-            headers: {
-              'apikey': SUPABASE_SERVICE_KEY,
-              'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
-            }
-          }
-        )
-
-        const profiles = await profileRes.json()
-        if (!profiles?.[0]?.email) {
-          console.warn(`[check-trials] No admin profile found for org ${org.id}`)
-          continue
-        }
-
-        const { email, full_name } = profiles[0]
-        const firstName = full_name ? full_name.split(' ')[0] : 'there'
-
-        // Calculate days left
-        const trialEnd = new Date(org.trial_ends_at)
-        const msLeft = trialEnd.getTime() - now.getTime()
-        const daysLeft = Math.max(1, Math.ceil(msLeft / (24 * 60 * 60 * 1000)))
-
-        // Call send-email endpoint
-        const emailRes = await fetch(`${APP_URL}/api/send-email`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Internal-Secret': INTERNAL_EMAIL_SECRET,
-          },
-          body: JSON.stringify({
-            type: 'trial_ending',
-            to: email,
-            firstName,
-            daysLeft,
-            trialEndsAt: org.trial_ends_at,
-          })
-        })
-
-        if (emailRes.ok) {
-          sent++
-          console.log(`[check-trials] Sent trial ending email to ${email} (org: ${org.id}, days left: ${daysLeft})`)
-        } else {
-          const err = await emailRes.json()
-          console.error(`[check-trials] Failed to send email for org ${org.id}:`, err)
-        }
-      } catch (err) {
-        console.error(`[check-trials] Error processing org ${org.id}:`, err)
-      }
+        const profile = await getAdminEmail(org.id)
+        if (!profile?.email) continue
+        const firstName = profile.full_name?.split(' ')[0] || 'there'
+        const daysLeft = Math.max(1, Math.ceil((new Date(org.trial_ends_at) - now) / 86400000))
+        const ok = await sendEmail({ type: 'trial_ending', to: profile.email, firstName, daysLeft, trialEndsAt: org.trial_ends_at })
+        if (ok) trialsSent++
+      } catch (e) { console.error(`[check-trials] trial org ${org.id}:`, e) }
     }
 
-    return res.status(200).json({ sent })
+    // ── 2. Deletion warnings (15 days before permanent delete) ─────────────
+    const in14Days = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000)
+    const in16Days = new Date(now.getTime() + 16 * 24 * 60 * 60 * 1000)
+    const deletionsRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/organizations?subscription_status=in.(cancelled,canceled)` +
+      `&data_delete_at=gte.${in14Days.toISOString()}&data_delete_at=lte.${in16Days.toISOString()}` +
+      `&select=id,name,data_delete_at`,
+      { headers: HEADERS }
+    )
+    const deletingOrgs = await deletionsRes.json()
+
+    for (const org of (deletingOrgs || [])) {
+      try {
+        const profile = await getAdminEmail(org.id)
+        if (!profile?.email) continue
+        const firstName = profile.full_name?.split(' ')[0] || 'there'
+        const deletionDate = new Date(org.data_delete_at).toLocaleDateString('en-US', {
+          weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+        })
+        const ok = await sendEmail({ type: 'deletion_warning', to: profile.email, firstName, orgName: org.name, deletionDate })
+        if (ok) deletionsSent++
+      } catch (e) { console.error(`[check-trials] deletion org ${org.id}:`, e) }
+    }
+
+    return res.status(200).json({ trialsSent, deletionsSent })
   } catch (err) {
     console.error('[check-trials] Unexpected error:', err)
     return res.status(500).json({ error: 'Internal server error' })
