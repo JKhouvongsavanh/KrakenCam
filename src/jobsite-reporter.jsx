@@ -4146,15 +4146,53 @@ function TemplateManagerModal({ templates, setTemplates, onClose }) {
   // Local tags string — decoupled from the parsed array so commas work freely
   const [tagsInput, setTagsInput] = useState("");
   const [customCatInput, setCustomCatInput] = useState("");
-  // Custom categories saved to localStorage per org
+  // Custom categories — seeded from localStorage cache, then overwritten by Supabase on load
   const [customCats, setCustomCats] = useState(() => {
     try { return JSON.parse(localStorage.getItem("kc_cl_custom_cats") || "[]"); } catch { return []; }
   });
 
-  // hiddenBuiltIn: built-in cats the admin has hidden
-  const [hiddenBuiltIn, setHiddenBuiltIn] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("kc_cl_hidden_cats") || "[]"); } catch { return []; }
-  });
+  const [hiddenBuiltIn, setHiddenBuiltIn] = useState([]);
+  const [orgId, setOrgId] = useState(null);
+
+  // Load categories from Supabase on mount
+  useEffect(() => {
+    const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const url     = import.meta.env.VITE_SUPABASE_URL;
+    // Get org_id from current session profile
+    supabase.auth.getSession().then(({ data }) => {
+      const uid = data?.session?.user?.id;
+      if (!uid) return;
+      fetch(`${url}/rest/v1/profiles?user_id=eq.${uid}&select=organization_id`, {
+        headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}` }
+      }).then(r => r.json()).then(rows => {
+        const oid = rows?.[0]?.organization_id;
+        if (!oid) return;
+        setOrgId(oid);
+        fetch(`${url}/rest/v1/checklist_categories?organization_id=eq.${oid}&select=custom_cats,hidden_cats`, {
+          headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}` }
+        }).then(r => r.json()).then(data => {
+          if (data?.[0]) {
+            setCustomCats(data[0].custom_cats || []);
+            setHiddenBuiltIn(data[0].hidden_cats || []);
+          }
+        }).catch(() => {});
+      }).catch(() => {});
+    }).catch(() => {});
+  }, []);
+
+  const persistCats = (custom, hidden, oid) => {
+    if (!oid) return;
+    const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const url     = import.meta.env.VITE_SUPABASE_URL;
+    fetch(`${url}/rest/v1/checklist_categories`, {
+      method: 'POST',
+      headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}`, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify({ organization_id: oid, custom_cats: custom, hidden_cats: hidden, updated_at: new Date().toISOString() }),
+    }).catch(() => {});
+    // Also keep localStorage as fast local cache
+    localStorage.setItem("kc_cl_custom_cats", JSON.stringify(custom));
+    localStorage.setItem("kc_cl_hidden_cats",  JSON.stringify(hidden));
+  };
 
   const allCats = [
     ...BUILT_IN_CATEGORIES.filter(c => !hiddenBuiltIn.includes(c)),
@@ -4165,30 +4203,28 @@ function TemplateManagerModal({ templates, setTemplates, onClose }) {
     if (!cat.trim() || allCats.includes(cat.trim())) return;
     const updated = [...customCats, cat.trim()];
     setCustomCats(updated);
-    localStorage.setItem("kc_cl_custom_cats", JSON.stringify(updated));
+    persistCats(updated, hiddenBuiltIn, orgId);
   };
 
   const removeCategory = (cat) => {
     const isBuiltIn = BUILT_IN_CATEGORIES.includes(cat);
+    let newCustom = customCats, newHidden = hiddenBuiltIn;
     if (isBuiltIn) {
-      const updated = [...hiddenBuiltIn, cat];
-      setHiddenBuiltIn(updated);
-      localStorage.setItem("kc_cl_hidden_cats", JSON.stringify(updated));
+      newHidden = [...hiddenBuiltIn, cat];
+      setHiddenBuiltIn(newHidden);
     } else {
-      const updated = customCats.filter(c => c !== cat);
-      setCustomCats(updated);
-      localStorage.setItem("kc_cl_custom_cats", JSON.stringify(updated));
+      newCustom = customCats.filter(c => c !== cat);
+      setCustomCats(newCustom);
     }
-    // If currently filtering by this cat, reset to All
+    persistCats(newCustom, newHidden, orgId);
     if (tmplCategory === cat) setTmplCategory("All");
-    // If editing template uses this cat, reset to General
     if (editing?.category === cat) setEditing(p => ({...p, category:"General"}));
   };
 
   const restoreBuiltIn = (cat) => {
     const updated = hiddenBuiltIn.filter(c => c !== cat);
     setHiddenBuiltIn(updated);
-    localStorage.setItem("kc_cl_hidden_cats", JSON.stringify(updated));
+    persistCats(customCats, updated, orgId);
   };
 
   const openEdit = (t) => {
