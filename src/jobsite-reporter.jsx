@@ -8128,8 +8128,12 @@ function SketchEditor({ sketch, rooms, reports, project, settings, onSave, onClo
           style={{ background:"transparent",border:"none",outline:"none",color:"var(--text)",fontWeight:700,fontSize:15,flex:1,minWidth:0 }} />
         <div style={{ display:"flex",alignItems:"center",gap:6,marginLeft:"auto" }}>
           {saved && <span style={{ fontSize:12,color:"var(--green)" }}>✓ Saved</span>}
-          <button className="btn btn-ghost btn-sm btn-icon desktop-only" title="Undo (Ctrl+Z)" onClick={undo} style={{ width:36,height:36 }}><Icon d={ic.undo} size={22} /></button>
-          <button className="btn btn-ghost btn-sm btn-icon desktop-only" title="Redo (Ctrl+Y)" onClick={redo} style={{ transform:"scaleX(-1)", width:36,height:36 }}><Icon d={ic.undo} size={22} /></button>
+          <button className="btn btn-ghost btn-sm desktop-only" title="Undo (Ctrl+Z)" onClick={undo} style={{ display:"flex",alignItems:"center",gap:5,padding:"0 10px",height:34 }}>
+            <Icon d={ic.undo} size={18} /> <span style={{ fontSize:12 }}>Undo</span>
+          </button>
+          <button className="btn btn-ghost btn-sm desktop-only" title="Redo (Ctrl+Y)" onClick={redo} style={{ display:"flex",alignItems:"center",gap:5,padding:"0 10px",height:34 }}>
+            <span style={{ display:"inline-flex",transform:"scaleX(-1)" }}><Icon d={ic.undo} size={18} /></span> <span style={{ fontSize:12 }}>Redo</span>
+          </button>
           <button className="btn btn-secondary btn-sm" onClick={() => setShowNotes(!showNotes)}>
             <Icon d={ic.text} size={14} /><span className="desktop-only" style={{ marginLeft:5 }}>Notes</span>
           </button>
@@ -8173,12 +8177,12 @@ function SketchEditor({ sketch, rooms, reports, project, settings, onSave, onClo
 
           <div style={{ width:36,height:1,background:"var(--border)",margin:"8px 0" }} />
 
-          {/* Stroke width — big touch targets */}
+          {/* Stroke width — horizontal line preview */}
           {[1,3,5,9].map(w => (
             <button key={w} title={`Stroke ${w}`} onClick={()=>setStrokeW(w)}
-              style={{ width:46,height:44,borderRadius:10,border:strokeW===w?"2px solid var(--accent)":"2px solid transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",
+              style={{ width:52,height:40,borderRadius:10,border:strokeW===w?"2px solid var(--accent)":"2px solid transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",
                 background: strokeW===w ? "var(--surface3)" : "transparent" }}>
-              <div style={{ width:24,height:Math.min(w+1,10),borderRadius:w,background: strokeW===w ? "var(--accent)" : "var(--text2)" }} />
+              <div style={{ width:32,height:Math.min(w+1,8),borderRadius:4,background: strokeW===w ? "var(--accent)" : "var(--text2)" }} />
             </button>
           ))}
 
@@ -8202,8 +8206,8 @@ function SketchEditor({ sketch, rooms, reports, project, settings, onSave, onClo
           {/* Color swatches */}
           {STROKE_COLORS.map(c => (
             <button key={c} title={c} onClick={()=>setColor(c)}
-              style={{ width:46,height:40,borderRadius:10,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center" }}>
-              <div style={{ width:22,height:22,borderRadius:"50%",background:c,
+              style={{ width:52,height:40,borderRadius:10,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center" }}>
+              <div style={{ width:26,height:26,borderRadius:"50%",background:c,
                 outline: color===c ? "2px solid var(--accent)" : "1.5px solid rgba(255,255,255,0.15)",
                 outlineOffset:2,
                 boxShadow: c==="#ffffff"||c==="#000000" ? "inset 0 0 0 1px rgba(128,128,128,0.35)" : "none"
@@ -8215,18 +8219,18 @@ function SketchEditor({ sketch, rooms, reports, project, settings, onSave, onClo
 
           {/* Grid toggle */}
           <button title="Toggle Grid" onClick={()=>setShowGrid(!showGrid)}
-            style={{ width:46,height:46,borderRadius:10,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",
+            style={{ width:52,height:46,borderRadius:10,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",
               background: showGrid ? "var(--surface3)" : "transparent",
               color: showGrid ? "var(--accent)" : "var(--text3)" }}>
-            <Icon d={ic.grid} size={18} />
+            <Icon d={ic.grid} size={22} />
           </button>
 
           <div style={{ height:14 }} />
 
           {/* Clear */}
           <button title="Clear All" onClick={clearAll}
-            style={{ width:46,height:46,borderRadius:10,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text3)" }}>
-            <Icon d={ic.trash} size={18} />
+            style={{ width:52,height:46,borderRadius:10,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text3)" }}>
+            <Icon d={ic.trash} size={22} />
           </button>
         </div>
 
