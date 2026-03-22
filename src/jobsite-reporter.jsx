@@ -7006,11 +7006,13 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
             <div key={photo.id} className="photo-card">
               <div className="photo-card-img" onClick={() => setViewerPhoto(photo)}>
                 {photo.dataUrl
-                  ? <img src={photo.dataUrl} alt={photo.name} onError={e => { e.target.style.display='none'; e.target.nextSibling && (e.target.nextSibling.style.display='flex'); }} />
+                  ? <img src={photo.dataUrl} alt={photo.name}
+                      onError={e => { e.target.style.display='none'; const ph = e.target.parentElement.querySelector('.photo-placeholder'); if(ph) ph.style.display='flex'; }} />
                   : null}
-                {!photo.dataUrl
-                  ? <div className="photo-placeholder"><Icon d={ic.image} size={32} stroke={photo.color||"var(--accent)"} /><span style={{ fontSize:10,color:"var(--text3)" }}>{photo.room}</span></div>
-                  : <div className="photo-placeholder" style={{ display:'none' }}><Icon d={ic.image} size={32} stroke={photo.color||"var(--accent)"} /><span style={{ fontSize:10,color:"var(--text3)" }}>{photo.room}</span></div>}
+                <div className="photo-placeholder" style={{ display: photo.dataUrl ? 'none' : 'flex' }}>
+                  <Icon d={ic.image} size={32} stroke={photo.color||"var(--accent)"} />
+                  <span style={{ fontSize:10,color:"var(--text3)" }}>{photo.room||"Photo"}</span>
+                </div>
                 {photo.gps && <div style={{ position:"absolute",bottom:5,left:5 }}><span className="pill" style={{ fontSize:9,padding:"3px 7px" }}><Icon d={ic.mapPin} size={9} stroke="#3dba7e" />GPS</span></div>}
                 {/* Hover actions */}
                 <div style={{ position:"absolute",top:6,right:6,opacity:0,transition:"opacity .15s",display:"flex",gap:6 }} className="photo-actions">
@@ -7173,9 +7175,25 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
               {/* Photo */}
               {photo.dataUrl
                 ? <img src={photo.dataUrl} alt={photo.name} className="viewer-img"
-                    style={{ maxWidth:"calc(100% - 120px)",maxHeight:"100%",objectFit:"contain",borderRadius:4,userSelect:"none",pointerEvents:"none" }} />
-                : <div style={{ color:"rgba(255,255,255,.3)",fontSize:14 }}>No image data</div>
-              }
+                    style={{ maxWidth:"calc(100% - 120px)",maxHeight:"100%",objectFit:"contain",borderRadius:4,userSelect:"none",pointerEvents:"none" }}
+                    onError={e => { e.target.style.display='none'; e.target.nextSibling && (e.target.nextSibling.style.display='flex'); }} />
+                : null}
+              {!photo.dataUrl && (
+                <div style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:16,color:"rgba(255,255,255,.4)",textAlign:"center",padding:"0 32px" }}>
+                  <Icon d={ic.image} size={64} stroke="rgba(255,255,255,.15)" />
+                  <div style={{ fontSize:15,fontWeight:600,color:"rgba(255,255,255,.5)" }}>Photo not available</div>
+                  <div style={{ fontSize:13,color:"rgba(255,255,255,.3)",lineHeight:1.6,maxWidth:320 }}>
+                    This photo was captured before cloud storage was enabled.<br/>
+                    Re-capture to restore the image.
+                  </div>
+                </div>
+              )}
+              {photo.dataUrl && (
+                <div style={{ display:"none",flexDirection:"column",alignItems:"center",gap:16,color:"rgba(255,255,255,.4)",textAlign:"center",padding:"0 32px" }}>
+                  <Icon d={ic.image} size={64} stroke="rgba(255,255,255,.15)" />
+                  <div style={{ fontSize:13 }}>Failed to load image</div>
+                </div>
+              )}
 
               {/* Desktop next arrow (absolute, hidden on mobile) */}
               {next && (
