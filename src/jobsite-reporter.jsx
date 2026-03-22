@@ -21000,12 +21000,23 @@ export default function App() {
             dataUrl: v.dataUrl?.startsWith("blob:") ? null : v.dataUrl,
           })),
         }));
+        // Strip base64 dataUrls before saving to localStorage — they're too large
+        // and cause localStorage quota exceeded errors that silently wipe all data
+        const projectsForStorage = cleanProjects.map(proj => ({
+          ...proj,
+          photos: (proj.photos || []).map(ph => {
+            if (ph.dataUrl && ph.dataUrl.startsWith('data:')) {
+              return { ...ph, dataUrl: undefined, hasImage: true };
+            }
+            return ph; // keep Storage URLs (short strings)
+          }),
+        }));
         localStorage.setItem("krakencam_state", JSON.stringify({
-          projects: cleanProjects,
+          projects: projectsForStorage,
           settings,
           teamUsers,
           tasks,
-          notifications: [], // notifications are session-only, don't persist
+          notifications: [],
           reportTemplates,
           chats,
           calEvents,
@@ -21207,10 +21218,8 @@ export default function App() {
   };
 
   const updateProject = (proj) => {
-    // Update local state immediately for instant UI response
     setProjects(prev => prev.map(p => p.id === proj.id ? proj : p));
     setActiveProject(proj);
-    // Save full project (including rooms, photos, reports, checklists, activity log, etc.) to Supabase
     dbUpdateProject(proj.id, proj).catch(err =>
       console.warn("[KrakenCam] Failed to update project in DB:", err.message || err)
     );
