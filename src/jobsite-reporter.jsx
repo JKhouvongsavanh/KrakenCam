@@ -4164,17 +4164,27 @@ function TemplateManagerModal({ templates, setTemplates, onClose }) {
           <div style={{ display:"flex", gap:10, marginBottom:14 }}>
             <div className="form-group" style={{ flex:1, marginBottom:0 }}>
               <label className="form-label">Category</label>
-              <input className="form-input" value={editing.category||""} onChange={e=>setEditing(p=>({...p,category:e.target.value}))}
-                placeholder="e.g. Water Damage, Safety, Fire, Mold…"
-                list="cl-tmpl-categories" />
-              <datalist id="cl-tmpl-categories">
-                {["General","Water Damage","Safety","Fire","Mold","Structural","Electrical","HVAC","Roofing","Flood","Contents"].map(c => <option key={c} value={c} />)}
-              </datalist>
+              <select className="form-input form-select" value={editing.category||"General"}
+                onChange={e => setEditing(p=>({...p, category: e.target.value}))}>
+                {["General","Water Damage","Safety","Fire","Mold","Structural","Electrical","HVAC","Roofing","Flood","Contents","Other"].map(c =>
+                  <option key={c} value={c}>{c}</option>
+                )}
+              </select>
             </div>
             <div className="form-group" style={{ flex:1, marginBottom:0 }}>
               <label className="form-label">Tags <span style={{ fontSize:11, color:"var(--text3)", fontWeight:400 }}>(comma separated)</span></label>
-              <input className="form-input" value={(editing.tags||[]).join(", ")} onChange={e=>setEditing(p=>({...p,tags:e.target.value.split(",").map(t=>t.trim()).filter(Boolean)}))}
-                placeholder="e.g. insurance, restoration, mold" />
+              <input className="form-input"
+                defaultValue={(editing.tags||[]).join(", ")}
+                onChange={e => {
+                  // Store raw string, parse only when there's a clear delimiter
+                  const raw = e.target.value;
+                  // Only update tags array when user pauses after a comma
+                  const parsed = raw.split(",").map(t=>t.trim()).filter(Boolean);
+                  setEditing(p=>({...p, tags: parsed, _tagsRaw: raw}));
+                }}
+                placeholder="insurance, restoration, mold"
+              />
+              <div style={{ fontSize:11, color:"var(--text3)", marginTop:4 }}>Type a tag then add a comma to separate</div>
             </div>
           </div>
           <ChecklistBuilder checklist={editing} onSave={saveTmpl} onBack={()=>setEditing(null)} />
