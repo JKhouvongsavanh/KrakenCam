@@ -8501,6 +8501,144 @@ function SketchEditor({ sketch, rooms, reports, project, settings, onSave, onClo
   );
 }
 
+// ── Project Activity Feed ──────────────────────────────────────────────────────
+function ProjectActivityFeed({ project, onUpdateProject, settings }) {
+  const [newNote, setNewNote] = useState("");
+  const [posting, setPosting] = useState(false);
+
+  // Build a unified activity list from all project data
+  const events = [];
+
+  // Project created
+  if (project.date) events.push({ id:"created", type:"created", date: project.date, time:"", icon:"🏗", label:"Project created", detail: project.title });
+
+  // Photos
+  (project.photos || []).forEach(p => {
+    if (p.date) events.push({ id:`ph-${p.id}`, type:"photo", date:p.date, time:p.time||"", icon:"📷", label:"Photo captured", detail: `${p.name || "Photo"}${p.room ? ` · ${p.room}` : ""}` });
+  });
+
+  // Videos
+  (project.videos || []).forEach(v => {
+    if (v.date) events.push({ id:`vid-${v.id}`, type:"video", date:v.date, time:"", icon:"🎬", label:"Video recorded", detail: v.name || "Video clip" });
+  });
+
+  // Voice notes
+  (project.voiceNotes || []).forEach(vn => {
+    if (vn.date) events.push({ id:`vn-${vn.id}`, type:"voice", date:vn.date, time:"", icon:"🎙", label:"Voice note recorded", detail: vn.name || "Voice note" });
+  });
+
+  // Reports
+  (project.reports || []).forEach(r => {
+    if (r.date) events.push({ id:`rpt-${r.id}`, type:"report", date:r.date, time:"", icon:"📄", label:`Report ${r.status === "final" ? "finalised" : r.status === "sent" ? "sent" : "created"}`, detail: r.title || "Report" });
+  });
+
+  // Checklists
+  (project.checklists || []).forEach(cl => {
+    if (cl.date) events.push({ id:`cl-${cl.id}`, type:"checklist", date:cl.date, time:"", icon:"✅", label:`Checklist ${cl.status === "complete" ? "completed" : "started"}`, detail: cl.name || "Checklist" });
+  });
+
+  // Files
+  (project.files || []).forEach(f => {
+    if (f.date || f.uploadedAt) events.push({ id:`fl-${f.id}`, type:"file", date:f.date||f.uploadedAt, time:"", icon:"📎", label:"File uploaded", detail: f.name || "File" });
+  });
+
+  // Activity log notes (manual entries)
+  (project.activityLog || []).forEach(a => {
+    events.push({ id:`al-${a.id}`, type:"note", date:a.date, time:a.time||"", icon:"💬", label:a.author ? `Note by ${a.author}` : "Note added", detail:a.text, deletable: true, _raw: a });
+  });
+
+  // Timeline stage changes
+  if (project.timelineStage) {
+    events.push({ id:"stage", type:"stage", date: project.date || today(), time:"", icon:"🏷", label:"Stage updated", detail: project.timelineStage.replace(/_/g," ") });
+  }
+
+  // Sort newest first
+  const sorted = events.sort((a, b) => {
+    const da = new Date(`${a.date}${a.time ? " " + a.time : ""}`);
+    const db = new Date(`${b.date}${b.time ? " " + b.time : ""}`);
+    return db - da;
+  });
+
+  const postNote = () => {
+    if (!newNote.trim()) return;
+    setPosting(true);
+    const entry = { id: uid(), type:"note", date: today(), time: new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:true}), text: newNote.trim(), author: settings?.userFirstName ? `${settings.userFirstName} ${settings.userLastName||""}`.trim() : "You" };
+    onUpdateProject({ ...project, activityLog: [...(project.activityLog||[]), entry] });
+    setNewNote(""); setPosting(false);
+  };
+
+  const deleteNote = (id) => {
+    onUpdateProject({ ...project, activityLog: (project.activityLog||[]).filter(a => a.id !== id) });
+  };
+
+  const TYPE_COLOR = { photo:"var(--accent)", video:"#8b7cf8", voice:"#f0954e", report:"#3dba7e", checklist:"#3dba7e", file:"#4a90d9", note:"var(--text2)", created:"var(--accent)", stage:"#fbbf24" };
+
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+      {/* Add a note */}
+      <div className="card">
+        <div className="card-header"><span style={{ fontWeight:700 }}>💬 Add Note</span></div>
+        <div className="card-body" style={{ padding:"14px 20px" }}>
+          <div style={{ display:"flex", gap:10, alignItems:"flex-start" }}>
+            <textarea
+              className="form-input form-textarea"
+              placeholder="Log an update, note, or observation about this project…"
+              value={newNote}
+              onChange={e => setNewNote(e.target.value)}
+              style={{ flex:1, minHeight:72, resize:"vertical" }}
+            />
+            <button className="btn btn-primary" disabled={!newNote.trim() || posting} onClick={postNote} style={{ flexShrink:0, alignSelf:"flex-end" }}>
+              <Icon d={ic.plus} size={14} /> Post
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Activity timeline */}
+      <div className="card">
+        <div className="card-header" style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <span style={{ fontWeight:700 }}>📋 Activity Feed</span>
+          <span style={{ fontSize:12, color:"var(--text3)" }}>{sorted.length} event{sorted.length!==1?"s":""}</span>
+        </div>
+        <div className="card-body" style={{ padding:"6px 0" }}>
+          {sorted.length === 0 && (
+            <div style={{ textAlign:"center", padding:"32px 20px", color:"var(--text3)", fontSize:13 }}>
+              No activity yet. Start by taking photos or adding a note.
+            </div>
+          )}
+          {sorted.map((ev, i) => (
+            <div key={ev.id} style={{ display:"flex", gap:14, padding:"12px 20px", borderBottom: i < sorted.length-1 ? "1px solid var(--border)" : "none", alignItems:"flex-start" }}>
+              {/* Icon + line */}
+              <div style={{ display:"flex", flexDirection:"column", alignItems:"center", flexShrink:0, paddingTop:2 }}>
+                <div style={{ width:32, height:32, borderRadius:"50%", background:"var(--surface2)", border:"1px solid var(--border)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:14 }}>
+                  {ev.icon}
+                </div>
+                {i < sorted.length-1 && <div style={{ width:1, flex:1, minHeight:12, background:"var(--border)", marginTop:4 }} />}
+              </div>
+              {/* Content */}
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                  <span style={{ fontSize:13, fontWeight:600, color:"var(--text)" }}>{ev.label}</span>
+                  <span style={{ fontSize:11, color:"var(--text3)" }}>{ev.date}{ev.time ? ` · ${ev.time}` : ""}</span>
+                </div>
+                <div style={{ fontSize:13, color:"var(--text2)", marginTop:3, lineHeight:1.5, wordBreak:"break-word" }}>
+                  {ev.detail}
+                </div>
+              </div>
+              {/* Delete note */}
+              {ev.deletable && (
+                <button onClick={() => deleteNote(ev._raw.id)} style={{ background:"none", border:"none", color:"var(--text3)", cursor:"pointer", padding:"2px 4px", flexShrink:0, opacity:.6, fontSize:16, lineHeight:1 }}
+                  onMouseEnter={e => e.currentTarget.style.opacity=1}
+                  onMouseLeave={e => e.currentTarget.style.opacity=0.6}>×</button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Project Detail (tabs: Overview, Photos, Rooms, Reports, Checklists) ────────
 function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onEdit, onOpenCamera, onEditPhoto, onUpdateProject, onOpenReportCreator, onSendVoiceNoteToChat, onSendFileToChat, onSendPhotoToChat, settings, orgId }) {
   const [tab, setTab] = useState("overview");
@@ -8564,6 +8702,7 @@ function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onEdit, on
     { id:"portal",     label:"Client Portal",                                      icon:ic.eye, desktopOnly:true },
     { id:"reports",    label:`Reports (${project.reports?.length||0})`,           icon:ic.reports,  desktopOnly:true },
     { id:"checklists", label:`Checklists (${project.checklists?.length||0})`,     icon:ic.check    },
+    { id:"activity",   label:"Activity",                                           icon:ic.activity },
   ];
 
   return (
@@ -8970,6 +9109,9 @@ function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onEdit, on
       )}
       {tab === "checklists" && (
         <ChecklistsTab project={project} onUpdateProject={onUpdateProject} />
+      )}
+      {tab === "activity" && (
+        <ProjectActivityFeed project={project} onUpdateProject={onUpdateProject} settings={settings} />
       )}
       {editingSketch !== null && (
         <SketchEditor
