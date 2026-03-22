@@ -836,7 +836,7 @@ const CSS = `
   /* ── EDITOR ── */
   .editor-wrap{display:flex;flex-direction:column;height:100vh;}
   .editor-toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:9px 18px;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;flex-shrink:0;overflow:hidden;}
-  .tool-btn{width:34px;height:34px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid transparent;color:var(--text2);transition:all .15s;}
+  .tool-btn{width:38px;height:38px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid transparent;color:var(--text2);transition:all .15s;}
   .tool-btn:hover{background:var(--surface2);color:var(--text);}
   .tool-btn.active{background:var(--accent-glow);border-color:var(--accent);color:var(--accent);}
   .tool-sep{width:1px;height:22px;background:var(--border);margin:0 3px;}
@@ -2095,7 +2095,7 @@ function ImageEditor({ photo, onClose, onSave }) {
         {tools.map(t => (
           <div key={t.id} className={`tool-btn ${tool===t.id?"active":""}`} title={t.label}
             onClick={() => { setCropRect(null); setTool(t.id); }}>
-            <Icon d={t.icon} size={15} />
+            <Icon d={t.icon} size={20} />
           </div>
         ))}
         {tool === "crop" && cropRect && Math.abs(cropRect.w) > 4 && Math.abs(cropRect.h) > 4 && (<>
@@ -2104,8 +2104,8 @@ function ImageEditor({ photo, onClose, onSave }) {
           <button className="btn btn-sm btn-secondary" style={{ fontSize:11.5, padding:"4px 10px" }} onClick={() => setCropRect(null)}>✕ Cancel</button>
         </>)}
         <div className="tool-sep" />
-        <div className="tool-btn editor-undo-desktop" title="Undo" onClick={undo}><Icon d={ic.undo} size={15} /></div>
-        <div className="tool-btn editor-undo-desktop" title="Redo" onClick={redo} style={{ transform:"scaleX(-1)" }}><Icon d={ic.undo} size={15} /></div>
+        <div className="tool-btn editor-undo-desktop" title="Undo" onClick={undo}><Icon d={ic.undo} size={20} /></div>
+        <div className="tool-btn editor-undo-desktop" title="Redo" onClick={redo} style={{ transform:"scaleX(-1)" }}><Icon d={ic.undo} size={20} /></div>
         <div style={{ marginLeft:"auto",display:"flex",gap:8 }} className="editor-actions-desktop">
           <button className="btn btn-sm btn-secondary" onClick={exportImg} title="Download as JPEG"><Icon d={ic.download} size={14} /> JPG</button>
           <button className="btn btn-sm btn-secondary" onClick={downloadPng} title="Download as PNG"><Icon d={ic.download} size={14} /> PNG</button>
@@ -8165,7 +8165,7 @@ function SketchEditor({ sketch, rooms, reports, project, settings, onSave, onClo
               style={{ width:46,height:46,borderRadius:10,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",
                 background: tool===t.id ? "var(--accent)" : "transparent",
                 color: tool===t.id ? "white" : "var(--text2)" }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
                 <path d={t.icon} />
               </svg>
             </button>
