@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from "
 import { supabase } from "./lib/supabase";
 import { loadSettingsFromDB, saveSettingsToDB, stripBinary } from "./lib/settingsSync";
 import { uploadOrgLogo, uploadUserAvatar } from "./lib/uploadImage";
+import { updateTeamMember, removeUser as dbRemoveUser } from "./lib/team";
 import { useAuth } from "./components/AuthProvider.jsx";
 import {
   getProjects     as dbGetProjects,
@@ -16959,6 +16960,12 @@ function AccountPage({ settings, onSettingsChange, projects, users, onUsersChang
     };
     const exists = users.find(x => x.id === normalizedUser.id);
     onUsersChange(exists ? users.map(x => x.id===normalizedUser.id ? normalizedUser : x) : [...users, normalizedUser]);
+    // Persist to Supabase profiles table
+    if (normalizedUser.email) {
+      updateTeamMember(normalizedUser).catch(err =>
+        console.warn("[KrakenCam] Failed to save team member:", err.message || err)
+      );
+    }
 
     // Sync user.assignedProjects → each project's assignedUserIds
     if (onProjectsChange) {
@@ -17037,6 +17044,10 @@ function AccountPage({ settings, onSettingsChange, projects, users, onUsersChang
   const removeUser = (id) => {
     const removedUser = users.find(u => u.id === id);
     onUsersChange(users.filter(u => u.id !== id));
+    // Soft-remove in Supabase (sets is_active=false)
+    if (removedUser?.email) {
+      dbRemoveUser(removedUser.id).catch(() => {});
+    }
     if (onProjectsChange) {
       onProjectsChange(prev => prev.map(proj => ({
         ...proj,
@@ -20864,7 +20875,7 @@ export default function App() {
           settings,
           teamUsers,
           tasks,
-          notifications,
+          notifications: [], // notifications are session-only, don't persist
           reportTemplates,
           chats,
           calEvents,
@@ -21294,28 +21305,38 @@ export default function App() {
     const updated = { ...latestProj, ...coordPatch, photos: allPhotos, videos: [...(latestProj.videos||[]), ...newVideos] };
     updateProject(updated);
 
-    // ── Upload camera-captured photos to Supabase storage (fire-and-forget) ──
+    // ── Upload camera-captured photos to Supabase Storage ──
+    // After upload succeeds, replace base64 dataUrl with the Storage URL
+    // so the project row stores a URL (small) not base64 (huge)
     const orgId = authProfile?.organization_id;
     if (orgId && latestProj.id && newPhotos.length > 0) {
-      newPhotos.forEach(photo => {
-        // Convert dataUrl to a File/Blob for upload if available
-        if (photo.dataUrl && photo.dataUrl.startsWith("data:")) {
-          try {
-            const arr = photo.dataUrl.split(",");
-            const mime = (arr[0].match(/:(.*?);/) || [])[1] || "image/jpeg";
-            const bstr = atob(arr[1]);
-            let n = bstr.length;
-            const u8arr = new Uint8Array(n);
-            while (n--) u8arr[n] = bstr.charCodeAt(n);
-            const blob = new Blob([u8arr], { type: mime });
-            const ext = mime.split("/")[1] || "jpg";
-            const file = new File([blob], `${photo.name || photo.id}.${ext}`, { type: mime });
-            dbUploadPicture(latestProj.id, latestProj.id, orgId, file).catch(err =>
-              console.warn("[KrakenCam] Camera photo Supabase upload failed:", err.message || err)
-            );
-          } catch (convErr) {
-            console.warn("[KrakenCam] Could not convert photo dataUrl for upload:", convErr);
+      newPhotos.forEach(async photo => {
+        if (!photo.dataUrl?.startsWith("data:")) return;
+        try {
+          const arr  = photo.dataUrl.split(",");
+          const mime = (arr[0].match(/:(.*?);/) || [])[1] || "image/jpeg";
+          const bstr = atob(arr[1]);
+          let n = bstr.length;
+          const u8arr = new Uint8Array(n);
+          while (n--) u8arr[n] = bstr.charCodeAt(n);
+          const ext  = mime.split("/")[1] || "jpg";
+          const file = new File([new Blob([u8arr], { type: mime })], `${photo.id}.${ext}`, { type: mime });
+          const path = `${orgId}/${latestProj.id}/${photo.id}.${ext}`;
+          await supabase.storage.from("project-photos").upload(path, file, { upsert: true });
+          const { data: urlData } = supabase.storage.from("project-photos").getPublicUrl(path);
+          const publicUrl = urlData?.publicUrl;
+          if (publicUrl) {
+            // Replace base64 with URL in the project
+            setProjects(prev => prev.map(p => {
+              if (p.id !== latestProj.id) return p;
+              const updatedPhotos = (p.photos || []).map(ph =>
+                ph.id === photo.id ? { ...ph, dataUrl: publicUrl } : ph
+              );
+              return { ...p, photos: updatedPhotos };
+            }));
           }
+        } catch (err) {
+          console.warn("[KrakenCam] Camera photo upload failed:", err.message || err);
         }
       });
     }

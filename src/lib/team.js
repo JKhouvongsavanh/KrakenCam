@@ -59,15 +59,45 @@ export async function getInvitations() {
 
 /**
  * Soft-remove a user by setting their profile's is_active flag to false.
- * This revokes access without destroying their data history.
- *
- * @param {string} profileId - profiles.id (UUID)
  */
 export async function removeUser(profileId) {
   const { error } = await supabase
     .from('profiles')
     .update({ is_active: false })
     .eq('id', profileId);
+  if (error) throw error;
+}
+
+/**
+ * Update a team member's full profile in Supabase.
+ * Maps the app's camelCase user object to DB snake_case columns.
+ */
+export async function updateTeamMember(user) {
+  const patch = {
+    role:              user.role        || 'user',
+    full_name:         `${user.firstName||''} ${user.lastName||''}`.trim(),
+    first_name:        user.firstName   || '',
+    last_name:         user.lastName    || '',
+    email:             user.email       || '',
+    phone:             user.phone       || '',
+    mobile:            user.mobile      || '',
+    title:             user.title       || '',
+    department:        user.department  || '',
+    employee_id:       user.employeeId  || '',
+    start_date:        user.startDate   || '',
+    status:            user.status      || 'active',
+    is_active:         user.status !== 'inactive',
+    notes:             user.notes       || '',
+    certifications:    user.certifications    || [],
+    permissions:       user.permissions       || {},
+    assigned_projects: user.assignedProjects  || [],
+  };
+
+  // Look up by email since app users may have local-only IDs before DB sync
+  const { error } = await supabase
+    .from('profiles')
+    .update(patch)
+    .eq('email', user.email);
 
   if (error) throw error;
 }
