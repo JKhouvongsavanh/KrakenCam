@@ -7005,11 +7005,14 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
           {filtered.map(photo => (
             <div key={photo.id} className="photo-card">
               <div className="photo-card-img" onClick={() => setViewerPhoto(photo)}>
-                {photo.dataUrl
-                  ? <img src={photo.dataUrl} alt={photo.name}
-                      onError={e => { e.target.style.display='none'; const ph = e.target.parentElement.querySelector('.photo-placeholder'); if(ph) ph.style.display='flex'; }} />
-                  : null}
-                <div className="photo-placeholder" style={{ display: photo.dataUrl ? 'none' : 'flex' }}>
+                <img
+                  src={photo.dataUrl || ""}
+                  alt={photo.name || "photo"}
+                  style={{ width:"100%",height:"100%",objectFit:"cover",display: photo.dataUrl ? "block" : "none" }}
+                  onError={e => { e.target.style.display='none'; e.target.nextElementSibling.style.display='flex'; }}
+                  onLoad={e => { e.target.style.display='block'; e.target.nextElementSibling.style.display='none'; }}
+                />
+                <div className="photo-placeholder" style={{ display: photo.dataUrl ? "none" : "flex" }}>
                   <Icon d={ic.image} size={32} stroke={photo.color||"var(--accent)"} />
                   <span style={{ fontSize:10,color:"var(--text3)" }}>{photo.room||"Photo"}</span>
                 </div>
