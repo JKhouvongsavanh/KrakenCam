@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from "react";
 import { supabase } from "./lib/supabase";
+import { loadSettingsFromDB, saveSettingsToDB, stripBinary } from "./lib/settingsSync";
 import { useAuth } from "./components/AuthProvider.jsx";
 import {
   getProjects     as dbGetProjects,
@@ -20485,6 +20486,22 @@ export default function App() {
     } catch(e) { /* ignore corrupt storage */ }
   }, []);
 
+  // ── Load settings from Supabase when org is known ────────────────────────
+  useEffect(() => {
+    const orgId = authProfile?.organization_id;
+    if (!orgId) return;
+    loadSettingsFromDB(orgId).then(dbSettings => {
+      if (!dbSettings) return; // no saved settings yet, use defaults
+      setSettings(prev => ({
+        ...prev,
+        ...dbSettings,
+        // Always keep binary fields from localStorage (not stored in DB)
+        logo:       prev.logo,
+        userAvatar: prev.userAvatar,
+      }));
+    }).catch(() => {});
+  }, [authProfile?.organization_id]);
+
   // ── Seed settings from authProfile on first login ────────────────────────
   // Fills in user name, email, org name, role from Supabase profile so
   // Settings > Account shows real data without manual entry.
@@ -21745,7 +21762,11 @@ export default function App() {
           }} onNotify={addNotification} />}
           {page === "account" && canOpenAccount && <AccountPage settings={settings} onSettingsChange={setSettings} projects={projects} users={teamUsers} onUsersChange={setTeamUsers} onProjectsChange={setProjects} onNotify={addNotification} />}
           {page === "settings" && canOpenSettings && (
-            <SettingsPage settings={settings} onSave={s => setSettings(s)} projects={projects} users={teamUsers}
+            <SettingsPage settings={settings} onSave={s => {
+              setSettings(s);
+              const orgId = authProfile?.organization_id;
+              if (orgId) saveSettingsToDB(orgId, s).catch(() => {});
+            }} projects={projects} users={teamUsers}
             onDeleteAccount={() => {
               setProjects([]);
               setTasks([]);
