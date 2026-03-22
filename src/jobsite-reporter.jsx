@@ -21442,6 +21442,59 @@ export default function App() {
   const isFullscreen = page === "camera" || page === "editor" || !!reportCreatorData;
   const isDetail     = page === "detail";
 
+  // ── Mobile back button handler ────────────────────────────────────────────
+  // Push a history entry whenever entering a "deep" view so the phone back
+  // button navigates within the app instead of leaving/logging out.
+  useEffect(() => {
+    const inDeepView = page === "camera" || page === "editor" || page === "detail" ||
+                       page === "account" || page === "settings" || !!reportCreatorData;
+    if (inDeepView) {
+      // Push a dummy history entry so back button pops to here first
+      window.history.pushState({ krakencam: true }, '', window.location.pathname);
+    }
+  }, [page, reportCreatorData]);
+
+  useEffect(() => {
+    const handlePopState = (e) => {
+      // If we're in a deep view, intercept back and go up one level
+      if (page === "camera") {
+        // Close camera, go back to where we came from
+        setCameraProject(null);
+        setPage(activeProject ? "detail" : "projects");
+        // Re-push so next back still works
+        window.history.pushState({ krakencam: true }, '', window.location.pathname);
+        return;
+      }
+      if (page === "editor") {
+        setEditingPhoto(null);
+        setPage(activeProject ? "detail" : "projects");
+        window.history.pushState({ krakencam: true }, '', window.location.pathname);
+        return;
+      }
+      if (reportCreatorData) {
+        setReportCreatorData(null);
+        window.history.pushState({ krakencam: true }, '', window.location.pathname);
+        return;
+      }
+      if (page === "detail") {
+        setActiveProject(null);
+        setPage("projects");
+        return;
+      }
+      if (page === "account" || page === "settings") {
+        setPage("projects");
+        return;
+      }
+      // For any other deep page, go to projects
+      if (page !== "projects") {
+        setPage("projects");
+        return;
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [page, activeProject, reportCreatorData]);
+
   const NAV = [
     { id:"projects",   label:"All Jobsites",   icon:ic.folder,        section:"main"  },
     { id:"tasks",      label:"Tasks",           icon:ic.clipboardList, section:"main"  },
