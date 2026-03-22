@@ -20575,6 +20575,43 @@ export default function App() {
     }).catch(() => {});
   }, [authProfile?.organization_id, authProfile?.user_id]);
 
+  // ── One-time migration: push localStorage projects to Supabase ───────────
+  // Runs once when authenticated. Finds projects that exist in localStorage
+  // but not in Supabase and saves them. Safe to run repeatedly.
+  useEffect(() => {
+    if (!authProfile?.organization_id) return;
+    const orgId = authProfile.organization_id;
+    const migrationKey = `kc_migrated_${orgId}`;
+    if (localStorage.getItem(migrationKey)) return; // already done
+
+    const doMigration = async () => {
+      try {
+        // Check if any projects exist in DB
+        const existing = await dbGetProjects();
+        if (existing && existing.length > 0) {
+          // DB already has projects — mark migrated
+          localStorage.setItem(migrationKey, '1');
+          return;
+        }
+        // No projects in DB — save all from current state
+        if (projects && projects.length > 0) {
+          for (const proj of projects) {
+            try {
+              await dbCreateProject({ ...proj, organization_id: orgId });
+            } catch { /* skip individual failures */ }
+          }
+          localStorage.setItem(migrationKey, '1');
+          console.log(`[KrakenCam] Migrated ${projects.length} projects to Supabase`);
+        }
+      } catch (e) {
+        console.warn('[KrakenCam] Migration failed:', e.message);
+      }
+    };
+    // Delay slightly to let projects load from localStorage first
+    const t = setTimeout(doMigration, 2000);
+    return () => clearTimeout(t);
+  }, [authProfile?.organization_id]);
+
   // ── Seed settings from authProfile on first login ────────────────────────
   // Fills in user name, email, org name, role from Supabase profile so
   // Settings > Account shows real data without manual entry.
