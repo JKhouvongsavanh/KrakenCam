@@ -7006,8 +7006,11 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
             <div key={photo.id} className="photo-card">
               <div className="photo-card-img" onClick={() => setViewerPhoto(photo)}>
                 {photo.dataUrl
-                  ? <img src={photo.dataUrl} alt={photo.name} />
-                  : <div className="photo-placeholder"><Icon d={ic.image} size={32} stroke={photo.color||"var(--accent)"} /><span style={{ fontSize:10,color:"var(--text3)" }}>{photo.room}</span></div>}
+                  ? <img src={photo.dataUrl} alt={photo.name} onError={e => { e.target.style.display='none'; e.target.nextSibling && (e.target.nextSibling.style.display='flex'); }} />
+                  : null}
+                {!photo.dataUrl
+                  ? <div className="photo-placeholder"><Icon d={ic.image} size={32} stroke={photo.color||"var(--accent)"} /><span style={{ fontSize:10,color:"var(--text3)" }}>{photo.room}</span></div>
+                  : <div className="photo-placeholder" style={{ display:'none' }}><Icon d={ic.image} size={32} stroke={photo.color||"var(--accent)"} /><span style={{ fontSize:10,color:"var(--text3)" }}>{photo.room}</span></div>}
                 {photo.gps && <div style={{ position:"absolute",bottom:5,left:5 }}><span className="pill" style={{ fontSize:9,padding:"3px 7px" }}><Icon d={ic.mapPin} size={9} stroke="#3dba7e" />GPS</span></div>}
                 {/* Hover actions */}
                 <div style={{ position:"absolute",top:6,right:6,opacity:0,transition:"opacity .15s",display:"flex",gap:6 }} className="photo-actions">

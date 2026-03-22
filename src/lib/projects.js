@@ -12,15 +12,24 @@ const STRIP_FROM_FILES  = ['dataUrl'];
 
 function stripPhotos(photos = []) {
   return photos.map(p => {
-    const { dataUrl, ...rest } = p;
-    return { ...rest, hasImage: !!dataUrl };
+    // Only strip actual base64 data — keep Storage URLs (they're short strings)
+    const isBase64 = p.dataUrl && p.dataUrl.startsWith('data:');
+    if (isBase64) {
+      const { dataUrl, ...rest } = p;
+      return { ...rest, hasImage: true };
+    }
+    return p; // keep dataUrl if it's a Storage URL
   });
 }
 
 function stripFiles(files = []) {
   return files.map(f => {
-    const { dataUrl, ...rest } = f;
-    return { ...rest, hasFile: !!dataUrl };
+    const isBase64 = f.dataUrl && f.dataUrl.startsWith('data:');
+    if (isBase64) {
+      const { dataUrl, ...rest } = f;
+      return { ...rest, hasFile: true };
+    }
+    return f;
   });
 }
 
