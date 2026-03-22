@@ -3168,6 +3168,7 @@ const FIELD_TYPES = [
 const DEFAULT_CL_TEMPLATES = [
   {
     id:"tmpl_general", name:"General Site Inspection", desc:"Standard walkthrough for any jobsite visit",
+    category:"General", tags:["inspection","walkthrough","general"],
     fields:[
       { id:"f1", type:"checkbox",       label:"Site access confirmed",          required:true },
       { id:"f2", type:"yesno",          label:"PPE in use by all personnel",    required:true },
@@ -3178,6 +3179,7 @@ const DEFAULT_CL_TEMPLATES = [
   },
   {
     id:"tmpl_water", name:"Water Damage Assessment", desc:"Document extent of water damage",
+    category:"Water Damage", tags:["water","restoration","insurance","damage"],
     fields:[
       { id:"f1", type:"dropdown",       label:"Water source identified",        options:["Pipe burst","Roof leak","Appliance failure","Flood","Sewage backup","Unknown"], required:true },
       { id:"f2", type:"yesno",          label:"Source mitigated / stopped",     required:true },
@@ -3190,6 +3192,7 @@ const DEFAULT_CL_TEMPLATES = [
   },
   {
     id:"tmpl_ppe", name:"PPE & Safety Compliance", desc:"Verify safety compliance on site",
+    category:"Safety", tags:["ppe","safety","compliance"],
     fields:[
       { id:"f1", type:"multi_checkbox", label:"PPE confirmed in use",           options:["Hard Hat","Safety Glasses","Work Boots","Respirator","Tyvek Suit","Gloves","High Viz"], required:true },
       { id:"f2", type:"yesno",          label:"Safety signage posted",          required:true },
@@ -3206,6 +3209,8 @@ function LegacyChecklistsTab({ project, onUpdateProject }) {
   const [showTmplPicker, setShowTmplPicker] = useState(false);
   const [templates,     setTemplates]     = useState(DEFAULT_CL_TEMPLATES);
   const [editingTmpl,   setEditingTmpl]   = useState(null);
+  const [pickerSearch,  setPickerSearch]  = useState("");
+  const [pickerCat,     setPickerCat]     = useState("All");
 
   const checklists = project.checklists || [];
 
@@ -3296,35 +3301,65 @@ function LegacyChecklistsTab({ project, onUpdateProject }) {
       )}
 
       {/* Template picker modal */}
-      {showTmplPicker && (
+      {showTmplPicker && (() => {
+        const CATEGORY_COLORS = {"General":"#4a90d9","Water Damage":"#3ab8e8","Safety":"#e8703a","Fire":"#e85a3a","Mold":"#3dba7e","Structural":"#8b7cf8","Electrical":"#f0c040","HVAC":"#4ec9b0","Roofing":"#c792ea"};
+        const pickerCategories = ["All", ...Array.from(new Set(templates.map(t => t.category||"General")))];
+        return (
         <div className="modal-overlay" onClick={e => e.target===e.currentTarget && setShowTmplPicker(false)}>
-          <div className="modal fade-in" style={{ maxWidth:520 }}>
+          <div className="modal fade-in" style={{ maxWidth:540 }}>
             <div className="modal-header">
               <div className="modal-title">Start a Checklist</div>
               <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setShowTmplPicker(false)}><Icon d={ic.close} size={16} /></button>
             </div>
-            <div className="modal-body">
-              <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-                {templates.map(t => (
+            <div className="modal-body" style={{ paddingBottom:0 }}>
+              {/* Search */}
+              <input className="form-input" placeholder="Search templates…" value={pickerSearch||""} onChange={e=>setPickerSearch(e.target.value)} style={{ marginBottom:10 }} />
+              {/* Category pills */}
+              <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:12 }}>
+                {pickerCategories.map(cat => (
+                  <button key={cat} onClick={()=>setPickerCat(cat)}
+                    style={{ padding:"3px 11px", borderRadius:20, fontSize:11.5, fontWeight:600, cursor:"pointer", border:"none",
+                      background: (pickerCat||"All")===cat ? (CATEGORY_COLORS[cat]||"var(--accent)") : "var(--surface3)",
+                      color: (pickerCat||"All")===cat ? "white" : "var(--text2)" }}>
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:8, maxHeight:340, overflowY:"auto", paddingBottom:8 }}>
+                {templates.filter(t => {
+                  const q = (pickerSearch||"").trim().toLowerCase();
+                  const catOk = (pickerCat||"All")==="All" || (t.category||"General")===(pickerCat||"All");
+                  const searchOk = !q || t.name.toLowerCase().includes(q) || (t.desc||"").toLowerCase().includes(q) || (t.tags||[]).some(g=>g.includes(q));
+                  return catOk && searchOk;
+                }).map(t => {
+                  const catColor = CATEGORY_COLORS[t.category||"General"]||"var(--accent)";
+                  return (
                   <div key={t.id} onClick={() => startFromTemplate(t)}
-                    style={{ padding:"12px 14px", border:"1px solid var(--border)", borderRadius:"var(--radius-sm)", cursor:"pointer", display:"flex", alignItems:"center", gap:12, background:"var(--surface2)", transition:"border-color .15s" }}
-                    onMouseEnter={e=>e.currentTarget.style.borderColor="var(--accent)"}
+                    style={{ padding:"12px 14px", border:"1px solid var(--border)", borderLeft:`3px solid ${catColor}`, borderRadius:"var(--radius-sm)", cursor:"pointer", display:"flex", alignItems:"center", gap:12, background:"var(--surface2)", transition:"border-color .15s" }}
+                    onMouseEnter={e=>e.currentTarget.style.borderColor=catColor}
                     onMouseLeave={e=>e.currentTarget.style.borderColor="var(--border)"}>
-                    <div style={{ width:36, height:36, borderRadius:8, background:"var(--accent-glow)", border:"1px solid var(--accent)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, flexShrink:0 }}>📋</div>
                     <div style={{ flex:1 }}>
-                      <div style={{ fontWeight:700, fontSize:13.5 }}>{t.name}</div>
+                      <div style={{ display:"flex", alignItems:"center", gap:6, flexWrap:"wrap" }}>
+                        <span style={{ fontWeight:700, fontSize:13.5 }}>{t.name}</span>
+                        <span style={{ fontSize:10, padding:"1px 6px", borderRadius:10, background:`${catColor}22`, color:catColor, fontWeight:600 }}>{t.category||"General"}</span>
+                      </div>
                       <div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>{t.desc} · {t.fields.length} fields</div>
+                      {(t.tags||[]).length > 0 && (
+                        <div style={{ display:"flex", gap:4, flexWrap:"wrap", marginTop:4 }}>
+                          {(t.tags||[]).map(tag => <span key={tag} style={{ fontSize:10, padding:"1px 6px", borderRadius:8, background:"var(--surface3)", color:"var(--text3)" }}>#{tag}</span>)}
+                        </div>
+                      )}
                     </div>
                     <Icon d={ic.chevRight} size={14} stroke="var(--text3)" />
                   </div>
-                ))}
+                  );
+                })}
                 <div onClick={startBlank}
                   style={{ padding:"12px 14px", border:"2px dashed var(--border)", borderRadius:"var(--radius-sm)", cursor:"pointer", display:"flex", alignItems:"center", gap:12, transition:"border-color .15s" }}
                   onMouseEnter={e=>e.currentTarget.style.borderColor="var(--accent)"}
                   onMouseLeave={e=>e.currentTarget.style.borderColor="var(--border)"}>
-                  <div style={{ width:36, height:36, borderRadius:8, background:"var(--surface2)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, flexShrink:0 }}>➕</div>
                   <div style={{ flex:1 }}>
-                    <div style={{ fontWeight:700, fontSize:13.5 }}>Build Custom Checklist</div>
+                    <div style={{ fontWeight:700, fontSize:13.5 }}>➕ Build Custom Checklist</div>
                     <div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>Start from scratch with any field types</div>
                   </div>
                   <Icon d={ic.chevRight} size={14} stroke="var(--text3)" />
@@ -3333,7 +3368,8 @@ function LegacyChecklistsTab({ project, onUpdateProject }) {
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* Template manager modal */}
       {editingTmpl && (
@@ -4123,33 +4159,102 @@ function TemplateManagerModal({ templates, setTemplates, onClose }) {
         <div className="modal-body" style={{ maxHeight:"60vh", overflowY:"auto" }}>
           <div className="form-group"><label className="form-label">Template Name</label><input className="form-input" value={editing.name} onChange={e=>setEditing(p=>({...p,name:e.target.value}))} placeholder="e.g. Fire Damage Walkthrough" /></div>
           <div className="form-group"><label className="form-label">Description</label><input className="form-input" value={editing.desc||""} onChange={e=>setEditing(p=>({...p,desc:e.target.value}))} placeholder="Short description…" /></div>
+          <div style={{ display:"flex", gap:10, marginBottom:14 }}>
+            <div className="form-group" style={{ flex:1, marginBottom:0 }}>
+              <label className="form-label">Category</label>
+              <input className="form-input" value={editing.category||""} onChange={e=>setEditing(p=>({...p,category:e.target.value}))}
+                placeholder="e.g. Water Damage, Safety, Fire, Mold…"
+                list="cl-tmpl-categories" />
+              <datalist id="cl-tmpl-categories">
+                {["General","Water Damage","Safety","Fire","Mold","Structural","Electrical","HVAC","Roofing","Flood","Contents"].map(c => <option key={c} value={c} />)}
+              </datalist>
+            </div>
+            <div className="form-group" style={{ flex:1, marginBottom:0 }}>
+              <label className="form-label">Tags <span style={{ fontSize:11, color:"var(--text3)", fontWeight:400 }}>(comma separated)</span></label>
+              <input className="form-input" value={(editing.tags||[]).join(", ")} onChange={e=>setEditing(p=>({...p,tags:e.target.value.split(",").map(t=>t.trim()).filter(Boolean)}))}
+                placeholder="e.g. insurance, restoration, mold" />
+            </div>
+          </div>
           <ChecklistBuilder checklist={editing} onSave={saveTmpl} onBack={()=>setEditing(null)} />
         </div>
       </div>
     </div>
   );
 
+  const [tmplSearch, setTmplSearch] = React.useState("");
+  const [tmplCategory, setTmplCategory] = React.useState("All");
+
+  const allCategories = ["All", ...Array.from(new Set(templates.map(t => t.category || "General").filter(Boolean)))];
+  const filteredTmpls = templates.filter(t => {
+    const q = tmplSearch.trim().toLowerCase();
+    const matchCat = tmplCategory === "All" || (t.category || "General") === tmplCategory;
+    const matchSearch = !q ||
+      t.name.toLowerCase().includes(q) ||
+      (t.desc||"").toLowerCase().includes(q) ||
+      (t.tags||[]).some(tag => tag.toLowerCase().includes(q)) ||
+      (t.category||"").toLowerCase().includes(q);
+    return matchCat && matchSearch;
+  });
+
+  const CATEGORY_COLORS = {
+    "General":"#4a90d9","Water Damage":"#3ab8e8","Safety":"#e8703a",
+    "Fire":"#e85a3a","Mold":"#3dba7e","Structural":"#8b7cf8",
+    "Electrical":"#f0c040","HVAC":"#4ec9b0","Roofing":"#c792ea",
+  };
+
   return (
     <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div className="modal fade-in" style={{ maxWidth:500 }}>
+      <div className="modal fade-in" style={{ maxWidth:560 }}>
         <div className="modal-header">
           <div className="modal-title">Checklist Templates</div>
           <button className="btn btn-ghost btn-icon" style={{ width:44,height:44 }} onClick={onClose}><Icon d={ic.close} size={22} /></button>
         </div>
-        <div className="modal-body">
-          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-            {templates.map(t => (
-              <div key={t.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", border:"1px solid var(--border)", borderRadius:"var(--radius-sm)", background:"var(--surface2)" }}>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontWeight:700, fontSize:13 }}>{t.name}</div>
-                  <div style={{ fontSize:11.5, color:"var(--text3)", marginTop:2 }}>{t.fields.length} fields · {t.desc}</div>
-                </div>
-                <button className="btn btn-sm btn-secondary" onClick={()=>setEditing({...t})}><Icon d={ic.edit} size={12} /> Edit</button>
-                {!t.id.startsWith("tmpl_general")&&!t.id.startsWith("tmpl_water")&&!t.id.startsWith("tmpl_ppe") && (
-                  <button className="btn btn-sm btn-danger btn-icon" onClick={()=>deleteTmpl(t.id)}><Icon d={ic.trash} size={12} /></button>
-                )}
-              </div>
+        <div className="modal-body" style={{ paddingBottom:0 }}>
+          {/* Search + category filter */}
+          <div style={{ display:"flex", gap:8, marginBottom:12, flexWrap:"wrap" }}>
+            <input className="form-input" placeholder="Search templates or tags…" value={tmplSearch} onChange={e=>setTmplSearch(e.target.value)} style={{ flex:1, minWidth:160 }} />
+          </div>
+          <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:14 }}>
+            {allCategories.map(cat => (
+              <button key={cat} onClick={() => setTmplCategory(cat)}
+                style={{ padding:"4px 12px", borderRadius:20, fontSize:12, fontWeight:600, cursor:"pointer", border:"none",
+                  background: tmplCategory===cat ? (CATEGORY_COLORS[cat]||"var(--accent)") : "var(--surface3)",
+                  color: tmplCategory===cat ? "white" : "var(--text2)" }}>
+                {cat}
+              </button>
             ))}
+          </div>
+          <div style={{ display:"flex", flexDirection:"column", gap:8, maxHeight:360, overflowY:"auto", paddingBottom:8 }}>
+            {filteredTmpls.length === 0 && (
+              <div style={{ textAlign:"center", padding:"24px", color:"var(--text3)", fontSize:13 }}>No templates match your search.</div>
+            )}
+            {filteredTmpls.map(t => {
+              const catColor = CATEGORY_COLORS[t.category||"General"] || "var(--accent)";
+              return (
+                <div key={t.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", border:"1px solid var(--border)", borderRadius:"var(--radius-sm)", background:"var(--surface2)", borderLeft:`3px solid ${catColor}` }}>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:6, flexWrap:"wrap" }}>
+                      <span style={{ fontWeight:700, fontSize:13 }}>{t.name}</span>
+                      <span style={{ fontSize:10, padding:"1px 7px", borderRadius:10, background:`${catColor}22`, color:catColor, fontWeight:600, border:`1px solid ${catColor}44` }}>{t.category||"General"}</span>
+                    </div>
+                    <div style={{ fontSize:11.5, color:"var(--text3)", marginTop:2 }}>{t.fields.length} fields · {t.desc}</div>
+                    {(t.tags||[]).length > 0 && (
+                      <div style={{ display:"flex", gap:4, flexWrap:"wrap", marginTop:4 }}>
+                        {(t.tags||[]).map(tag => (
+                          <span key={tag} style={{ fontSize:10, padding:"1px 6px", borderRadius:8, background:"var(--surface3)", color:"var(--text3)", border:"1px solid var(--border)" }}>#{tag}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ display:"flex", gap:6, flexShrink:0 }}>
+                    <button className="btn btn-sm btn-secondary" onClick={()=>setEditing({...t})}><Icon d={ic.edit} size={12} /></button>
+                    {!t.id.startsWith("tmpl_general")&&!t.id.startsWith("tmpl_water")&&!t.id.startsWith("tmpl_ppe") && (
+                      <button className="btn btn-sm btn-danger btn-icon" onClick={()=>deleteTmpl(t.id)}><Icon d={ic.trash} size={12} /></button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
         <div className="modal-footer">
