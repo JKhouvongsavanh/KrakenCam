@@ -20598,12 +20598,26 @@ export default function App() {
           // Load localStorage projects to recover base64 images not yet in Storage
           let localProjects = [];
           try {
+            // Log ALL localStorage keys to find where photos are stored
+            const allKeys = Object.keys(localStorage);
+            console.log('[KrakenCam] All localStorage keys:', allKeys);
             const saved = localStorage.getItem("krakencam_state");
-            if (saved) localProjects = JSON.parse(saved)?.projects || [];
-            console.log('[KrakenCam] localStorage projects:', localProjects.length, 
-              'first project photos:', localProjects[0]?.photos?.length,
-              'first photo has dataUrl:', !!localProjects[0]?.photos?.[0]?.dataUrl);
-          } catch { /* ignore */ }
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              localProjects = parsed?.projects || [];
+              console.log('[KrakenCam] krakencam_state keys:', Object.keys(parsed));
+              console.log('[KrakenCam] localStorage projects:', localProjects.length);
+              if (localProjects[0]) {
+                console.log('[KrakenCam] first project:', localProjects[0].title, 'photos:', localProjects[0]?.photos?.length);
+                if (localProjects[0]?.photos?.[0]) {
+                  const p = localProjects[0].photos[0];
+                  console.log('[KrakenCam] first photo keys:', Object.keys(p), 'dataUrl starts:', p.dataUrl?.slice(0,30));
+                }
+              }
+            } else {
+              console.log('[KrakenCam] krakencam_state is NULL in localStorage');
+            }
+          } catch(e) { console.log('[KrakenCam] localStorage error:', e.message); }
           console.log('[KrakenCam] DB rows:', rows.length, 'first row photos:', rows[0]?.photos?.length);
 
           const mapped = rows.map(row => {
