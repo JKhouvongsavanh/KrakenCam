@@ -9007,35 +9007,44 @@ function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onEdit, on
   };
 
   const addUploadedPhotos = (files) => {
-    const newPhotos = [];
     const fileArray = Array.from(files);
-    fileArray.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const photoId = uid();
-        const roomName = project.rooms?.[0]?.name || "General";
-        newPhotos.push({ id: photoId, name: file.name.replace(/\.[^/.]+$/, ""), room: roomName, date: today(), tags: ["uploaded"], dataUrl: e.target.result });
-        if (newPhotos.length === fileArray.length) {
-          const allPhotos = [...project.photos, ...newPhotos];
-          const coordPatch = (!project.manualGps && (!project.lat || !project.lng))
-            ? (() => { const hit = allPhotos.find(p => p.gps?.lat && p.gps?.lng); return hit ? { lat: String(hit.gps.lat), lng: String(hit.gps.lng) } : {}; })()
-            : {};
-          onUpdateProject({ ...project, ...coordPatch, photos: allPhotos });
+    const roomName = project.rooms?.[0]?.name || "General";
 
-          // ── Also upload to Supabase storage (fire-and-forget) ──
-          if (orgId && project.id) {
-            fileArray.forEach(f => {
-              // Find the matching room's folder_id if available, fall back to project-level
-              const matchingRoom = (project.rooms || []).find(r => r.name === roomName);
-              const folderId = matchingRoom?.supabaseFolderId || project.id;
-              dbUploadPicture(folderId, project.id, orgId, f).catch(err =>
-                console.warn("[KrakenCam] Supabase photo upload failed:", err.message || err)
-              );
-            });
+    fileArray.forEach(async (file) => {
+      const photoId = uid();
+      const photoName = file.name.replace(/\.[^/.]+$/, "");
+
+      // Show immediately with local dataUrl for instant feedback
+      const localUrl = await new Promise(res => {
+        const reader = new FileReader();
+        reader.onload = e => res(e.target.result);
+        reader.readAsDataURL(file);
+      });
+
+      // Upload to Supabase Storage and get permanent URL
+      let finalUrl = localUrl; // fallback to local if upload fails
+      if (orgId && project.id) {
+        try {
+          const supaUrl = import.meta.env.VITE_SUPABASE_URL;
+          const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+          const ext = file.name.split('.').pop() || 'jpg';
+          const path = `${orgId}/${project.id}/${photoId}.${ext}`;
+          const uploadRes = await fetch(`${supaUrl}/storage/v1/object/project-photos/${path}`, {
+            method: 'POST',
+            headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}`, 'Content-Type': file.type || 'image/jpeg', 'x-upsert': 'true' },
+            body: file,
+          });
+          if (uploadRes.ok) {
+            finalUrl = `${supaUrl}/storage/v1/object/public/project-photos/${path}`;
           }
+        } catch (e) {
+          console.warn('[KrakenCam] Upload failed, using local dataUrl:', e.message);
         }
-      };
-      reader.readAsDataURL(file);
+      }
+
+      const newPhoto = { id: photoId, name: photoName, room: roomName, date: today(), tags: ["uploaded"], dataUrl: finalUrl };
+      // Use setProjects to get latest state, then call onUpdateProject with fresh data
+      onUpdateProject({ ...project, photos: [...(project.photos || []), newPhoto] });
     });
   };
 
@@ -21454,9 +21463,14 @@ export default function App() {
           const ext  = mime.split("/")[1] || "jpg";
           const file = new File([new Blob([u8arr], { type: mime })], `${photo.id}.${ext}`, { type: mime });
           const path = `${orgId}/${latestProj.id}/${photo.id}.${ext}`;
-          await supabase.storage.from("project-photos").upload(path, file, { upsert: true });
-          const { data: urlData } = supabase.storage.from("project-photos").getPublicUrl(path);
-          const publicUrl = urlData?.publicUrl;
+          const supaUrl = import.meta.env.VITE_SUPABASE_URL;
+          const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+          await fetch(`${supaUrl}/storage/v1/object/project-photos/${path}`, {
+            method: 'POST',
+            headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}`, 'Content-Type': mime, 'x-upsert': 'true' },
+            body: file,
+          });
+          const publicUrl = `${supaUrl}/storage/v1/object/public/project-photos/${path}`;
           if (publicUrl) {
             // Replace base64 with Storage URL and save to Supabase DB
             setProjects(prev => {
