@@ -8849,14 +8849,31 @@ function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onEdit, on
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="tabs" style={{ display:"flex",gap:4,marginBottom:20,borderBottom:"1px solid var(--border)",paddingBottom:0 }}>
-        {TABS.map(t => (
-          <button key={t.id} className={`btn btn-ghost btn-sm tab-item${t.desktopOnly?" desktop-only":""}`} style={{ borderBottom:`2px solid ${tab===t.id?"var(--accent)":"transparent"}`,borderRadius:0,paddingBottom:12,color:tab===t.id?"var(--accent)":"var(--text2)",fontWeight:tab===t.id?700:500 }}
-            onClick={() => setTab(t.id)}>
-            <Icon d={t.icon} size={14} />{t.label}
-          </button>
-        ))}
+      {/* Tabs — horizontally scrollable, compact labels */}
+      <div style={{ overflowX:"auto", WebkitOverflowScrolling:"touch", scrollbarWidth:"none", marginBottom:20, borderBottom:"1px solid var(--border)" }}>
+        <div style={{ display:"flex", gap:0, minWidth:"max-content" }}>
+          {TABS.map(t => {
+            // Shorten labels for desktop display
+            const short = {
+              overview:"Overview", photos:"Photos", videos:"Videos",
+              voicenotes:"Voice", rooms:"Rooms", sketches:"Sketches",
+              files:"Files", portal:"Portal", reports:"Reports",
+              checklists:"Checks", activity:"Activity",
+            }[t.id] || t.label;
+            const count = t.label.match(/\((\d+)\)/)?.[1];
+            return (
+              <button key={t.id}
+                className={`btn btn-ghost btn-sm tab-item${t.desktopOnly?" desktop-only":""}`}
+                title={t.label}
+                style={{ borderBottom:`2px solid ${tab===t.id?"var(--accent)":"transparent"}`,borderRadius:0,paddingBottom:10,paddingLeft:12,paddingRight:12,color:tab===t.id?"var(--accent)":"var(--text2)",fontWeight:tab===t.id?700:500,whiteSpace:"nowrap",flexShrink:0,display:"flex",alignItems:"center",gap:5 }}
+                onClick={() => setTab(t.id)}>
+                <Icon d={t.icon} size={13} />
+                <span style={{ fontSize:12 }}>{short}</span>
+                {count && count !== "0" && <span style={{ fontSize:10,fontWeight:700,padding:"1px 5px",borderRadius:10,background:tab===t.id?"var(--accent)":"var(--surface3)",color:tab===t.id?"white":"var(--text3)",lineHeight:1.4 }}>{count}</span>}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Overview tab */}
