@@ -7359,6 +7359,7 @@ function SketchEditor({ sketch, rooms, reports, project, settings, onSave, onClo
   const [snapToGrid, setSnapToGrid] = us(sketch?.snapToGrid ?? true);
   const [showGrid,   setShowGrid]   = us(true);
   const [showNotes,  setShowNotes]  = us(false);
+  const [fpPanelCollapsed, setFpPanelCollapsed] = us(false);
   const [showExport, setShowExport] = us(false);
   const [selReport,  setSelReport]  = us("");
   const [editingText,setEditingText]= us(null);
@@ -8128,11 +8129,11 @@ function SketchEditor({ sketch, rooms, reports, project, settings, onSave, onClo
           style={{ background:"transparent",border:"none",outline:"none",color:"var(--text)",fontWeight:700,fontSize:15,flex:1,minWidth:0 }} />
         <div style={{ display:"flex",alignItems:"center",gap:6,marginLeft:"auto" }}>
           {saved && <span style={{ fontSize:12,color:"var(--green)" }}>✓ Saved</span>}
-          <button className="btn btn-ghost btn-sm desktop-only" title="Undo (Ctrl+Z)" onClick={undo} style={{ display:"flex",alignItems:"center",gap:5,padding:"0 10px",height:34 }}>
-            <Icon d={ic.undo} size={18} /> <span style={{ fontSize:12 }}>Undo</span>
+          <button className="btn btn-ghost btn-sm desktop-only" title="Undo (Ctrl+Z)" onClick={undo} style={{ display:"flex",alignItems:"center",gap:4,padding:"0 10px",height:34,fontSize:13,fontWeight:600,color:"var(--text2)" }}>
+            <span style={{ fontSize:16 }}>↩</span> Undo
           </button>
-          <button className="btn btn-ghost btn-sm desktop-only" title="Redo (Ctrl+Y)" onClick={redo} style={{ display:"flex",alignItems:"center",gap:5,padding:"0 10px",height:34 }}>
-            <span style={{ display:"inline-flex",transform:"scaleX(-1)" }}><Icon d={ic.undo} size={18} /></span> <span style={{ fontSize:12 }}>Redo</span>
+          <button className="btn btn-ghost btn-sm desktop-only" title="Redo (Ctrl+Y)" onClick={redo} style={{ display:"flex",alignItems:"center",gap:4,padding:"0 10px",height:34,fontSize:13,fontWeight:600,color:"var(--text2)" }}>
+            <span style={{ fontSize:16 }}>↪</span> Redo
           </button>
           <button className="btn btn-secondary btn-sm" onClick={() => setShowNotes(!showNotes)}>
             <Icon d={ic.text} size={14} /><span className="desktop-only" style={{ marginLeft:5 }}>Notes</span>
@@ -8284,11 +8285,18 @@ function SketchEditor({ sketch, rooms, reports, project, settings, onSave, onClo
 
           {/* ── Zoom controls overlay — bottom-right, horizontal ── */}
           {floorPlanMode && (
-            <div style={{ position:"absolute",left:12,bottom:56,zIndex:24,background:"rgba(13,15,20,.95)",border:"1px solid var(--border)",borderRadius:14,padding:"10px 12px",minWidth:230,maxWidth:"min(92vw, 320px)",boxShadow:"0 10px 30px rgba(0,0,0,.35)",display:"flex",flexDirection:"column",gap:8 }}>
+            <div style={{ position:"absolute",left:12,bottom:56,zIndex:24,background:"rgba(13,15,20,.95)",border:"1px solid var(--border)",borderRadius:14,padding:"10px 12px",minWidth:fpPanelCollapsed?120:230,maxWidth:"min(92vw, 320px)",boxShadow:"0 10px 30px rgba(0,0,0,.35)",display:"flex",flexDirection:"column",gap:8,transition:"min-width .2s" }}>
               <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",gap:8 }}>
                 <div style={{ fontSize:11,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"var(--text3)" }}>Floor Plan</div>
-                {selectedLine && <div style={{ fontSize:11,color:"var(--accent)" }}>Wall selected</div>}
+                <div style={{ display:"flex",alignItems:"center",gap:6 }}>
+                  {!fpPanelCollapsed && selectedLine && <div style={{ fontSize:11,color:"var(--accent)" }}>Wall selected</div>}
+                  <button onClick={() => setFpPanelCollapsed(v => !v)} title={fpPanelCollapsed ? "Expand" : "Collapse"} style={{ background:"none",border:"none",cursor:"pointer",color:"var(--text3)",fontSize:16,lineHeight:1,padding:"0 2px" }}>
+                    {fpPanelCollapsed ? "▲" : "▼"}
+                  </button>
+                </div>
               </div>
+              {fpPanelCollapsed && <div style={{ fontSize:11,color:"var(--text3)",textAlign:"center" }}>Tap ▲ to expand</div>}
+              {!fpPanelCollapsed && <>
               <button className={`btn btn-sm ${snapToGrid ? "btn-primary" : "btn-secondary"}`} onClick={() => setSnapToGrid(v => !v)} style={{ alignSelf:"flex-start" }}>
                 <Icon d={ic.grid} size={13} /> {snapToGrid ? "Snap On" : "Snap Off"}
               </button>
@@ -8367,6 +8375,7 @@ function SketchEditor({ sketch, rooms, reports, project, settings, onSave, onClo
                   Draw with the line tool, then tap a wall to edit its measurement.
                 </div>
               )}
+              </>}
             </div>
           )}
 
