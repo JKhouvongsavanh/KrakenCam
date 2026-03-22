@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from "react";
 import { supabase } from "./lib/supabase";
 import { loadSettingsFromDB, saveSettingsToDB, stripBinary } from "./lib/settingsSync";
+import { uploadOrgLogo, uploadUserAvatar } from "./lib/uploadImage";
 import { useAuth } from "./components/AuthProvider.jsx";
 import {
   getProjects     as dbGetProjects,
@@ -20506,14 +20507,25 @@ export default function App() {
     const orgId  = authProfile?.organization_id;
     const userId = authProfile?.user_id;
     if (!orgId || !userId) return;
-    loadSettingsFromDB(orgId, userId).then(dbSettings => {
-      if (!dbSettings) return;
+
+    // Load settings + logo_url + avatar_url in parallel
+    Promise.all([
+      loadSettingsFromDB(orgId, userId),
+      // Load logo URL from org_settings
+      fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/org_settings?organization_id=eq.${orgId}&select=logo_url&limit=1`, {
+        headers: { apikey: import.meta.env.VITE_SUPABASE_ANON_KEY, Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` }
+      }).then(r => r.json()).then(d => d?.[0]?.logo_url || null).catch(() => null),
+      // Load avatar URL from profiles
+      fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/profiles?user_id=eq.${userId}&select=avatar_url&limit=1`, {
+        headers: { apikey: import.meta.env.VITE_SUPABASE_ANON_KEY, Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` }
+      }).then(r => r.json()).then(d => d?.[0]?.avatar_url || null).catch(() => null),
+    ]).then(([dbSettings, logoUrl, avatarUrl]) => {
       setSettings(prev => ({
         ...prev,
-        ...dbSettings,
-        // Binary fields stay from localStorage
-        logo:       prev.logo,
-        userAvatar: prev.userAvatar,
+        ...(dbSettings || {}),
+        // Use Storage URLs if available, fall back to localStorage base64
+        logo:       logoUrl       || prev.logo,
+        userAvatar: avatarUrl     || prev.userAvatar,
       }));
     }).catch(() => {});
   }, [authProfile?.organization_id, authProfile?.user_id]);
@@ -21736,6 +21748,38 @@ export default function App() {
               setSettings(s);
               const orgId  = authProfile?.organization_id;
               const userId = authProfile?.user_id;
+
+              // Upload logo to Storage if it's a new base64 (not already a URL)
+              if (orgId && s.logo && s.logo.startsWith('data:') && s.logo !== settings.logo) {
+                uploadOrgLogo(orgId, s.logo).then(url => {
+                  setSettings(prev => ({ ...prev, logo: url }));
+                  // Re-save with the URL instead of base64
+                  const withUrl = { ...s, logo: url };
+                  saveSettingsToDB(orgId, userId, withUrl).catch(() => {});
+                  // Also update org_settings.logo_url
+                  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+                  const supaUrl = import.meta.env.VITE_SUPABASE_URL;
+                  fetch(`${supaUrl}/rest/v1/org_settings?organization_id=eq.${orgId}`, {
+                    method: 'PATCH', headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                    body: JSON.stringify({ logo_url: url }),
+                  }).catch(() => {});
+                }).catch(err => console.warn('[KrakenCam] Logo upload failed:', err.message));
+              }
+
+              // Upload avatar to Storage if it's a new base64
+              if (userId && s.userAvatar && s.userAvatar.startsWith('data:') && s.userAvatar !== settings.userAvatar) {
+                uploadUserAvatar(userId, s.userAvatar).then(url => {
+                  setSettings(prev => ({ ...prev, userAvatar: url }));
+                  // Update profile avatar_url in Supabase
+                  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+                  const supaUrl = import.meta.env.VITE_SUPABASE_URL;
+                  fetch(`${supaUrl}/rest/v1/profiles?user_id=eq.${userId}`, {
+                    method: 'PATCH', headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                    body: JSON.stringify({ avatar_url: url }),
+                  }).catch(() => {});
+                }).catch(err => console.warn('[KrakenCam] Avatar upload failed:', err.message));
+              }
+
               if (orgId || userId) saveSettingsToDB(orgId, userId, s).catch(() => {});
             }} projects={projects} users={teamUsers}
             onDeleteAccount={() => {
