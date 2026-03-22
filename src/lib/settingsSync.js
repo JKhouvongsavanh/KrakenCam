@@ -30,21 +30,34 @@ function splitSettings(settings) {
   return { org, user };
 }
 
+async function getAuthToken() {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY;
+}
+
 async function dbPost(path, body) {
-  const url     = import.meta.env.VITE_SUPABASE_URL;
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const url   = import.meta.env.VITE_SUPABASE_URL;
+  const token = await getAuthToken();
   await fetch(`${url}/rest/v1/${path}`, {
     method: 'POST',
-    headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}`, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' },
+    headers: {
+      apikey:        import.meta.env.VITE_SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${token}`,  // ← user's JWT, not anon key
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=merge-duplicates,return=minimal'
+    },
     body: JSON.stringify(body),
   });
 }
 
 async function dbGet(path) {
-  const url     = import.meta.env.VITE_SUPABASE_URL;
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const url   = import.meta.env.VITE_SUPABASE_URL;
+  const token = await getAuthToken();
   const res = await fetch(`${url}/rest/v1/${path}`, {
-    headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}` },
+    headers: {
+      apikey:        import.meta.env.VITE_SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${token}`,  // ← user's JWT, not anon key
+    },
   });
   return res.json();
 }
