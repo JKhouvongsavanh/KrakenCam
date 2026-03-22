@@ -726,8 +726,9 @@ const CSS = `
   /* ── PHOTO CARDS ── */
   .photo-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all .2s;}
   .photo-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);}
-  .photo-card-img{aspect-ratio:4/3;background:var(--surface2);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
-  .photo-card-img img{width:100%;height:100%;object-fit:cover;}
+  .photo-card-img{aspect-ratio:4/3;background:var(--surface2);display:block;position:relative;overflow:hidden;}
+  .photo-card-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;}
+  .photo-card-img .photo-placeholder{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text3);}
   .photo-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text3);}
   .photo-card-info{padding:11px 13px;}
   .photo-card-name{font-weight:600;font-size:12.5px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -7005,23 +7006,15 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
           {filtered.map(photo => (
             <div key={photo.id} className="photo-card">
               <div className="photo-card-img" onClick={() => setViewerPhoto(photo)}>
-                {photo.dataUrl && photo.dataUrl.length > 10
-                  ? <img
-                      src={photo.dataUrl}
-                      alt={photo.name || "photo"}
-                      style={{ width:"100%",height:"100%",objectFit:"cover",display:"block" }}
-                      onError={e => {
-                        e.target.style.display='none';
-                        const ph = e.target.parentElement?.querySelector('.photo-placeholder');
-                        if (ph) ph.style.display='flex';
-                      }}
-                    />
-                  : null
-                }
-                <div className="photo-placeholder" style={{ display: (photo.dataUrl && photo.dataUrl.length > 10) ? "none" : "flex" }}>
-                  <Icon d={ic.image} size={32} stroke={photo.color||"var(--accent)"} />
-                  <span style={{ fontSize:10,color:"var(--text3)" }}>{photo.room||"Photo"}</span>
-                </div>
+                {photo.dataUrl && photo.dataUrl.length > 10 && (
+                  <img src={photo.dataUrl} alt={photo.name || "photo"} />
+                )}
+                {(!photo.dataUrl || photo.dataUrl.length <= 10) && (
+                  <div className="photo-placeholder">
+                    <Icon d={ic.image} size={32} stroke={photo.color||"var(--accent)"} />
+                    <span style={{ fontSize:10,color:"var(--text3)" }}>{photo.room||"Photo"}</span>
+                  </div>
+                )}
                 {photo.gps && <div style={{ position:"absolute",bottom:5,left:5 }}><span className="pill" style={{ fontSize:9,padding:"3px 7px" }}><Icon d={ic.mapPin} size={9} stroke="#3dba7e" />GPS</span></div>}
                 {/* Hover actions */}
                 <div style={{ position:"absolute",top:6,right:6,opacity:0,transition:"opacity .15s",display:"flex",gap:6 }} className="photo-actions">
