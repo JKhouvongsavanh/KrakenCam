@@ -10871,25 +10871,29 @@ function ReportCreator({ project, reportData, settings, onSettingsChange, templa
                         onBlur={e=>{ updateBlock(block.id,{content:e.currentTarget.innerHTML}); setEditingBlock(null); }}
                         onInput={e=>{/* save on blur only to avoid cursor jump */}}
                         dangerouslySetInnerHTML={{ __html: block.content || "" }}
-                        style={{ width:"100%",minHeight:60,outline:"none",cursor:"text",
-                          padding:"6px 80px 6px 0",
+                        style={{ width:"100%",minHeight:72,outline:"none",cursor:"text",
+                          padding:"10px 52px 10px 10px",
                           fontSize:(block.textStyle?.fontSize||12.5)+"px",
                           lineHeight:1.7,
                           fontWeight:block.textStyle?.bold?"bold":"normal",
                           fontStyle:block.textStyle?.italic?"italic":"normal",
                           textDecoration:block.textStyle?.underline?"underline":"none",
-                          color:block.textStyle?.color||"inherit",
-                          background:block.textStyle?.highlight?"#ffe066":"transparent",
-                          whiteSpace:"pre-wrap",wordBreak:"break-word" }}
+                          color:block.textStyle?.color||"#333",
+                          background:block.textStyle?.highlight?"#ffe066": editingBlock===block.id ? "#fff" : "#f8f9fa",
+                          border: editingBlock===block.id ? "2px solid #2b7fe8" : "1.5px dashed #ccc",
+                          borderRadius:6,
+                          whiteSpace:"pre-wrap",wordBreak:"break-word",
+                          transition:"border-color .15s, background .15s" }}
                       />
                       {!block.content && editingBlock!==block.id && (
-                        <div style={{ position:"absolute",top:6,left:0,color:"#ccc",fontSize:(block.textStyle?.fontSize||12.5)+"px",pointerEvents:"none" }}>Click to edit...</div>
+                        <div style={{ position:"absolute",top:10,left:10,color:"#aaa",fontSize:(block.textStyle?.fontSize||12.5)+"px",pointerEvents:"none",fontStyle:"italic" }}>Click to type text…</div>
                       )}
-                      <button title="Write with AI" onClick={e=>{e.stopPropagation(); aiEnabled ? setAiWriterBlock(block.id) : setShowAiUpgrade(true);}}
-                        style={{ position:"absolute",top:4,right:4,width:28,height:28,borderRadius:7,border:"none",background:"linear-gradient(135deg,#2b7fe8,#1a5fc8)",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",boxShadow:"0 2px 8px rgba(43,127,232,.45)",flexShrink:0,transition:"transform .1s,box-shadow .1s" }}
-                        onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.1)";e.currentTarget.style.boxShadow="0 3px 12px rgba(43,127,232,.6)";}}
+                      <button title="✨ Write with AI" onClick={e=>{e.stopPropagation(); aiEnabled ? setAiWriterBlock(block.id) : setShowAiUpgrade(true);}}
+                        style={{ position:"absolute",top:6,right:6,height:32,padding:"0 10px",borderRadius:7,border:"none",background:"linear-gradient(135deg,#2b7fe8,#1a5fc8)",display:"flex",alignItems:"center",justifyContent:"center",gap:5,cursor:"pointer",boxShadow:"0 2px 8px rgba(43,127,232,.45)",transition:"transform .1s,box-shadow .1s",whiteSpace:"nowrap" }}
+                        onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.05)";e.currentTarget.style.boxShadow="0 3px 12px rgba(43,127,232,.6)";}}
                         onMouseLeave={e=>{e.currentTarget.style.transform="scale(1)";e.currentTarget.style.boxShadow="0 2px 8px rgba(43,127,232,.45)";}}>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+                        <span style={{ fontSize:11,fontWeight:700,color:"white" }}>AI Write</span>
                       </button>
                     </div>
                   </div>
