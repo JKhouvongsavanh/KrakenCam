@@ -2466,7 +2466,7 @@ function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose 
       // Browsers cannot set the User-Agent header required by Nominatim, so
       // we proxy through our own edge function which sets it server-side.
       // Replace KRAKENCAM_SUPABASE_URL with your project ref.
-      const GEOCODE_URL = "https://KRAKENCAM_SUPABASE_URL.supabase.co/functions/v1/geocode";
+      const GEOCODE_URL = "https://nszoateefidwhhsyexjd.supabase.co/functions/v1/geocode";
       // ─────────────────────────────────────────────────────────────────────
       const params = new URLSearchParams();
       if (f.address) params.set("address", f.address);
@@ -21029,8 +21029,8 @@ export default function App() {
   }, [projects, settings, teamUsers, tasks, notifications, reportTemplates, chats, calEvents]);
 
   // ── Supabase auth session check ──────────────────────────────────────────
-  const SUPABASE_URL = "https://KRAKENCAM_SUPABASE_URL.supabase.co";
-  const SUPABASE_ANON_KEY = "KRAKENCAM_SUPABASE_ANON_KEY";
+  const SUPABASE_URL = "https://nszoateefidwhhsyexjd.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zem9hdGVlZmlkd2hoc3lleGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MjE0NTQsImV4cCI6MjA4OTA5NzQ1NH0.IOGKjyedioV5pkGuz3RmMexMZknKGHlfRURMlYn6EZc";
 
   useEffect(() => {
     // Check active session on mount
