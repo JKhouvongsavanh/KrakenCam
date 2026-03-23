@@ -5694,7 +5694,9 @@ function ProjectFilesTab({ project, teamUsers = [], settings = {}, onUpdateProje
         nextFiles.push(newFile);
         if (nextFiles.length === selected.length) {
           nextFiles.sort((a, b) => a.name.localeCompare(b.name));
-          patchFiles([...nextFiles.reverse(), ...files]);
+          // Read latest files from project to avoid stale closure
+          const currentFiles = (project.files || []).map(normaliseProjectFile);
+          patchFiles([...nextFiles.reverse(), ...currentFiles]);
         }
         // Upload to Supabase using raw fetch (avoids RLS issues with JS client)
         if (orgId && project?.id) {
@@ -5717,8 +5719,9 @@ function ProjectFilesTab({ project, teamUsers = [], settings = {}, onUpdateProje
                 body: JSON.stringify({ organization_id: orgId, project_id: project.id, name: file.name, storage_path: storagePath, file_size: file.size || null, mime_type: file.type || null }),
               });
               const dbRow = dbRes.ok ? (await dbRes.json())[0] : null;
-              // Replace base64 with Storage URL in local state
-              patchFiles(prev => (prev || files).map(f =>
+              // Replace base64 with Storage URL — read latest files from project
+              const latestFiles = (project.files || []).map(normaliseProjectFile);
+              patchFiles(latestFiles.map(f =>
                 f.id === fileId ? { ...f, dataUrl: publicUrl, storagePath, supabaseId: dbRow?.id } : f
               ));
             }
@@ -6004,6 +6007,14 @@ function ProjectFilesTab({ project, teamUsers = [], settings = {}, onUpdateProje
                   title={viewerFile.name}
                   style={{ width:"100%",height:"70vh",border:"1px solid var(--border)",borderRadius:8,background:"white" }}
                 />
+              ) : viewerFile.dataUrl?.startsWith("http") ? (
+                // Storage URL — can't decode inline, open in new tab
+                <div style={{ textAlign:"center",padding:"60px 24px",color:"var(--text2)" }}>
+                  <p style={{ marginBottom:16,fontSize:14 }}>This file cannot be previewed inline.</p>
+                  <button className="btn btn-primary" onClick={() => openFile(viewerFile)}>
+                    <Icon d={ic.arrowUpRight} size={14}/> Open in New Tab
+                  </button>
+                </div>
               ) : (
                 <pre style={{ margin:0,whiteSpace:"pre-wrap",wordBreak:"break-word",fontFamily:"ui-monospace, SFMono-Regular, Consolas, monospace",fontSize:12.5,lineHeight:1.6,background:"var(--surface2)",border:"1px solid var(--border)",borderRadius:8,padding:16 }}>
                   {decodeDataUrlText(viewerFile.dataUrl)}
