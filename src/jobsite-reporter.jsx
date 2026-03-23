@@ -20481,10 +20481,8 @@ function LoginPage({ supabaseUrl, supabaseAnonKey, logo, onSuccess }) {
 
 export default function App() {
   // Pull org profile from AuthProvider (already wraps the whole app)
-const { profile: authProfile } = useAuth();
-  const [authUser,       setAuthUser]       = useState(null);   // null = not logged in
-  const [authLoading,    setAuthLoading]    = useState(true);   // checking session on mount
-  const [authKey,       setAuthKey]     = useState(0);
+const { profile: authProfile, user: authUser, loading: authLoading, signOut: signOutFn } = useAuth();
+  const [authKey, setAuthKey] = useState(0);
   const [projects, setProjects] = useState([]);
   const [activeProject, setActiveProject] = useState(null);
   const [page,          setPage]          = useState("projects");
@@ -21019,27 +21017,12 @@ useEffect(() => {
   }, [projects, settings, teamUsers, tasks, notifications, reportTemplates, chats, calEvents]);
 
   // ── Supabase auth session check ──────────────────────────────────────────
-  // Auth session — uses Supabase JS client (handles token storage + refresh automatically)
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) setAuthUser(session.user);
-      setAuthLoading(false);
-    }).catch(() => setAuthLoading(false));
-
-    // Keep authUser in sync on login/logout/token refresh
-    const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setAuthUser(session?.user || null);
-    });
-    return () => authSub.unsubscribe();
-  }, []);
-
-  const handleAuthSuccess = (user) => {
-    // Session already stored by Supabase client — just sync local state
-    setAuthUser(user);
+  const handleAuthSuccess = () => {
+    // Session is handled by AuthProvider — no-op here
   };
 
   const handleSignOut = () => {
-    supabase.auth.signOut().then(() => window.location.replace('/'));
+    signOutFn().then(() => window.location.replace('/'));
   };
 
   const addNotification = (n) => {
