@@ -20544,7 +20544,18 @@ const { profile: authProfile, user: authUser, loading: authLoading } = useAuth()
       fetch(`${url}/rest/v1/report_templates?organization_id=eq.${orgId}&select=*&order=created_at`, { headers })
         .then(r => r.json()).then(rows => {
           if (Array.isArray(rows) && rows.length > 0) {
-            setReportTemplates(rows.map(r => ({ ...((r.sections && typeof r.sections === 'object' && !Array.isArray(r.sections)) ? r.sections : {}), id: r.id, name: r.name, type: r.type, color: r.color, sections: r.sections })));
+            setReportTemplates(rows.map(r => {
+              const meta = r.sections?._meta || {};
+              const sections = r.sections ? Object.fromEntries(Object.entries(r.sections).filter(([k]) => k !== '_meta')) : {};
+              return {
+                id: r.id, name: r.name, type: r.type, color: r.color,
+                desc: r.description || meta.desc || '',
+                recipient: r.recipient || meta.recipient || 'Client',
+                coverImg: r.cover_img || meta.coverImg || null,
+                signatureImg: r.signature_img || meta.signatureImg || null,
+                sections,
+              };
+            }));
           }
         }).catch(() => {});
     });
@@ -21781,11 +21792,8 @@ useEffect(() => {
                       name: t.name,
                       type: t.type || '',
                       color: t.color || '#4a90d9',
-                      description: t.desc || '',
-                      recipient: t.recipient || 'Client',
-                      cover_img: (t.coverImg && t.coverImg.startsWith('data:')) ? null : (t.coverImg || null),
-                      signature_img: (t.signatureImg && t.signatureImg.startsWith('data:')) ? null : (t.signatureImg || null),
-                      sections: t.sections || {},
+                      // Store extra fields in sections._meta until ALTER TABLE adds columns
+                      sections: { ...(t.sections || {}), _meta: { desc: t.desc || '', recipient: t.recipient || 'Client', coverImg: (!t.coverImg || t.coverImg.startsWith('data:')) ? null : t.coverImg, signatureImg: (!t.signatureImg || t.signatureImg.startsWith('data:')) ? null : t.signatureImg } },
                       updated_at: new Date().toISOString(),
                     }))),
                   }).catch(() => {});
