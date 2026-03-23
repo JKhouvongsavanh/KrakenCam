@@ -1,5 +1,5 @@
 /**
- * src/lib/supabase.js
+ * src/lib/supabase.js - v2
  *
  * Supabase client initialization.
  *
