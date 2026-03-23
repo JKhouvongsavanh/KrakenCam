@@ -16,12 +16,16 @@ import { supabase } from '../lib/supabase';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [session, setSession]       = useState(null);
-  const [user, setUser]             = useState(null);
-  const [profile, setProfile]       = useState(null);
+  const [session, setSession]           = useState(null);
+  const [user, setUser]                 = useState(null);
+  const [profile, setProfile]           = useState(null);
   const [subscription, setSubscription] = useState(null);
-  const [loading, setLoading]       = useState(true);
-  const [authKey,       setAuthKey]     = useState(0);
+  const [loading, setLoading]           = useState(true);
+  const [authKey, setAuthKey]           = useState(0);
+
+  // Prevent concurrent hydrateUser calls — only the latest wins
+  const hydratingRef = React.useRef(false);
+  const mountedRef   = React.useRef(true);
 
   async function loadProfile(userId) {
     const { data, error } = await supabase
@@ -40,13 +44,13 @@ export function AuthProvider({ children }) {
       .single();
 
     if (error) {
-      console.error('[AuthProvider] Failed to load profile:', error);
+      // Only log real errors, not lock-contention aborts
+      if (!error.message?.includes('AbortError') && !error.message?.includes('Lock')) {
+        console.error('[AuthProvider] Failed to load profile:', error);
+      }
       return null;
     }
-    // Normalize: expose organizations join as `organization` (singular)
-    if (data && data.organizations) {
-      data.organization = data.organizations;
-    }
+    if (data?.organizations) data.organization = data.organizations;
     return data;
   }
 
@@ -56,60 +60,82 @@ export function AuthProvider({ children }) {
       .select('*')
       .eq('organization_id', orgId)
       .single();
-
-    if (error) {
-      console.error('[AuthProvider] Failed to load subscription:', error);
-      return null;
-    }
+    if (error) return null;
     return data;
   }
 
-  async function hydrateUser(session) {
-     setAuthKey(k => k + 1);
-    if (!session?.user) {
-    setUser(null);
-      setProfile(null);
-      setSubscription(null);
-      return;
-    }
+  async function hydrateUser(newSession) {
+    // If already hydrating, skip — the in-flight call will finish
+    if (hydratingRef.current) return;
+    hydratingRef.current = true;
+    try {
+      setAuthKey(k => k + 1);
 
-    setUser(session.user);
+      if (!newSession?.user) {
+        if (mountedRef.current) {
+          setUser(null);
+          setProfile(null);
+          setSubscription(null);
+        }
+        return;
+      }
 
-    const profileData = await loadProfile(session.user.id);
-    setProfile(profileData); // may be null if no profile yet — that's ok
+      if (mountedRef.current) setUser(newSession.user);
 
-    if (profileData?.organization_id) {
-      const subData = await loadSubscription(profileData.organization_id);
-      setSubscription(subData);
+      // Small delay to let the auth lock settle after sign-in/token refresh
+      await new Promise(r => setTimeout(r, 100));
+      if (!mountedRef.current) return;
+
+      const profileData = await loadProfile(newSession.user.id);
+      if (!mountedRef.current) return;
+
+      // Retry once if we got null (lock contention on first try)
+      let finalProfile = profileData;
+      if (!finalProfile) {
+        await new Promise(r => setTimeout(r, 500));
+        if (!mountedRef.current) return;
+        finalProfile = await loadProfile(newSession.user.id);
+      }
+
+      if (mountedRef.current) setProfile(finalProfile);
+
+      if (finalProfile?.organization_id) {
+        const subData = await loadSubscription(finalProfile.organization_id);
+        if (mountedRef.current) setSubscription(subData);
+      }
+    } finally {
+      hydratingRef.current = false;
     }
   }
 
   useEffect(() => {
-    // Get current session on mount — with 5s timeout fallback
-    const timeout = setTimeout(() => setLoading(false), 5000);
+    mountedRef.current = true;
+    const timeout = setTimeout(() => { if (mountedRef.current) setLoading(false); }, 8000);
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      hydrateUser(session).finally(() => {
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      if (!mountedRef.current) return;
+      setSession(s);
+      hydrateUser(s).finally(() => {
         clearTimeout(timeout);
-        setLoading(false);
+        if (mountedRef.current) setLoading(false);
       });
     }).catch(() => {
       clearTimeout(timeout);
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     });
 
-    // Listen for auth state changes (login, logout, token refresh)
-    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(
       async (_event, newSession) => {
+        if (!mountedRef.current) return;
         setSession(newSession);
         await hydrateUser(newSession);
-        setLoading(false);
+        if (mountedRef.current) setLoading(false);
       }
     );
 
     return () => {
-      authSubscription.unsubscribe();
+      mountedRef.current = false;
+      authSub.unsubscribe();
     };
   }, []);
 
