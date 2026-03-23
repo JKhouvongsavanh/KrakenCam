@@ -20495,7 +20495,7 @@ const { profile: authProfile } = useAuth();
   const [authUser,       setAuthUser]       = useState(null);   // null = not logged in
   const [authLoading,    setAuthLoading]    = useState(true);   // checking session on mount
   const [authKey,       setAuthKey]     = useState(0);
-  const [projects,      setProjects]      = useState(SEED_PROJECTS);
+  const [projects, setProjects] = useState([]);
   const [activeProject, setActiveProject] = useState(null);
   const [page,          setPage]          = useState("projects");
   const [editingPhoto,  setEditingPhoto]  = useState(null);
