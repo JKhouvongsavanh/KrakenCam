@@ -1412,10 +1412,11 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
 
     // DEBUG — remove after orientation fix confirmed
     const dbgCtx = canvas.getContext("2d");
-    dbgCtx.fillStyle = "rgba(0,0,0,0.7)";
-    dbgCtx.fillRect(10, 10, 520, 60);
+    dbgCtx.fillStyle = "rgba(0,0,0,0.8)";
+    dbgCtx.fillRect(10, 10, 560, 80);
     dbgCtx.fillStyle = "#0f0"; dbgCtx.font = "bold 18px monospace";
-    dbgCtx.fillText(`vid:${vw}x${vh} sw:${sw}x${sh} out:${canvas.width}x${canvas.height} devL:${window.innerWidth>window.innerHeight} rotated:${needsRotation}`, 16, 48);
+    dbgCtx.fillText(`vid:${vw}x${vh} out:${canvas.width}x${canvas.height}`, 16, 38);
+    dbgCtx.fillText(`scrAngle:${screen.orientation?.angle ?? "?"} winOrient:${window.orientation ?? "?"} rotated:${needsRotation}`, 16, 64);
 
     drawOverlay(canvas);
     setReviewImg(canvas.toDataURL("image/jpeg", jpegQuality));
