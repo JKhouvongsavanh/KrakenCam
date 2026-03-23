@@ -96,14 +96,33 @@ export async function getTasks(projectId = null) {
   return (data || []).map(fromDbRow);
 }
 
+// Check if a string is a valid UUID
+function isUuid(str) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+}
+
+// Generate a real UUID (works in all modern browsers)
+function newUuid() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  // Fallback for older browsers
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
 /**
  * Insert a new task.
  * Pass the full app-side task object — it will be converted to DB shape.
  */
 export async function createTask(task) {
   const row = toDbRow(task);
-  // Preserve client-generated UUID if provided (needed for optimistic UI)
-  if (task.id) row.id = task.id;
+  // Only keep the client id if it's a real UUID — otherwise let DB generate one
+  if (task.id && isUuid(task.id)) {
+    row.id = task.id;
+  } else {
+    row.id = newUuid();
+  }
 
   const { data, error } = await supabase
     .from('tasks')

@@ -21021,8 +21021,9 @@ useEffect(() => {
     // Session is handled by AuthProvider — no-op here
   };
 
-  const handleSignOut = () => {
-    signOutFn().then(() => window.location.replace('/'));
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    window.location.replace('/');
   };
 
   const addNotification = (n) => {
