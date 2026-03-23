@@ -20491,7 +20491,7 @@ function LoginPage({ supabaseUrl, supabaseAnonKey, logo, onSuccess }) {
 
 export default function App() {
   // Pull org profile from AuthProvider (already wraps the whole app)
-const { profile: authProfile, authKey } = useAuth();
+const { profile: authProfile } = useAuth();
   const [authUser,       setAuthUser]       = useState(null);   // null = not logged in
   const [authLoading,    setAuthLoading]    = useState(true);   // checking session on mount
   const [authKey,       setAuthKey]     = useState(0);
@@ -20576,6 +20576,10 @@ const { profile: authProfile, authKey } = useAuth();
       }));
     }).catch(() => {});
 }, [authProfile?.organization_id, authProfile?.user_id, authKey]);
+// Bump authKey on every login/logout cycle
+useEffect(() => {
+  setAuthKey(k => k + 1);
+}, [authProfile?.user_id]);
   // ── One-time migration: push localStorage projects to Supabase ───────────
   // Runs once when authenticated. Finds projects that exist in localStorage
   // but not in Supabase and saves them. Safe to run repeatedly.
