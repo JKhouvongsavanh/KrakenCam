@@ -36,9 +36,10 @@ export async function getVoiceNotes(projectId) {
  * @param {number} [durationSeconds] - Duration in seconds (optional)
  * @returns {Object} The newly inserted voice_notes row
  */
-export async function uploadVoiceNote(projectId, orgId, audioBlob, durationSeconds) {
+export async function uploadVoiceNote(projectId, orgId, audioBlob, durationSeconds, title = null, createdByName = null, durationMs = null) {
   const timestamp = Date.now();
-  const ext = audioBlob.type?.includes('ogg') ? 'ogg' : 'webm';
+  const mime = audioBlob.type || 'audio/webm';
+  const ext = mime.includes('ogg') ? 'ogg' : mime.includes('mp4') ? 'm4a' : 'webm';
   const storagePath = `${orgId}/${projectId}/voice/${timestamp}.${ext}`;
 
   const { error: uploadError } = await supabase.storage
@@ -46,7 +47,7 @@ export async function uploadVoiceNote(projectId, orgId, audioBlob, durationSecon
     .upload(storagePath, audioBlob, {
       cacheControl: '3600',
       upsert: false,
-      contentType: audioBlob.type || 'audio/webm',
+      contentType: mime,
     });
 
   if (uploadError) throw uploadError;
@@ -58,6 +59,10 @@ export async function uploadVoiceNote(projectId, orgId, audioBlob, durationSecon
       project_id:       projectId,
       storage_path:     storagePath,
       duration_seconds: durationSeconds ? Math.round(durationSeconds) : null,
+      duration_ms:      durationMs || (durationSeconds ? durationSeconds * 1000 : null),
+      mime_type:        mime,
+      title:            title || null,
+      created_by_name:  createdByName || null,
     }])
     .select()
     .single();

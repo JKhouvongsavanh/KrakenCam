@@ -47,6 +47,7 @@ import {
   uploadProjectFile  as dbUploadProjectFile,
   deleteProjectFile  as dbDeleteProjectFile,
 } from "./lib/projectFiles.js";
+import { getVoiceNotes as dbGetVoiceNotes } from "./lib/voiceNotes.js";
 import {
   getChatMessages    as dbGetChatMessages,
   sendChatMessage    as dbSendChatMessage,
@@ -5324,15 +5325,20 @@ function VideosTab({ project, onUpdateProject, onOpenCamera, orgId }) {
 // ── Embed code builder — lives outside JSX so </div> strings don't confuse the parser ──
 function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdateProject, onSendToDirectMessage, orgId }) {
   const voiceNotes = project.voiceNotes || [];
-  const [recState, setRecState] = useState("idle");
-  const [recMs, setRecMs] = useState(0);
-  const [recError, setRecError] = useState("");
-  const [sendingNoteId, setSendingNoteId] = useState(null);
+  const [recState,     setRecState]     = useState("idle");
+  const [recMs,        setRecMs]        = useState(0);
+  const [recError,     setRecError]     = useState("");
+  const [sendingNoteId,setSendingNoteId]= useState(null);
   const [sendTargetId, setSendTargetId] = useState("");
+  const [selectMode,   setSelectMode]   = useState(false);
+  const [selectedIds,  setSelectedIds]  = useState(new Set());
+  const [confirmDel,   setConfirmDel]   = useState(null); // null | noteId | "batch"
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
   const chunksRef = useRef([]);
   const startedAtRef = useRef(0);
+
+  const toggleSelect = id => setSelectedIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
 
   const authorName = `${settings?.userFirstName || "Admin"} ${settings?.userLastName || ""}`.trim();
   const voicePerms = getEffectivePermissions(settings?.userRole || "admin", settings?.userPermissions, settings);
@@ -5351,11 +5357,12 @@ function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdateProject
 
   const persistVoiceNote = (blob) => {
     const durationMs = Math.max(1000, Date.now() - startedAtRef.current);
+    const title = `Voice Note ${voiceNotes.length + 1}`;
     const reader = new FileReader();
     reader.onloadend = () => {
       const note = {
         id: uid(),
-        title: `Voice Note ${voiceNotes.length + 1}`,
+        title,
         createdAt: new Date().toISOString(),
         createdById: "__admin__",
         createdByName: authorName,
@@ -5367,12 +5374,20 @@ function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdateProject
       onUpdateProject({ ...project, voiceNotes: [note, ...voiceNotes] });
       setRecState("idle");
       setRecMs(0);
-      // ── Fire-and-forget: upload to Supabase storage ──
+      // Upload to Supabase and replace base64 with Storage URL
       if (orgId && project.id) {
         const durationSeconds = Math.round(durationMs / 1000);
-        dbUploadVoiceNote(project.id, orgId, blob, durationSeconds).catch(err =>
-          console.warn("[KrakenCam] Voice note Supabase upload failed:", err.message || err)
-        );
+        dbUploadVoiceNote(project.id, orgId, blob, durationSeconds, title, authorName, durationMs).then(row => {
+          if (!row) return;
+          const supaUrl = import.meta.env.VITE_SUPABASE_URL;
+          const publicUrl = `${supaUrl}/storage/v1/object/public/project-photos/${row.storage_path}`;
+          onUpdateProject(prev => ({
+            ...prev,
+            voiceNotes: (prev.voiceNotes || []).map(n =>
+              n.id === note.id ? { ...n, supabaseId: row.id, dataUrl: publicUrl, storagePath: row.storage_path } : n
+            ),
+          }));
+        }).catch(err => console.warn("[KrakenCam] Voice note Supabase upload failed:", err.message || err));
       }
     };
     reader.readAsDataURL(blob);
@@ -5419,8 +5434,19 @@ function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdateProject
   };
 
   const deleteVoiceNote = (noteId) => {
-    if (!window.confirm("Delete this voice note?")) return;
+    const note = voiceNotes.find(n => n.id === noteId);
     onUpdateProject({ ...project, voiceNotes: voiceNotes.filter(n => n.id !== noteId) });
+    setConfirmDel(null);
+    if (note?.supabaseId) dbDeleteVoiceNote(note.supabaseId, note.storagePath).catch(() => {});
+  };
+
+  const deleteBatch = () => {
+    const toDelete = voiceNotes.filter(n => selectedIds.has(n.id));
+    onUpdateProject({ ...project, voiceNotes: voiceNotes.filter(n => !selectedIds.has(n.id)) });
+    toDelete.forEach(n => { if (n.supabaseId) dbDeleteVoiceNote(n.supabaseId, n.storagePath).catch(() => {}); });
+    setSelectedIds(new Set());
+    setSelectMode(false);
+    setConfirmDel(null);
   };
 
   const handleSend = () => {
@@ -5435,9 +5461,24 @@ function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdateProject
   return (
     <div style={{ display:"flex",flexDirection:"column",gap:16 }}>
       <div className="card">
-        <div className="card-header" style={{ display:"flex",alignItems:"center",justifyContent:"space-between",gap:12 }}>
-          <span style={{ fontWeight:700 }}>Voice Notes</span>
-          <span style={{ fontSize:12,color:"var(--text3)" }}>{voiceNotes.length} saved</span>
+        <div className="card-header" style={{ display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap" }}>
+          <div style={{ display:"flex",alignItems:"center",gap:10 }}>
+            <span style={{ fontWeight:700 }}>Voice Notes</span>
+            <span style={{ fontSize:12,color:"var(--text3)" }}>{voiceNotes.length} saved</span>
+            {selectMode && selectedIds.size > 0 && <span style={{ fontSize:12,fontWeight:700,color:"var(--accent)" }}>{selectedIds.size} selected</span>}
+          </div>
+          <div style={{ display:"flex",gap:8 }}>
+            {selectMode ? (<>
+              {selectedIds.size > 0 && (
+                <button className="btn btn-sm" style={{ background:"#e85a3a",color:"white",border:"none" }} onClick={() => setConfirmDel("batch")}>
+                  <Icon d={ic.trash} size={13}/> Delete {selectedIds.size}
+                </button>
+              )}
+              <button className="btn btn-secondary btn-sm" onClick={() => { setSelectMode(false); setSelectedIds(new Set()); }}>Cancel</button>
+            </>) : voiceNotes.length > 0 && (
+              <button className="btn btn-secondary btn-sm" onClick={() => setSelectMode(true)}>☑ Select</button>
+            )}
+          </div>
         </div>
         <div className="card-body" style={{ display:"flex",flexDirection:"column",gap:14 }}>
           <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",gap:14,flexWrap:"wrap",padding:"14px 16px",background:"var(--surface2)",border:"1px solid var(--border)",borderRadius:12 }}>
@@ -5476,25 +5517,38 @@ function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdateProject
       ) : (
         <div style={{ display:"grid",gap:14 }}>
           {voiceNotes.map(note => (
-            <div key={note.id} className="card">
+            <div key={note.id} className="card" style={{ outline: selectedIds.has(note.id) ? "2px solid var(--accent)" : "none", borderRadius: 12 }}>
               <div className="card-body" style={{ display:"flex",flexDirection:"column",gap:12 }}>
                 <div style={{ display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:12,flexWrap:"wrap" }}>
-                  <div>
-                    <div style={{ display:"flex",alignItems:"center",gap:8,flexWrap:"wrap" }}>
-                      <span style={{ fontSize:14,fontWeight:700 }}>{note.title || "Voice Note"}</span>
-                      <span className="tag tag-blue">{formatDurationLabel(note.durationMs)}</span>
-                    </div>
-                    <div style={{ fontSize:12,color:"var(--text2)",marginTop:5 }}>
-                      {note.createdByName || authorName} • {formatDateTimeLabel(note.createdAt, settings)}
+                  <div style={{ display:"flex",alignItems:"flex-start",gap:10 }}>
+                    {selectMode && (
+                      <div style={{ marginTop:2,cursor:"pointer" }} onClick={() => toggleSelect(note.id)}>
+                        <div style={{ width:20,height:20,borderRadius:5,border:`2px solid ${selectedIds.has(note.id)?"var(--accent)":"var(--border)"}`,
+                          background:selectedIds.has(note.id)?"var(--accent)":"var(--surface2)",
+                          display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>
+                          {selectedIds.has(note.id) && <Icon d="M20 6L9 17l-5-5" size={12} stroke="white" strokeWidth={2.5}/>}
+                        </div>
+                      </div>
+                    )}
+                    <div>
+                      <div style={{ display:"flex",alignItems:"center",gap:8,flexWrap:"wrap" }}>
+                        <span style={{ fontSize:14,fontWeight:700 }}>{note.title || "Voice Note"}</span>
+                        <span className="tag tag-blue">{formatDurationLabel(note.durationMs)}</span>
+                      </div>
+                      <div style={{ fontSize:12,color:"var(--text2)",marginTop:5 }}>
+                        {note.createdByName || authorName} • {formatDateTimeLabel(note.createdAt, settings)}
+                      </div>
                     </div>
                   </div>
                   <div style={{ display:"flex",gap:8,alignItems:"center",flexWrap:"wrap" }}>
-                    <button className="btn btn-secondary btn-sm" disabled={!directMsgOk || teamUsers.length===0} onClick={() => { setSendingNoteId(note.id); setSendTargetId(teamUsers[0]?.id || ""); }}>
-                      <Icon d={ic.message} size={13} /> Send to DM
-                    </button>
-                    <button className="btn btn-ghost btn-sm btn-icon" title="Delete" onClick={() => deleteVoiceNote(note.id)}>
-                      <Icon d={ic.trash} size={14} />
-                    </button>
+                    {!selectMode && <>
+                      <button className="btn btn-secondary btn-sm" disabled={!directMsgOk || teamUsers.length===0} onClick={() => { setSendingNoteId(note.id); setSendTargetId(teamUsers[0]?.id || ""); }}>
+                        <Icon d={ic.message} size={13} /> Send to DM
+                      </button>
+                      <button className="btn btn-ghost btn-sm btn-icon" title="Delete" onClick={() => setConfirmDel(note.id)} style={{ color:"#e85a3a" }}>
+                        <Icon d={ic.trash} size={14} />
+                      </button>
+                    </>}
                   </div>
                 </div>
                 <audio controls preload="metadata" src={note.dataUrl} style={{ width:"100%" }} />
@@ -5515,6 +5569,32 @@ function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdateProject
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Confirm delete modal */}
+      {confirmDel && (
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setConfirmDel(null)}>
+          <div className="modal fade-in" style={{ maxWidth:380 }}>
+            <div className="modal-header">
+              <div className="modal-title" style={{ color:"#e85a3a" }}><Icon d={ic.trash} size={15}/> Delete Voice Note{confirmDel==="batch"?"s":""}</div>
+              <button className="btn btn-ghost btn-icon" onClick={()=>setConfirmDel(null)}><Icon d={ic.close} size={16}/></button>
+            </div>
+            <div className="modal-body">
+              <p style={{ fontSize:13.5,color:"var(--text2)",margin:0 }}>
+                {confirmDel === "batch"
+                  ? `Delete ${selectedIds.size} voice note${selectedIds.size!==1?"s":""}? This cannot be undone.`
+                  : "Delete this voice note? This cannot be undone."}
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary btn-sm" onClick={()=>setConfirmDel(null)}>Cancel</button>
+              <button className="btn btn-sm" style={{ background:"#e85a3a",color:"white",border:"none" }}
+                onClick={()=>confirmDel==="batch" ? deleteBatch() : deleteVoiceNote(confirmDel)}>
+                <Icon d={ic.trash} size={13}/> Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -21259,6 +21339,32 @@ useEffect(() => {
   // 🎥 Load videos from Supabase when active project changes
   useEffect(() => {
     if (!authProfile?.organization_id || !activeProject?.id) return;
+    // Load voice notes from Supabase
+    dbGetVoiceNotes(activeProject.id).then(rows => {
+      if (!rows?.length) return;
+      const supaUrl = import.meta.env.VITE_SUPABASE_URL;
+      const mapped = rows.map(r => ({
+        id:            r.id,
+        supabaseId:    r.id,
+        title:         r.title || 'Voice Note',
+        createdAt:     r.created_at || '',
+        createdByName: r.created_by_name || '',
+        durationMs:    r.duration_ms || (r.duration_seconds ? r.duration_seconds * 1000 : 0),
+        mimeType:      r.mime_type || 'audio/webm',
+        storagePath:   r.storage_path,
+        dataUrl:       r.storage_path
+                         ? `${supaUrl}/storage/v1/object/public/project-photos/${r.storage_path}`
+                         : null,
+      }));
+      setProjects(prev => prev.map(p => {
+        if (p.id !== activeProject.id) return p;
+        const existingIds = new Set((p.voiceNotes || []).map(v => v.supabaseId || v.id));
+        const newNotes = mapped.filter(v => !existingIds.has(v.supabaseId));
+        if (!newNotes.length) return p;
+        return { ...p, voiceNotes: [...newNotes, ...(p.voiceNotes || [])] };
+      }));
+    }).catch(e => console.warn('[KrakenCam] Could not load voice notes from Supabase:', e));
+
     dbGetVideos(activeProject.id).then(async rows => {
       if (!rows?.length) return;
       const supaUrl = import.meta.env.VITE_SUPABASE_URL;
