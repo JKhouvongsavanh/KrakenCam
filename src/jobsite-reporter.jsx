@@ -20273,25 +20273,15 @@ function LoginPage({ supabaseUrl, supabaseAnonKey, logo, onSuccess }) {
   const [error,      setError]      = useState("");
   const [success,    setSuccess]    = useState("");
 
-  const apiFetch = async (path, body) => {
-    const res = await fetch(`${supabaseUrl}/auth/v1/${path}`, {
-      method: "POST",
-      headers: { "apikey": supabaseAnonKey, "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error_description || data.msg || data.error || "Something went wrong");
-    return data;
-  };
-
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) { setError("Please enter your email and password."); return; }
     setLoading(true); setError(""); setSuccess("");
     try {
-      const data = await apiFetch("token?grant_type=password", { email, password });
-      onSuccess(data.user, data.access_token, data.refresh_token);
-    } catch(err) { setError(err.message); }
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      onSuccess(data.user);
+    } catch(err) { setError(err.message || "Sign in failed. Check your email and password."); }
     setLoading(false);
   };
 
@@ -20301,10 +20291,11 @@ function LoginPage({ supabaseUrl, supabaseAnonKey, logo, onSuccess }) {
     if (password.length < 8) { setError("Password must be at least 8 characters."); return; }
     setLoading(true); setError(""); setSuccess("");
     try {
-      await apiFetch("signup", { email, password, data: { first_name: firstName, last_name: lastName } });
+      const { error } = await supabase.auth.signUp({ email, password, options: { data: { first_name: firstName, last_name: lastName } } });
+      if (error) throw error;
       setSuccess("Account created! Check your email to confirm, then sign in.");
       setMode("login");
-    } catch(err) { setError(err.message); }
+    } catch(err) { setError(err.message || "Sign up failed."); }
     setLoading(false);
   };
 
@@ -20313,7 +20304,8 @@ function LoginPage({ supabaseUrl, supabaseAnonKey, logo, onSuccess }) {
     if (!email) { setError("Enter your email address."); return; }
     setLoading(true); setError(""); setSuccess("");
     try {
-      await apiFetch("recover", { email });
+      const { error: forgotErr } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/' });
+      if (forgotErr) throw forgotErr;
       setSuccess("Password reset link sent — check your inbox.");
     } catch(err) { setError(err.message); }
     setLoading(false);
@@ -21027,37 +21019,27 @@ useEffect(() => {
   }, [projects, settings, teamUsers, tasks, notifications, reportTemplates, chats, calEvents]);
 
   // ── Supabase auth session check ──────────────────────────────────────────
-  const SUPABASE_URL = "https://nszoateefidwhhsyexjd.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zem9hdGVlZmlkd2hoc3lleGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MjE0NTQsImV4cCI6MjA4OTA5NzQ1NH0.IOGKjyedioV5pkGuz3RmMexMZknKGHlfRURMlYn6EZc";
-
+  // Auth session — uses Supabase JS client (handles token storage + refresh automatically)
   useEffect(() => {
-    // Check active session on mount
-    const checkSession = async () => {
-      try {
-        const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-          headers: { "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${localStorage.getItem("sb_access_token") || ""}` }
-        });
-        if (res.ok) {
-          const user = await res.json();
-          if (user?.id) { setAuthUser(user); }
-        }
-      } catch { /* offline or no session */ }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) setAuthUser(session.user);
       setAuthLoading(false);
-    };
-    checkSession();
+    }).catch(() => setAuthLoading(false));
+
+    // Keep authUser in sync on login/logout/token refresh
+    const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthUser(session?.user || null);
+    });
+    return () => authSub.unsubscribe();
   }, []);
 
-  const handleAuthSuccess = (user, accessToken, refreshToken) => {
-    localStorage.setItem("sb_access_token",  accessToken);
-    localStorage.setItem("sb_refresh_token", refreshToken);
+  const handleAuthSuccess = (user) => {
+    // Session already stored by Supabase client — just sync local state
     setAuthUser(user);
   };
 
   const handleSignOut = () => {
-    localStorage.clear();
-    sessionStorage.clear();
-    supabase.auth.signOut();
-    window.location.replace('/');
+    supabase.auth.signOut().then(() => window.location.replace('/'));
   };
 
   const addNotification = (n) => {
