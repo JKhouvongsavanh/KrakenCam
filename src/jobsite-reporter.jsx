@@ -1171,6 +1171,12 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
   const recTimerRef  = useRef(null);
 
   const [camState,    setCamState]    = useState("starting");
+  const [showRotateTip, setShowRotateTip] = useState(() => !localStorage.getItem("kc_rotate_tip_seen"));
+  useEffect(() => {
+    if (!showRotateTip) return;
+    const t = setTimeout(() => { setShowRotateTip(false); localStorage.setItem("kc_rotate_tip_seen","1"); }, 5000);
+    return () => clearTimeout(t);
+  }, [showRotateTip]);
   const [facing,      setFacing]      = useState("environment");
   const [zoom,        setZoom]        = useState(1);
   const [timerSec,    setTimerSec]    = useState(0);
@@ -1695,6 +1701,20 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
         )}
         <div className="cam-guide"><div className="cam-guide-box"><span /></div></div>
         {countdown !== null && <div className="cam-countdown"><div className="cam-countdown-num">{countdown}</div></div>}
+
+        {/* Rotation lock tip — shows once on mobile, auto-dismisses after 5s */}
+        {showRotateTip && camState === "live" && (
+          <div style={{ position:"absolute",bottom:100,left:"50%",transform:"translateX(-50%)",zIndex:30,
+            background:"rgba(0,0,0,0.78)",borderRadius:14,padding:"10px 18px",
+            display:"flex",alignItems:"center",gap:10,whiteSpace:"nowrap",
+            boxShadow:"0 4px 24px rgba(0,0,0,0.4)",backdropFilter:"blur(6px)" }}>
+            <span style={{ fontSize:20 }}>🔄</span>
+            <span style={{ fontSize:13,color:"white",fontWeight:500 }}>Turn off rotation lock for landscape photos</span>
+            <button onClick={() => { setShowRotateTip(false); localStorage.setItem("kc_rotate_tip_seen","1"); }}
+              style={{ background:"none",border:"none",color:"rgba(255,255,255,0.6)",fontSize:18,cursor:"pointer",padding:"0 0 0 4px",lineHeight:1 }}>×</button>
+
+          </div>
+        )}
 
         {/* Recording indicator + timer bar */}
         {recState === "recording" && (
