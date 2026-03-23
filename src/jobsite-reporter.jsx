@@ -5618,6 +5618,9 @@ function ProjectFilesTab({ project, teamUsers = [], settings = {}, onUpdateProje
   const [selectMode,   setSelectMode]   = useState(false);
   const [selectedIds,  setSelectedIds]  = useState(new Set());
   const [confirmDel,   setConfirmDel]   = useState(null); // null | fileId | "batch"
+  const [imgZoom,      setImgZoom]      = useState(1);
+  const [imgPan,       setImgPan]       = useState({x:0,y:0});
+  const imgPanStart = useRef(null);
   const filePerms = getEffectivePermissions(settings?.userRole || "admin", settings?.userPermissions, settings);
   const filePolicies = getPermissionPolicies(settings);
   const canUploadFiles = hasPermissionLevel(filePerms, "files", "edit") && (settings?.userRole !== "user" || filePolicies.allowUserFileUploads);
@@ -5988,68 +5991,62 @@ function ProjectFilesTab({ project, teamUsers = [], settings = {}, onUpdateProje
       )}
 
       {viewerFile && (() => {
-        const FileViewer = () => {
-          const [imgZoom, setImgZoom] = React.useState(1);
-          const [imgPan, setImgPan]   = React.useState({x:0,y:0});
-          const panStart = React.useRef(null);
-          const url = viewerFile.dataUrl || "";
-          const isImg = viewerFile.type?.startsWith("image/");
-          const isPdf = viewerFile.type === "application/pdf";
-          const isText = viewerFile.type?.startsWith("text/") || ["txt","csv","json","md"].includes(getFileExtension(viewerFile.name));
-          const isStorageUrl = url.startsWith("http");
-
-          const onImgMouseDown = e => { e.preventDefault(); panStart.current = { mx: e.clientX, my: e.clientY, px: imgPan.x, py: imgPan.y }; };
-          const onImgMouseMove = e => { if (!panStart.current) return; setImgPan({ x: panStart.current.px + e.clientX - panStart.current.mx, y: panStart.current.py + e.clientY - panStart.current.my }); };
-          const onImgMouseUp   = () => { panStart.current = null; };
-          const onWheel = e => { e.preventDefault(); setImgZoom(z => Math.max(0.2, Math.min(8, z * (e.deltaY < 0 ? 1.15 : 0.87)))); };
-
-          return (
-            <div style={{ position:"fixed",inset:0,zIndex:9999,background:"rgba(0,0,0,0.92)",display:"flex",flexDirection:"column" }}>
-              {/* Header */}
-              <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 16px",background:"rgba(0,0,0,0.7)",borderBottom:"1px solid rgba(255,255,255,0.1)",flexShrink:0 }}>
-                <div style={{ fontSize:13.5,fontWeight:600,color:"white",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:"60vw" }}>{viewerFile.name}</div>
-                <div style={{ display:"flex",gap:8,alignItems:"center" }}>
-                  {isImg && <>
-                    <button className="btn btn-sm btn-secondary" onClick={() => { setImgZoom(1); setImgPan({x:0,y:0}); }} style={{ fontSize:11 }}>Reset</button>
-                    <button className="btn btn-sm btn-secondary" onClick={() => setImgZoom(z => Math.min(8, z*1.3))} style={{ minWidth:32 }}>+</button>
-                    <span style={{ color:"rgba(255,255,255,.6)",fontSize:12,minWidth:44,textAlign:"center" }}>{Math.round(imgZoom*100)}%</span>
-                    <button className="btn btn-sm btn-secondary" onClick={() => setImgZoom(z => Math.max(0.2, z*0.77))} style={{ minWidth:32 }}>−</button>
-                  </>}
-                  <button className="btn btn-sm btn-secondary" onClick={() => openFile(viewerFile)}><Icon d={ic.arrowUpRight} size={13}/> Open</button>
-                  <button className="btn btn-ghost btn-icon" style={{ color:"white",width:34,height:34 }} onClick={() => setViewerFile(null)}><Icon d={ic.close} size={20}/></button>
-                </div>
-              </div>
-              {/* Body */}
-              <div style={{ flex:1,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",position:"relative" }}>
-                {isImg ? (
-                  <div style={{ width:"100%",height:"100%",overflow:"hidden",cursor: imgZoom>1?"grab":"default",userSelect:"none" }}
-                    onMouseDown={onImgMouseDown} onMouseMove={onImgMouseMove} onMouseUp={onImgMouseUp} onMouseLeave={onImgMouseUp}
-                    onWheel={onWheel}>
-                    <img src={url} alt={viewerFile.name}
-                      style={{ transformOrigin:"center center",transform:`translate(${imgPan.x}px,${imgPan.y}px) scale(${imgZoom})`,display:"block",maxWidth:"100%",maxHeight:"100%",margin:"auto",pointerEvents:"none",transition:"transform .05s" }}
-                    />
-                  </div>
-                ) : isPdf ? (
-                  <iframe src={url} title={viewerFile.name} style={{ width:"100%",height:"100%",border:"none",background:"white" }} />
-                ) : isText && !isStorageUrl ? (
-                  <div style={{ width:"100%",height:"100%",overflow:"auto",padding:24 }}>
-                    <pre style={{ margin:0,whiteSpace:"pre-wrap",wordBreak:"break-word",fontFamily:"ui-monospace,SFMono-Regular,Consolas,monospace",fontSize:13,lineHeight:1.7,color:"rgba(255,255,255,.88)" }}>
-                      {decodeDataUrlText(url)}
-                    </pre>
-                  </div>
-                ) : (
-                  <div style={{ textAlign:"center",color:"rgba(255,255,255,.7)" }}>
-                    <div style={{ fontSize:48,marginBottom:16 }}>📄</div>
-                    <div style={{ fontSize:15,marginBottom:8,fontWeight:600,color:"white" }}>{viewerFile.name}</div>
-                    <div style={{ fontSize:13,marginBottom:24,color:"rgba(255,255,255,.5)" }}>This file type cannot be previewed inline.</div>
-                    <button className="btn btn-primary" onClick={() => openFile(viewerFile)}><Icon d={ic.arrowUpRight} size={14}/> Open in New Tab</button>
-                  </div>
-                )}
+        const vUrl = viewerFile.dataUrl || "";
+        const vIsImg  = viewerFile.type?.startsWith("image/");
+        const vIsPdf  = viewerFile.type === "application/pdf";
+        const vIsText = (viewerFile.type?.startsWith("text/") || ["txt","csv","json","md"].includes(getFileExtension(viewerFile.name))) && !vUrl.startsWith("http");
+        const onImgDown = e => { e.preventDefault(); imgPanStart.current = { mx:e.clientX, my:e.clientY, px:imgPan.x, py:imgPan.y }; };
+        const onImgMove = e => { if (!imgPanStart.current) return; setImgPan({ x:imgPanStart.current.px+e.clientX-imgPanStart.current.mx, y:imgPanStart.current.py+e.clientY-imgPanStart.current.my }); };
+        const onImgUp   = () => { imgPanStart.current = null; };
+        const onImgWheel= e => { e.preventDefault(); setImgZoom(z => Math.max(0.2, Math.min(8, z*(e.deltaY<0?1.15:0.87)))); };
+        const resetView = () => { setImgZoom(1); setImgPan({x:0,y:0}); };
+        return (
+          <div style={{ position:"fixed",inset:0,zIndex:9999,background:"rgba(0,0,0,0.93)",display:"flex",flexDirection:"column" }}>
+            <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 16px",background:"rgba(0,0,0,0.6)",borderBottom:"1px solid rgba(255,255,255,0.1)",flexShrink:0,gap:10 }}>
+              <div style={{ fontSize:13.5,fontWeight:600,color:"white",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0 }}>{viewerFile.name}</div>
+              <div style={{ display:"flex",gap:8,alignItems:"center",flexShrink:0 }}>
+                {vIsImg && <>
+                  <button className="btn btn-sm btn-secondary" onClick={resetView} style={{ fontSize:11 }}>Reset</button>
+                  <button className="btn btn-sm btn-secondary" onClick={() => setImgZoom(z => Math.min(8,z*1.3))} style={{ minWidth:32 }}>+</button>
+                  <span style={{ color:"rgba(255,255,255,.6)",fontSize:12,minWidth:44,textAlign:"center" }}>{Math.round(imgZoom*100)}%</span>
+                  <button className="btn btn-sm btn-secondary" onClick={() => setImgZoom(z => Math.max(0.2,z*0.77))} style={{ minWidth:32 }}>−</button>
+                </>}
+                <button className="btn btn-sm btn-secondary" onClick={() => openFile(viewerFile)}><Icon d={ic.arrowUpRight} size={13}/> Open</button>
+                <button className="btn btn-ghost btn-sm btn-icon" style={{ color:"white" }} onClick={() => { setViewerFile(null); resetView(); }}><Icon d={ic.close} size={20}/></button>
               </div>
             </div>
-          );
-        };
-        return <FileViewer />;
+            <div style={{ flex:1,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center" }}>
+              {vIsImg ? (
+                <div style={{ width:"100%",height:"100%",overflow:"hidden",cursor:imgZoom>1?"grab":"zoom-in",userSelect:"none",display:"flex",alignItems:"center",justifyContent:"center" }}
+                  onMouseDown={onImgDown} onMouseMove={onImgMove} onMouseUp={onImgUp} onMouseLeave={onImgUp} onWheel={onImgWheel}>
+                  <img src={vUrl} alt={viewerFile.name} draggable={false}
+                    style={{ transform:`translate(${imgPan.x}px,${imgPan.y}px) scale(${imgZoom})`,transformOrigin:"center",maxWidth:"90vw",maxHeight:"90vh",objectFit:"contain",pointerEvents:"none" }}
+                  />
+                </div>
+              ) : vIsPdf ? (
+                <object data={vUrl} type="application/pdf" style={{ width:"100%",height:"100%",border:"none" }}>
+                  <div style={{ textAlign:"center",padding:40,color:"rgba(255,255,255,.7)" }}>
+                    <div style={{ fontSize:15,marginBottom:16,color:"white" }}>PDF cannot be displayed inline.</div>
+                    <button className="btn btn-primary" onClick={() => openFile(viewerFile)}><Icon d={ic.arrowUpRight} size={14}/> Open in New Tab</button>
+                  </div>
+                </object>
+              ) : vIsText ? (
+                <div style={{ width:"100%",height:"100%",overflow:"auto",padding:24 }}>
+                  <pre style={{ margin:0,whiteSpace:"pre-wrap",wordBreak:"break-word",fontFamily:"monospace",fontSize:13,lineHeight:1.7,color:"rgba(255,255,255,.9)" }}>
+                    {decodeDataUrlText(vUrl)}
+                  </pre>
+                </div>
+              ) : (
+                <div style={{ textAlign:"center",color:"rgba(255,255,255,.7)" }}>
+                  <div style={{ fontSize:56,marginBottom:16 }}>📄</div>
+                  <div style={{ fontSize:15,fontWeight:600,color:"white",marginBottom:8 }}>{viewerFile.name}</div>
+                  <div style={{ fontSize:13,marginBottom:24,color:"rgba(255,255,255,.5)" }}>Preview not available for this file type.</div>
+                  <button className="btn btn-primary" onClick={() => openFile(viewerFile)}><Icon d={ic.arrowUpRight} size={14}/> Open in New Tab</button>
+                </div>
+              )}
+            </div>
+          </div>
+        );
       })()}
 
       {activeShareFile && (
