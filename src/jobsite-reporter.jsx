@@ -1373,42 +1373,41 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
 
     // ── Canvas path (no flash / fallback) ──
     const vw = video.videoWidth || 1280, vh = video.videoHeight || 720;
-
-    // Most reliable cross-browser landscape detection.
-    // On iOS/Android the camera stream is always portrait (vh > vw) even when held landscape.
-    // window.innerWidth > window.innerHeight tells us the device is actually landscape.
-    const deviceIsLandscape = window.innerWidth > window.innerHeight;
-    const streamIsPortrait  = vh > vw;
-    const needsRotation     = deviceIsLandscape && streamIsPortrait;
-
     const scale = Math.min(maxRes / vw, maxRes / vh, 1);
-    const sw = Math.round(vw * scale); // scaled stream width
-    const sh = Math.round(vh * scale); // scaled stream height
+    const sw = Math.round(vw * scale);
+    const sh = Math.round(vh * scale);
 
-    // When rotating: output canvas is landscape (sw,sh become sh,sw)
-    canvas.width  = needsRotation ? sh : sw;
-    canvas.height = needsRotation ? sw : sh;
-    const ctx = canvas.getContext("2d");
+    // Step 1: draw video to a temp canvas at scaled size
+    const tmp = document.createElement("canvas");
+    tmp.width = sw; tmp.height = sh;
+    const tmpCtx = tmp.getContext("2d");
+    if (facing === "user") { tmpCtx.translate(sw, 0); tmpCtx.scale(-1, 1); }
+    tmpCtx.drawImage(video, 0, 0, sw, sh);
+    tmpCtx.setTransform(1, 0, 0, 1, 0, 0);
+
+    // Step 2: check if output orientation matches device orientation
+    // If device is landscape but image is portrait (or vice versa) → rotate 90°
+    const deviceLandscape = window.innerWidth > window.innerHeight;
+    const imageLandscape  = sw > sh;
+    const needsRotation   = deviceLandscape !== imageLandscape;
 
     if (needsRotation) {
-      // Determine rotation direction from window.orientation or screen.orientation
-      const angle = screen.orientation?.angle ?? window.orientation ?? 90;
-      const cw = angle >= 0; // 90 = landscape-right (CW), -90/270 = landscape-left (CCW)
+      // Rotate 90° — direction: landscape-right (most common) = CW
+      // landscape-left = CCW. Use window.orientation as hint; default CW.
+      const wo = window.orientation ?? screen.orientation?.angle ?? 90;
+      const cw = !(wo === -90 || wo === 270);
+      canvas.width  = sh;
+      canvas.height = sw;
+      const ctx = canvas.getContext("2d");
       ctx.save();
-      if (cw) {
-        ctx.translate(canvas.width, 0);
-        ctx.rotate(Math.PI / 2);
-      } else {
-        ctx.translate(0, canvas.height);
-        ctx.rotate(-Math.PI / 2);
-      }
-      if (facing === "user") { ctx.translate(sw, 0); ctx.scale(-1, 1); }
-      ctx.drawImage(video, 0, 0, sw, sh);
+      if (cw) { ctx.translate(sh, 0); ctx.rotate(Math.PI / 2); }
+      else    { ctx.translate(0, sw); ctx.rotate(-Math.PI / 2); }
+      ctx.drawImage(tmp, 0, 0);
       ctx.restore();
     } else {
-      if (facing === "user") { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      canvas.width  = sw;
+      canvas.height = sh;
+      canvas.getContext("2d").drawImage(tmp, 0, 0);
     }
 
     drawOverlay(canvas);
