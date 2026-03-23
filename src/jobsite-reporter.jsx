@@ -13579,7 +13579,7 @@ function ChatPanel({ chats, onChatsChange, teamUsers, settings, currentUserId, i
       messages: [...(c.messages||[]), msg],
     }));
     // Fire-and-forget: persist message + attachment to Supabase
-    if (orgId && activeChatId) {
+    if (orgId && activeChatId && isValidUuid(activeChatId)) {
       // Ensure the chat room exists in DB first
       if (activeChat) {
         dbUpsertChatRoom(orgId, activeChat).catch(() => {});
@@ -13603,7 +13603,7 @@ function ChatPanel({ chats, onChatsChange, teamUsers, settings, currentUserId, i
   const createChat = (name, memberIds, isGroup) => {
     if (chats.length >= chatLimit) return;
     const chat = {
-      id: uid(),
+      id: crypto.randomUUID ? crypto.randomUUID() : uid(),
       name: name || "New Chat",
       isGroup,
       memberIds: [...new Set([currentUserId, ...memberIds])],
@@ -21135,9 +21135,11 @@ useEffect(() => {
   }, [activeProject?.id, authProfile?.organization_id]);
 
   // 💬 Load chat history from Supabase on login / when chats change
+  const isValidUuid = id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   useEffect(() => {
     if (!authProfile?.organization_id || !chats?.length) return;
     chats.forEach(chat => {
+      if (!isValidUuid(chat.id)) return; // skip legacy short-id chats
       dbGetChatMessages(chat.id, 100).then(rows => {
         if (!rows?.length) return;
         const dbMessages = rows.map(row => ({
