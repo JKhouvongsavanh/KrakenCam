@@ -21770,7 +21770,7 @@ useEffect(() => {
                 if (!proj) return;
                 const orgId = authProfile?.organization_id;
                 let finalUrl = dataUrl;
-                // Upload edited canvas to Supabase Storage, replacing the old file
+                // Upload edited canvas to Supabase Storage using the JS client (handles auth + upsert reliably)
                 if (orgId && proj.id && dataUrl?.startsWith("data:")) {
                   try {
                     const arr  = dataUrl.split(",");
@@ -21780,17 +21780,18 @@ useEffect(() => {
                     const u8arr = new Uint8Array(n);
                     while (n--) u8arr[n] = bstr.charCodeAt(n);
                     const ext  = mime.split("/")[1] || "jpg";
-                    const file = new File([new Blob([u8arr], { type: mime })], `${editingPhoto.id}.${ext}`, { type: mime });
-                    const path = `${orgId}/${proj.id}/${editingPhoto.id}.${ext}`;
-                    const supaUrl = import.meta.env.VITE_SUPABASE_URL;
-                    const uploadHeaders = await getAuthHeaders({ "Content-Type": mime, "x-upsert": "true" });
-                    const res = await fetch(`${supaUrl}/storage/v1/object/project-photos/${path}`, {
-                      method: "POST",
-                      headers: uploadHeaders,
-                      body: file,
-                    });
-                    if (res.ok) {
-                      finalUrl = `${supaUrl}/storage/v1/object/public/project-photos/${path}`;
+                    const blob = new Blob([u8arr], { type: mime });
+                    const path = `${orgId}/${proj.id}/${editingPhoto.id}_edited.${ext}`;
+                    const { error: upErr } = await supabase.storage
+                      .from("project-photos")
+                      .upload(path, blob, { contentType: mime, upsert: true });
+                    if (!upErr) {
+                      const { data: urlData } = supabase.storage
+                        .from("project-photos")
+                        .getPublicUrl(path);
+                      finalUrl = urlData.publicUrl;
+                    } else {
+                      console.warn("[KrakenCam] Edited photo upload error:", upErr.message);
                     }
                   } catch (err) {
                     console.warn("[KrakenCam] Edited photo upload failed:", err.message || err);
