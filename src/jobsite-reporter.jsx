@@ -53,6 +53,13 @@ import {
   upsertChatRoom     as dbUpsertChatRoom,
   deleteChatRoom     as dbDeleteChatRoom,
 } from "./lib/chat.js";
+import {
+  loadNotifications  as dbLoadNotifications,
+  saveNotification   as dbSaveNotification,
+  markNotificationRead as dbMarkNotificationRead,
+  markAllNotificationsRead as dbMarkAllNotificationsRead,
+  clearNotifications as dbClearNotifications,
+} from "./lib/notifications.js";
 // ── Icons ──────────────────────────────────────────────────────────────────────
 const Icon = ({ d, size = 20, stroke = "currentColor", fill = "none", strokeWidth = 1.8 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
@@ -21246,7 +21253,7 @@ useEffect(() => {
           settings,
           teamUsers,
           tasks,
-          notifications: [],
+          notifications: [], // notifications live in Supabase, not localStorage
           reportTemplates,
           chats,
           calEvents,
@@ -21270,12 +21277,59 @@ useEffect(() => {
     const normalized = normalizeNotification(n);
     if (!isNotificationEnabledForCurrentUser(normalized, settings, teamUsers)) return;
     setNotifications(prev => [normalized, ...prev]);
+    // Persist to Supabase (fire-and-forget) — don't send back to ourselves for self-actions
+    const orgId = authProfile?.organization_id;
+    if (orgId) {
+      dbSaveNotification(orgId, normalized).catch(e =>
+        console.warn('[KrakenCam] Notification save failed:', e.message)
+      );
+    }
   };
 
-  // Coordinates sourced from photo GPS — no background geocoding
-  const markRead    = (id) => setNotifications(prev => prev.map(n => n.id===id ? {...n,read:true} : n));
-  const markAllRead = ()   => setNotifications(prev => prev.map(n => ({...n,read:true})));
-  const clearNotifs = ()   => setNotifications([]);
+  // Load notifications from Supabase on login
+  useEffect(() => {
+    const orgId = authProfile?.organization_id;
+    if (!orgId) return;
+    dbLoadNotifications(orgId).then(rows => {
+      if (!rows?.length) return;
+      const dbNotifs = rows.map(r => normalizeNotification({
+        id:               r.id,
+        type:             r.type,
+        title:            r.title,
+        body:             r.body,
+        context:          r.context,
+        action:           r.action,
+        author:           r.author,
+        preview:          r.preview,
+        read:             r.read,
+        timestamp:        r.created_at,
+        date:             r.created_at?.slice(0, 10),
+        recipientUserIds: r.recipient_user_id ? [r.recipient_user_id] : [],
+        recipientRoles:   r.recipient_role    ? [r.recipient_role]    : [],
+      }));
+      setNotifications(prev => {
+        const existingIds = new Set(prev.map(n => n.id));
+        const newOnes = dbNotifs.filter(n => !existingIds.has(n.id));
+        if (!newOnes.length) return prev;
+        return [...prev, ...newOnes].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      });
+    }).catch(e => console.warn('[KrakenCam] Notifications load failed:', e.message));
+  }, [authProfile?.organization_id]);
+
+  const markRead = (id) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    if (isValidUuid(id)) dbMarkNotificationRead(id).catch(() => {});
+  };
+  const markAllRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    const orgId = authProfile?.organization_id;
+    if (orgId) dbMarkAllNotificationsRead(orgId).catch(() => {});
+  };
+  const clearNotifs = () => {
+    setNotifications([]);
+    const orgId = authProfile?.organization_id;
+    if (orgId) dbClearNotifications(orgId).catch(() => {});
+  };
   const visibleNotifications = notifications.filter(n => shouldShowNotificationForCurrentUser(n, settings, teamUsers));
 
   // Apply accent color as CSS variable whenever it changes
