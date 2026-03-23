@@ -13583,10 +13583,13 @@ function ChatPanel({ chats, onChatsChange, teamUsers, settings, currentUserId, i
     }));
     // Fire-and-forget: persist message + attachment to Supabase
     if (orgId && activeChatId && isValidUuid(activeChatId)) {
-      // Ensure the chat room exists in DB first
-      if (activeChat) {
-        dbUpsertChatRoom(orgId, activeChat).catch(() => {});
-      }
+      // Register a fingerprint BEFORE the async call so realtime dedup catches it
+      // even if the websocket event arrives before .then() fires
+      const fingerprint = `${msg.authorName}::${(text||'').slice(0,40)}::${activeChatId}`;
+      _sentChatDbIds.add(fingerprint);
+      setTimeout(() => _sentChatDbIds.delete(fingerprint), 30000);
+
+      if (activeChat) dbUpsertChatRoom(orgId, activeChat).catch(() => {});
       dbSendChatMessage(orgId, activeChatId, {
         senderId:    currentUserId !== '__admin__' ? currentUserId : null,
         senderName:  msg.authorName,
@@ -13597,13 +13600,8 @@ function ChatPanel({ chats, onChatsChange, teamUsers, settings, currentUserId, i
         attachment:  attachFile || null,
       }).then(saved => {
         if (saved?.id) {
-          // Track this DB id so realtime doesn't echo it back
           _sentChatDbIds.add(saved.id);
           setTimeout(() => _sentChatDbIds.delete(saved.id), 30000);
-          onChatsChange(prev => prev.map(c => c.id !== activeChatId ? c : {
-            ...c,
-            messages: c.messages.map(m => m.id === msg.id ? { ...m, _dbId: saved.id } : m),
-          }));
         }
       }).catch(e => console.error('[KrakenCam] Chat save failed:', e));
     }
@@ -21025,8 +21023,10 @@ useEffect(() => {
         setChats(prev => {
           const updated = prev.map(ch => {
             if (ch.id !== r.chat_room_id) return ch;
-            // Skip if we sent this message (tracked in _sentChatDbIds set)
+            // Skip if we sent this message — check both DB id and content fingerprint
             if (_sentChatDbIds.has(r.id)) return ch;
+            const fp = `${r.sender_name}::${(r.content||'').slice(0,40)}::${r.chat_room_id}`;
+            if (_sentChatDbIds.has(fp)) return ch;
             // Skip if already in local state
             if ((ch.messages || []).find(m => m.id === r.id || m._dbId === r.id)) return ch;
             return {
