@@ -4,9 +4,10 @@
  * Supports text, image, file, and voice attachments.
  */
 
-import { supabase } from './supabase';
+import { supabase, getAuthHeaders } from './supabase';
 
 const MSG_BUCKET = 'chat-attachments';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 // ── Chat Rooms ────────────────────────────────────────────────────────────────
 
@@ -108,18 +109,21 @@ export async function sendChatMessage(orgId, chatRoomId, msg) {
         const safeName = (att.name || `attachment.${ext}`).replace(/[^a-zA-Z0-9._-]/g, '_');
         const path = `${orgId}/${chatRoomId}/${Date.now()}_${safeName}`;
 
-        const { error: upErr } = await supabase.storage
-          .from(MSG_BUCKET)
-          .upload(path, blob, { contentType: mime, upsert: false });
+        // Use raw fetch with auth headers — same pattern as project photo uploads
+        const uploadHeaders = await getAuthHeaders({ 'Content-Type': mime, 'x-upsert': 'false' });
+        const uploadRes = await fetch(
+          `${SUPABASE_URL}/storage/v1/object/${MSG_BUCKET}/${path}`,
+          { method: 'POST', headers: uploadHeaders, body: blob }
+        );
 
-        if (!upErr) {
-          const { data: urlData } = supabase.storage.from(MSG_BUCKET).getPublicUrl(path);
+        if (uploadRes.ok) {
           attachmentPath = path;
-          attachmentUrl  = urlData.publicUrl;
+          attachmentUrl  = `${SUPABASE_URL}/storage/v1/object/public/${MSG_BUCKET}/${path}`;
           attachmentName = att.name || `attachment.${ext}`;
           attachmentSize = blob.size;
         } else {
-          console.warn('[KrakenCam] Chat attachment upload error:', upErr.message);
+          const errText = await uploadRes.text().catch(() => uploadRes.status);
+          console.warn('[KrakenCam] Chat attachment upload error:', errText);
         }
       }
     } catch (e) {

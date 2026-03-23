@@ -140,6 +140,8 @@ const ic = {
 // ── Seed data helpers ──────────────────────────────────────────────────────────
 const uid = () => Math.random().toString(36).slice(2, 10);
 const isValidUuid = id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+// Track DB ids of messages we sent so realtime doesn't echo them back
+const _sentChatDbIds = new Set();
 
 /**
  * Read EXIF orientation tag from a Blob/File (JPEG only).
@@ -13594,8 +13596,10 @@ function ChatPanel({ chats, onChatsChange, teamUsers, settings, currentUserId, i
                    : attachFile ? 'file' : 'text',
         attachment:  attachFile || null,
       }).then(saved => {
-        // Tag the local message with its DB id so realtime dedup can skip it
         if (saved?.id) {
+          // Track this DB id so realtime doesn't echo it back
+          _sentChatDbIds.add(saved.id);
+          setTimeout(() => _sentChatDbIds.delete(saved.id), 30000);
           onChatsChange(prev => prev.map(c => c.id !== activeChatId ? c : {
             ...c,
             messages: c.messages.map(m => m.id === msg.id ? { ...m, _dbId: saved.id } : m),
@@ -21021,12 +21025,10 @@ useEffect(() => {
         setChats(prev => {
           const updated = prev.map(ch => {
             if (ch.id !== r.chat_room_id) return ch;
-            // Skip if this message is already in local state (we sent it)
-            // Check both DB id tag and sender — don't echo our own messages back
+            // Skip if we sent this message (tracked in _sentChatDbIds set)
+            if (_sentChatDbIds.has(r.id)) return ch;
+            // Skip if already in local state
             if ((ch.messages || []).find(m => m.id === r.id || m._dbId === r.id)) return ch;
-            // Also skip if the message was sent by us in the last 10 seconds (timing window)
-            const isOurs = r.sender_id === null && (Date.now() - new Date(r.created_at).getTime()) < 10000;
-            if (isOurs) return ch;
             return {
               ...ch,
               messages: [...(ch.messages || []), {
