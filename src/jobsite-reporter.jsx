@@ -1410,6 +1410,13 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
       canvas.getContext("2d").drawImage(tmp, 0, 0);
     }
 
+    // DEBUG — remove after orientation fix confirmed
+    const dbgCtx = canvas.getContext("2d");
+    dbgCtx.fillStyle = "rgba(0,0,0,0.7)";
+    dbgCtx.fillRect(10, 10, 520, 60);
+    dbgCtx.fillStyle = "#0f0"; dbgCtx.font = "bold 18px monospace";
+    dbgCtx.fillText(`vid:${vw}x${vh} sw:${sw}x${sh} out:${canvas.width}x${canvas.height} devL:${window.innerWidth>window.innerHeight} rotated:${needsRotation}`, 16, 48);
+
     drawOverlay(canvas);
     setReviewImg(canvas.toDataURL("image/jpeg", jpegQuality));
     setTimeout(() => setFiring(false), 200);
