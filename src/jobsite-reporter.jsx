@@ -1373,12 +1373,42 @@ function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
 
     // ── Canvas path (no flash / fallback) ──
     const vw = video.videoWidth || 1280, vh = video.videoHeight || 720;
-    const scale = Math.min(maxRes / vw, maxRes / vh, 1);
-    canvas.width = Math.round(vw * scale); canvas.height = Math.round(vh * scale);
+
+    // Detect if the device is actually in landscape but the video stream is portrait
+    // (common on iOS/Android where the camera always returns portrait dimensions)
+    const angle = screen.orientation?.angle ?? window.orientation ?? 0;
+    const isLandscape = Math.abs(angle) === 90 || Math.abs(angle) === 270;
+    const videoIsPortrait = vh > vw;
+    const needsRotation = isLandscape && videoIsPortrait;
+
+    // If needs rotation, swap width/height and rotate canvas 90°
+    const outW = needsRotation ? Math.round(vh * Math.min(maxRes / vh, maxRes / vw, 1)) : Math.round(vw * Math.min(maxRes / vw, maxRes / vh, 1));
+    const outH = needsRotation ? Math.round(vw * Math.min(maxRes / vh, maxRes / vw, 1)) : Math.round(vh * Math.min(maxRes / vw, maxRes / vh, 1));
+
+    canvas.width  = outW;
+    canvas.height = outH;
     const ctx = canvas.getContext("2d");
-    if (facing === "user") { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+    if (needsRotation) {
+      // Rotate 90° clockwise (landscape-right) or -90° (landscape-left)
+      const cw = angle === 90 || angle === -270;
+      ctx.save();
+      if (cw) {
+        ctx.translate(outW, 0);
+        ctx.rotate(Math.PI / 2);
+      } else {
+        ctx.translate(0, outH);
+        ctx.rotate(-Math.PI / 2);
+      }
+      if (facing === "user") { ctx.translate(vh * Math.min(maxRes/vh,maxRes/vw,1), 0); ctx.scale(-1, 1); }
+      ctx.drawImage(video, 0, 0, outH, outW);
+      ctx.restore();
+    } else {
+      if (facing === "user") { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
+
     drawOverlay(canvas);
     setReviewImg(canvas.toDataURL("image/jpeg", jpegQuality));
     setTimeout(() => setFiring(false), 200);
