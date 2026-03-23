@@ -2224,7 +2224,7 @@ function ImageEditor({ photo, onClose, onSave }) {
                       <div key={c} onClick={() => setBgColor(c)}
                         style={{ width:26,height:26,borderRadius:6,background:c,cursor:"pointer",border:`2.5px solid ${bgColor===c?"white":"transparent"}`,boxShadow:bgColor===c?"0 0 0 1.5px var(--accent)":"none",transition:"all .12s" }} />
                     ))}
-                    <input type="color" value={bgColor==="transparent"?"#000000":bgColor} onChange={e => setBgColor(e.target.value)}
+                    <input type="color" value={/^#[0-9a-fA-F]{6}$/.test(bgColor)?bgColor:"#000000"} onChange={e => setBgColor(e.target.value)}
                       style={{ width:26,height:26,borderRadius:6,border:"1px solid var(--border)",cursor:"pointer",padding:2,background:"none" }} />
                   </div>
                 </div>
@@ -2435,7 +2435,7 @@ function ImageEditor({ photo, onClose, onSave }) {
               </div>
               <div style={{ display:"flex",alignItems:"center",gap:8,marginBottom:12 }}>
                 <span style={{ fontSize:11,color:"var(--text2)" }}>Custom</span>
-                <input type="color" value={bgColor==="transparent"?"#000000":bgColor}
+                <input type="color" value={/^#[0-9a-fA-F]{6}$/.test(bgColor)?bgColor:"#000000"}
                   onChange={e => setBgColor(e.target.value)}
                   style={{ width:28,height:28,borderRadius:6,border:"1px solid var(--border)",cursor:"pointer",padding:2,background:"none" }} />
               </div>
