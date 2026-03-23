@@ -34,6 +34,7 @@ import {
   deleteVoiceNote as dbDeleteVoiceNote,
 } from "./lib/voiceNotes.js";
 import {
+  getSketches     as dbGetSketches,
   saveSketch      as dbSaveSketch,
   deleteSketch    as dbDeleteSketch,
 } from "./lib/sketches.js";
@@ -9970,7 +9971,23 @@ function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onEdit, on
                   snapToGrid: savedSketch.snapToGrid,
                   notes: savedSketch.notes,
                 };
-                dbSaveSketch(project.id, orgId, savedSketch.title || "Sketch", canvasData, imageBlob).catch(err =>
+                const existingId = savedSketch.supabaseId || (isValidUuid(savedSketch.id) ? savedSketch.id : null);
+                const existingPath = savedSketch.storagePath || null;
+                dbSaveSketch(project.id, orgId, savedSketch.title || "Sketch", canvasData, imageBlob, existingId, existingPath).then(row => {
+                  if (row?.id && !existingId) {
+                    // New sketch — tag with DB id
+                    const supaUrl = import.meta.env.VITE_SUPABASE_URL;
+                    setProjects(prev => prev.map(p => {
+                      if (p.id !== project.id) return p;
+                      return { ...p, sketches: (p.sketches || []).map(s =>
+                        s.id === savedSketch.id
+                          ? { ...s, supabaseId: row.id, storagePath: row.storage_path,
+                              dataUrl: row.storage_path ? `${supaUrl}/storage/v1/object/public/project-photos/${row.storage_path}` : s.dataUrl }
+                          : s
+                      )};
+                    }));
+                  }
+                }).catch(err =>
                   console.warn("[KrakenCam] Sketch Supabase save failed:", err.message || err)
                 );
               } catch (convErr) {
@@ -9989,10 +10006,26 @@ function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onEdit, on
 // ── Sketches Tab ───────────────────────────────────────────────────────────────
 function SketchesTab({ project, onUpdateProject, onNewSketch, onEditSketch }) {
   const sketches = project.sketches || [];
+  const [selectMode,  setSelectMode]  = useState(false);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [confirmDel,  setConfirmDel]  = useState(null); // null | sketchId | "batch"
+
+  const toggleSelect = id => setSelectedIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
 
   const deleteSketch = (id) => {
-    if (!window.confirm("Delete this sketch?")) return;
+    const sk = sketches.find(s => s.id === id);
     onUpdateProject({ ...project, sketches: sketches.filter(s => s.id !== id) });
+    setConfirmDel(null);
+    if (sk?.supabaseId) dbDeleteSketch(sk.supabaseId, sk.storagePath).catch(() => {});
+  };
+
+  const deleteBatch = () => {
+    const toDelete = sketches.filter(s => selectedIds.has(s.id));
+    onUpdateProject({ ...project, sketches: sketches.filter(s => !selectedIds.has(s.id)) });
+    toDelete.forEach(s => { if (s.supabaseId) dbDeleteSketch(s.supabaseId, s.storagePath).catch(() => {}); });
+    setSelectedIds(new Set());
+    setSelectMode(false);
+    setConfirmDel(null);
   };
 
   if (sketches.length === 0) return (
@@ -10008,14 +10041,38 @@ function SketchesTab({ project, onUpdateProject, onNewSketch, onEditSketch }) {
 
   return (
     <div style={{ padding:"16px 0" }}>
-      <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 16px 14px" }}>
-        <div style={{ fontWeight:700,fontSize:14 }}>Sketches ({sketches.length})</div>
-        <button className="btn btn-primary btn-sm" onClick={onNewSketch}><Icon d={ic.plus} size={13} /> New Sketch</button>
+      <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 16px 14px",flexWrap:"wrap",gap:8 }}>
+        <div style={{ display:"flex",alignItems:"center",gap:10 }}>
+          <div style={{ fontWeight:700,fontSize:14 }}>Sketches ({sketches.length})</div>
+          {selectMode && selectedIds.size > 0 && <span style={{ fontSize:12,fontWeight:700,color:"var(--accent)" }}>{selectedIds.size} selected</span>}
+        </div>
+        <div style={{ display:"flex",gap:8 }}>
+          {selectMode ? (<>
+            {selectedIds.size > 0 && (
+              <button className="btn btn-sm" style={{ background:"#e85a3a",color:"white",border:"none" }} onClick={() => setConfirmDel("batch")}>
+                <Icon d={ic.trash} size={13}/> Delete {selectedIds.size}
+              </button>
+            )}
+            <button className="btn btn-secondary btn-sm" onClick={() => { setSelectMode(false); setSelectedIds(new Set()); }}>Cancel</button>
+          </>) : (<>
+            {sketches.length > 0 && <button className="btn btn-secondary btn-sm" onClick={() => setSelectMode(true)}>☑ Select</button>}
+            <button className="btn btn-primary btn-sm" onClick={onNewSketch}><Icon d={ic.plus} size={13} /> New Sketch</button>
+          </>)}
+        </div>
       </div>
       <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:14,padding:"0 16px" }}>
         {sketches.map(sk => (
-          <div key={sk.id} style={{ background:"var(--surface)",border:"1px solid var(--border)",borderRadius:12,overflow:"hidden",cursor:"pointer" }}
-            onClick={() => onEditSketch(sk)}>
+          <div key={sk.id} style={{ background:"var(--surface)",border:`1px solid ${selectedIds.has(sk.id)?"var(--accent)":"var(--border)"}`,borderRadius:12,overflow:"hidden",cursor:"pointer",position:"relative" }}
+            onClick={() => selectMode ? toggleSelect(sk.id) : onEditSketch(sk)}>
+            {selectMode && (
+              <div style={{ position:"absolute",top:8,left:8,zIndex:10 }} onClick={e=>{e.stopPropagation();toggleSelect(sk.id);}}>
+                <div style={{ width:22,height:22,borderRadius:6,border:`2px solid ${selectedIds.has(sk.id)?"var(--accent)":"rgba(255,255,255,0.7)"}`,
+                  background:selectedIds.has(sk.id)?"var(--accent)":"rgba(0,0,0,0.4)",
+                  display:"flex",alignItems:"center",justifyContent:"center" }}>
+                  {selectedIds.has(sk.id) && <Icon d="M20 6L9 17l-5-5" size={13} stroke="white" strokeWidth={2.5}/>}
+                </div>
+              </div>
+            )}
             <div style={{ aspectRatio:"4/3",background:"var(--surface2)",overflow:"hidden",position:"relative" }}>
               {sk.dataUrl
                 ? <img src={sk.dataUrl} alt={sk.title} style={{ width:"100%",height:"100%",objectFit:"cover" }} />
@@ -10034,15 +10091,43 @@ function SketchesTab({ project, onUpdateProject, onNewSketch, onEditSketch }) {
                 {sk.scale && <span>· {sk.scale}</span>}
               </div>
               {sk.notes && <div style={{ fontSize:11.5,color:"var(--text2)",marginTop:5,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden" }}>{sk.notes}</div>}
-              <div style={{ display:"flex",justifyContent:"flex-end",marginTop:8 }}>
-                <button className="btn btn-ghost btn-sm btn-icon" title="Delete" onClick={e=>{e.stopPropagation();deleteSketch(sk.id);}}>
-                  <Icon d={ic.trash} size={14} />
-                </button>
-              </div>
+              {!selectMode && (
+                <div style={{ display:"flex",justifyContent:"flex-end",marginTop:8 }}>
+                  <button className="btn btn-ghost btn-sm btn-icon" title="Delete" style={{ color:"#e85a3a" }} onClick={e=>{e.stopPropagation();setConfirmDel(sk.id);}}>
+                    <Icon d={ic.trash} size={14} />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         ))}
       </div>
+
+      {/* Confirm delete modal */}
+      {confirmDel && (
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setConfirmDel(null)}>
+          <div className="modal fade-in" style={{ maxWidth:380 }}>
+            <div className="modal-header">
+              <div className="modal-title" style={{ color:"#e85a3a" }}><Icon d={ic.trash} size={15}/> Delete Sketch{confirmDel==="batch"?"es":""}</div>
+              <button className="btn btn-ghost btn-icon" onClick={()=>setConfirmDel(null)}><Icon d={ic.close} size={16}/></button>
+            </div>
+            <div className="modal-body">
+              <p style={{ fontSize:13.5,color:"var(--text2)",margin:0 }}>
+                {confirmDel === "batch"
+                  ? `Delete ${selectedIds.size} sketch${selectedIds.size!==1?"es":""}? This cannot be undone.`
+                  : "Delete this sketch? This cannot be undone."}
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary btn-sm" onClick={()=>setConfirmDel(null)}>Cancel</button>
+              <button className="btn btn-sm" style={{ background:"#e85a3a",color:"white",border:"none" }}
+                onClick={()=>confirmDel==="batch" ? deleteBatch() : deleteSketch(confirmDel)}>
+                <Icon d={ic.trash} size={13}/> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -21337,6 +21422,36 @@ useEffect(() => {
   // 🎥 Load videos from Supabase when active project changes
   useEffect(() => {
     if (!authProfile?.organization_id || !activeProject?.id) return;
+    // Load sketches from Supabase
+    dbGetSketches(activeProject.id).then(rows => {
+      if (!rows?.length) return;
+      const supaUrl = import.meta.env.VITE_SUPABASE_URL;
+      const mapped = rows.map(r => ({
+        id:          r.id,
+        supabaseId:  r.id,
+        title:       r.title || 'Sketch',
+        date:        r.created_at?.slice(0, 10) || '',
+        storagePath: r.storage_path,
+        dataUrl:     r.storage_path
+                       ? `${supaUrl}/storage/v1/object/public/project-photos/${r.storage_path}`
+                       : null,
+        elements:    r.canvas_data?.elements    || [],
+        scale:       r.canvas_data?.scale       || '1 sq = 1 ft',
+        roomTag:     r.canvas_data?.roomTag     || '',
+        editorMode:  r.canvas_data?.editorMode  || 'sketch',
+        floorLabel:  r.canvas_data?.floorLabel  || '',
+        snapToGrid:  r.canvas_data?.snapToGrid  ?? true,
+        notes:       r.canvas_data?.notes       || '',
+      }));
+      setProjects(prev => prev.map(p => {
+        if (p.id !== activeProject.id) return p;
+        const existingIds = new Set((p.sketches || []).map(s => s.supabaseId || s.id));
+        const newSketches = mapped.filter(s => !existingIds.has(s.supabaseId));
+        if (!newSketches.length) return p;
+        return { ...p, sketches: [...(p.sketches || []), ...newSketches] };
+      }));
+    }).catch(e => console.warn('[KrakenCam] Could not load sketches from Supabase:', e));
+
     // Load voice notes from Supabase
     dbGetVoiceNotes(activeProject.id).then(rows => {
       if (!rows?.length) return;

@@ -7,9 +7,10 @@
  * All queries are org-scoped via RLS.
  */
 
-import { supabase } from './supabase';
+import { supabase, getAuthHeaders } from './supabase';
 
 const BUCKET = 'project-photos';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 /**
  * Fetch all sketches for a project.
@@ -38,38 +39,53 @@ export async function getSketches(projectId) {
  * @param {Blob|null}   imageBlob  - PNG blob for preview/export (may be null if dataUrl only)
  * @returns {Object} The newly inserted sketches row
  */
-export async function saveSketch(projectId, orgId, title, canvasData, imageBlob) {
-  let storagePath = null;
+export async function saveSketch(projectId, orgId, title, canvasData, imageBlob, existingId = null, existingStoragePath = null) {
+  let storagePath = existingStoragePath || null;
 
   if (imageBlob) {
     const timestamp = Date.now();
-    storagePath = `${orgId}/${projectId}/sketches/${timestamp}.png`;
-
-    const { error: uploadError } = await supabase.storage
-      .from(BUCKET)
-      .upload(storagePath, imageBlob, {
-        cacheControl: '3600',
-        upsert: false,
-        contentType: 'image/png',
-      });
-
-    if (uploadError) throw uploadError;
+    // Reuse the same path if updating (upsert), otherwise create new
+    storagePath = existingStoragePath || `${orgId}/${projectId}/sketches/${timestamp}.png`;
+    const uploadHeaders = await getAuthHeaders({ 'Content-Type': 'image/png', 'x-upsert': 'true' });
+    const uploadRes = await fetch(
+      `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${storagePath}`,
+      { method: 'POST', headers: uploadHeaders, body: imageBlob }
+    );
+    if (!uploadRes.ok) {
+      const errText = await uploadRes.text().catch(() => uploadRes.status);
+      throw new Error(`Sketch upload failed: ${errText}`);
+    }
   }
 
-  const { data: row, error: insertError } = await supabase
-    .from('sketches')
-    .insert([{
-      organization_id: orgId,
-      project_id:      projectId,
-      title:           title || null,
-      storage_path:    storagePath,
-      canvas_data:     canvasData || null,
-    }])
-    .select()
-    .single();
+  const rowData = {
+    organization_id: orgId,
+    project_id:      projectId,
+    title:           title || null,
+    storage_path:    storagePath,
+    canvas_data:     canvasData || null,
+    updated_at:      new Date().toISOString(),
+  };
 
-  if (insertError) throw insertError;
-  return row;
+  if (existingId) {
+    // Update existing row
+    const { data: row, error } = await supabase
+      .from('sketches')
+      .update(rowData)
+      .eq('id', existingId)
+      .select()
+      .single();
+    if (error) throw error;
+    return row;
+  } else {
+    // Insert new row
+    const { data: row, error } = await supabase
+      .from('sketches')
+      .insert([rowData])
+      .select()
+      .single();
+    if (error) throw error;
+    return row;
+  }
 }
 
 /**
