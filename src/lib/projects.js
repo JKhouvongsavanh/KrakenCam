@@ -120,7 +120,7 @@ function toDbRow(p) {
     photos:                stripPhotos(p.photos    || []),
     files:                 stripFiles(p.files      || []),
     photo_tags:            p.photoTags             || [],
-    ba_pairs:              p.baPairs               || [],
+    ba_pairs:              p.beforeAfterPairs      || p.baPairs || [],
     client_portal:         p.clientPortal          || {},
     portal_config:         p.portalConfig          || {},
     activity_log:          p.activityLog           || [],
@@ -211,6 +211,7 @@ function fromDbRow(row) {
     sketches:             row.sketches              || [],   // loaded separately from sketches table
     files:                row.files                 || [],
     photoTags:            row.photo_tags            || [],
+    beforeAfterPairs:     row.ba_pairs              || [],
     baPairs:              row.ba_pairs              || [],
     clientPortal:         row.client_portal         || {},
     portalConfig:         row.portal_config         || {},
