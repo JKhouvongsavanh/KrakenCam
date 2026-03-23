@@ -7,6 +7,8 @@
  * Binary fields (logo, userAvatar) stay in localStorage only — too large for DB.
  */
 
+import { supabase } from './supabase';
+
 // Personal fields — saved to user_settings (per user, not shared)
 const USER_KEYS = [
   'userFirstName','userLastName','userEmail','userTitle','userPhone',
