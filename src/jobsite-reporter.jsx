@@ -7011,6 +7011,7 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
   const [shareMode,     setShareMode]     = useState("dm");
   const [shareTargetId, setShareTargetId] = useState("");
   const [shareText,     setShareText]     = useState("");
+  const shareTextRef = useRef(null);
   const [selectedPhotoIds, setSelectedPhotoIds] = useState(new Set());
   const [selectMode,    setSelectMode]    = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null); // null | "single" | "batch"
@@ -7041,12 +7042,11 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
       ? (availableUsers[0]?.id || "")
       : (shareableChats[0]?.id || "")
     );
-    setShareText("");
   };
 
   const closeShareModal = () => {
     setSharePhoto(null);
-    setShareText("");
+    if (shareTextRef.current) shareTextRef.current.value = "";
     setShareTargetId("");
     setShareMode(availableUsers.length > 0 ? "dm" : "chat");
   };
@@ -7703,10 +7703,10 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
               <div className="form-group" style={{ marginBottom:0 }}>
                 <label className="form-label">Message</label>
                 <textarea
+                  ref={shareTextRef}
                   className="form-input"
                   rows={4}
-                  value={shareText}
-                  onChange={e => setShareText(e.target.value)}
+                  defaultValue=""
                   placeholder="Add a note to send with this photo..."
                   style={{ resize:"vertical" }}
                 />
@@ -7722,7 +7722,7 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
                     mode: shareMode,
                     recipientId: shareMode === "dm" ? shareTargetId : null,
                     chatId: shareMode === "chat" ? shareTargetId : null,
-                    text: shareText,
+                    text: shareTextRef.current?.value || "",
                   });
                   closeShareModal();
                 }}
