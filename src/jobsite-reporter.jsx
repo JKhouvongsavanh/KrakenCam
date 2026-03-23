@@ -22119,12 +22119,16 @@ useEffect(() => {
     });
   };
   const sendProjectFileToDirectMessage = (project, file, recipientId) => {
-    if (!recipientId || (!file?.dataUrl && !file?.storagePath)) return;
-    // Prefer storage URL over base64 for chat attachments
-    if (file && !file.dataUrl && file.storagePath) {
-      const supaUrl = import.meta.env.VITE_SUPABASE_URL;
-      file = { ...file, dataUrl: `${supaUrl}/storage/v1/object/public/project-photos/${file.storagePath}` };
-    }
+    if (!recipientId || !file) return;
+    // Always prefer the hosted Storage URL — avoids sending huge base64 strings through chat
+    const supaUrl = import.meta.env.VITE_SUPABASE_URL;
+    const hostedUrl = file.dataUrl?.startsWith("http")
+      ? file.dataUrl
+      : file.storagePath
+        ? `${supaUrl}/storage/v1/object/public/project-photos/${file.storagePath}`
+        : file.dataUrl; // fallback to base64 only if no storage URL
+    if (!hostedUrl) return;
+    file = { ...file, dataUrl: hostedUrl };
     const recipient = teamUsers.find(u => u.id === recipientId);
     const chatName = `${recipient?.firstName || ""} ${recipient?.lastName || ""}`.trim() || "Direct Message";
     const attachment = {
