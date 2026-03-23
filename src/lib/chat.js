@@ -85,8 +85,14 @@ export async function sendChatMessage(orgId, chatRoomId, msg) {
       let blob;
       const dataUrl = att.dataUrl;
 
-      if (dataUrl.startsWith('data:')) {
-        // Base64 dataUrl
+      if (dataUrl.startsWith('http')) {
+        // Already a hosted URL (e.g. Supabase Storage) — use it directly, no re-upload needed
+        attachmentUrl  = dataUrl;
+        attachmentName = att.name || 'attachment';
+        attachmentSize = att.size || null;
+        blob = null; // skip upload
+      } else if (dataUrl.startsWith('data:')) {
+        // Base64 dataUrl — decode to blob
         const arr  = dataUrl.split(',');
         const mime = (arr[0].match(/:(.*?);/) || [])[1] || att.type || 'application/octet-stream';
         const bstr = atob(arr[1]);
@@ -99,7 +105,7 @@ export async function sendChatMessage(orgId, chatRoomId, msg) {
         const res = await fetch(dataUrl);
         blob = await res.blob();
       } else {
-        console.warn('[KrakenCam] Unsupported attachment dataUrl format');
+        console.warn('[KrakenCam] Unsupported attachment dataUrl format:', dataUrl.slice(0, 30));
         blob = null;
       }
 
@@ -109,7 +115,6 @@ export async function sendChatMessage(orgId, chatRoomId, msg) {
         const safeName = (att.name || `attachment.${ext}`).replace(/[^a-zA-Z0-9._-]/g, '_');
         const path = `${orgId}/${chatRoomId}/${Date.now()}_${safeName}`;
 
-        // Use raw fetch with auth headers — same pattern as project photo uploads
         const uploadHeaders = await getAuthHeaders({ 'Content-Type': mime, 'x-upsert': 'false' });
         const uploadRes = await fetch(
           `${SUPABASE_URL}/storage/v1/object/${MSG_BUCKET}/${path}`,
