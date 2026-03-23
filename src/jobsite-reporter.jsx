@@ -21820,7 +21820,7 @@ useEffect(() => {
                       name: t.name,
                       type: t.type || '',
                       color: t.color || '#4a90d9',
-                      desc: t.desc || '',
+                      description: t.desc || '',
                       recipient: t.recipient || 'Client',
                       cover_img: (t.coverImg && t.coverImg.startsWith('data:')) ? null : (t.coverImg || null),
                       signature_img: (t.signatureImg && t.signatureImg.startsWith('data:')) ? null : (t.signatureImg || null),
