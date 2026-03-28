@@ -13371,13 +13371,43 @@ function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNot
   );
   const [tab, setTab]       = useState("details");
   const [newCheckItem, setNewCheckItem] = useState("");
+  const [tplList, setTplList] = useState([]);
+  const [showTplPicker, setShowTplPicker] = useState(false);
+  const [showSaveTpl, setShowSaveTpl] = useState(false);
+  const [tplName, setTplName] = useState('');
+  useEffect(() => {
+    supabase.from('task_checklist_templates').select('*').order('name')
+      .then(({ data }) => data && setTplList(data));
+  }, []);
   const [newComment, setNewComment]     = useState("");
   const [newTag, setNewTag]             = useState("");
   const set = (k,v) => setForm(f=>({...f,[k]:v}));
 
   const toggleAssignee = id => set("assigneeIds", form.assigneeIds.includes(id) ? form.assigneeIds.filter(x=>x!==id) : [...form.assigneeIds, id]);
   const addCheckItem = () => { if (!newCheckItem.trim()) return; set("checklist", [...form.checklist, { id:uid(), text:newCheckItem.trim(), done:false }]); setNewCheckItem(""); };
-  const toggleCheck = id => set("checklist", form.checklist.map(c=>c.id===id?{...c,done:!c.done}:c));
+  
+  const applyTemplate = (tpl) => {
+    const items = (tpl.items || []).map(text => ({ id: crypto.randomUUID(), text, done: false }));
+    setForm(f => ({ ...f, checklist: [...f.checklist, ...items] }));
+    setShowTplPicker(false);
+  };
+  const saveAsTemplate = async () => {
+    if (!tplName.trim() || !form.checklist.length) return;
+    const { data, error } = await supabase.from('task_checklist_templates').insert({
+      name: tplName.trim(),
+      items: form.checklist.map(c => c.text),
+      organization_id: settings?.organizationId
+    }).select().single();
+    if (!error && data) {
+      setTplList(t => [...t, data].sort((a, b) => a.name.localeCompare(b.name)));
+      setTplName('');
+      setShowSaveTpl(false);
+    }
+  };
+  const deleteTpl = async (id) => {
+    await supabase.from('task_checklist_templates').delete().eq('id', id);
+    setTplList(t => t.filter(x => x.id !== id));
+  };const toggleCheck = id => set("checklist", form.checklist.map(c=>c.id===id?{...c,done:!c.done}:c));
   const removeCheck = id => set("checklist", form.checklist.filter(c=>c.id!==id));
 
   const addComment = (text) => {
@@ -13693,6 +13723,23 @@ function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNot
                 <input className="form-input" style={{ flex:1 }} placeholder="Add checklist item…" value={newCheckItem} onChange={e=>setNewCheckItem(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addCheckItem()} />
                 <button className="btn btn-secondary btn-sm" onClick={addCheckItem}><Icon d={ic.plus} size={14}/> Add</button>
               </div>
+              <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:10 }}>
+                <button className="btn btn-ghost btn-sm" onClick={()=>setShowTplPicker(true)} style={{ fontSize:12,color:"var(--accent)",gap:5 }}>
+                  <Icon d={ic.clipboardList} size={13} stroke="var(--accent)"/> Templates
+                </button>
+                {form.checklist.length > 0 && (
+                  <button className="btn btn-ghost btn-sm" onClick={()=>{setShowSaveTpl(!showSaveTpl);setTplName('');}} style={{ fontSize:12,color:"var(--text3)" }}>
+                    Save as Template
+                  </button>
+                )}
+              </div>
+              {showSaveTpl && (
+                <div style={{ display:"flex",gap:8,marginTop:8 }}>
+                  <input className="form-input" style={{ flex:1,fontSize:13 }} placeholder="Template name\u2026" value={tplName} onChange={e=>setTplName(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveAsTemplate()} autoFocus/>
+                  <button className="btn btn-primary btn-sm" onClick={saveAsTemplate} disabled={!tplName.trim()}>Save</button>
+                  <button className="btn btn-ghost btn-sm" onClick={()=>{setShowSaveTpl(false);setTplName('');}}>Cancel</button>
+                </div>
+              )}
             </div>
           )}
 
@@ -13731,7 +13778,33 @@ function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNot
           )}
         </div>
 
-        <div className="modal-footer">
+                {showTplPicker && (
+          <div style={{ position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center" }} onClick={()=>setShowTplPicker(false)}>
+            <div style={{ background:"var(--surface1)",borderRadius:"var(--radius)",padding:24,width:400,maxWidth:"90vw",maxHeight:"70vh",display:"flex",flexDirection:"column",gap:16 }} onClick={e=>e.stopPropagation()}>
+              <div style={{ display:"flex",alignItems:"center",gap:10 }}>
+                <Icon d={ic.clipboardList} size={16} stroke="var(--accent)"/>
+                <span style={{ fontWeight:700,fontSize:15 }}>Checklist Templates</span>
+                <button className="btn btn-ghost btn-icon" style={{ marginLeft:"auto",width:32,height:32 }} onClick={()=>setShowTplPicker(false)}><Icon d={ic.close} size={16}/></button>
+              </div>
+              {tplList.length === 0 ? (
+                <div style={{ color:"var(--text3)",fontSize:13,textAlign:"center",padding:"20px 0" }}>No templates yet. Save your first one from the Checklist tab.</div>
+              ) : (
+                <div style={{ overflowY:"auto",display:"flex",flexDirection:"column",gap:6 }}>
+                  {tplList.map(tpl => (
+                    <div key={tpl.id} style={{ display:"flex",alignItems:"center",gap:10,padding:"10px 14px",background:"var(--surface2)",borderRadius:"var(--radius-sm)",cursor:"pointer" }} onClick={()=>applyTemplate(tpl)}>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontWeight:600,fontSize:13 }}>{tpl.name}</div>
+                        <div style={{ fontSize:11,color:"var(--text3)",marginTop:2 }}>{(tpl.items||[]).length} item{(tpl.items||[]).length!==1?'s':''}</div>
+                      </div>
+                      <button className="btn btn-ghost btn-icon" style={{ width:28,height:28,color:"#e85a3a",flexShrink:0 }} onClick={e=>{e.stopPropagation();deleteTpl(tpl.id);}}><Icon d={ic.trash} size={13}/></button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+<div className="modal-footer">
           <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
           <button className="btn btn-primary" onClick={()=>onSave(form)} disabled={!form.title.trim()}>
             <Icon d={ic.check} size={14}/> {isNew?"Create Task":"Save Changes"}
