@@ -19941,13 +19941,24 @@ function SettingsPage({ settings, onSave, onDeleteAccount, projects = [], users 
   // Re-sync form when settings prop changes (e.g. authProfile seeds name/email on first load)
   useEffect(() => {
     setForm(prev => ({ ...settings, ...prev,
-      // Always take these from settings if they were blank in form
+      // Always take from settings if blank in form (handles async load race condition)
       userFirstName: prev.userFirstName || settings.userFirstName || "",
       userLastName:  prev.userLastName  || settings.userLastName  || "",
       userEmail:     prev.userEmail     || settings.userEmail     || "",
       companyName:   prev.companyName   || settings.companyName   || "",
+      email:         prev.email         || settings.email         || "",
+      phone:         prev.phone         || settings.phone         || "",
+      address:       prev.address       || settings.address       || "",
+      city:          prev.city          || settings.city          || "",
+      state:         prev.state         || settings.state         || "",
+      zip:           prev.zip           || settings.zip           || "",
+      license:       prev.license       || settings.license       || "",
+      website:       prev.website       || settings.website       || "",
+      industry:      prev.industry      || settings.industry      || "",
     }));
-  }, [settings.userFirstName, settings.userEmail, settings.companyName]);
+  }, [settings.userFirstName, settings.userEmail, settings.companyName,
+      settings.email, settings.phone, settings.address, settings.city,
+      settings.state, settings.zip, settings.license, settings.website, settings.industry]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [showExportModal, setShowExportModal] = useState(false);
