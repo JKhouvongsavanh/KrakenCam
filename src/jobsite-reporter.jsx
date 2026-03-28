@@ -9811,8 +9811,8 @@ function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onEdit, on
             </div>
             <div className="project-info-box">
               <div className="project-info-label"><Icon d={ic.clockIcon} size={11} /> Details</div>
-              <div className="project-info-value">{project.type}</div>
-              <div className="project-info-sub">Created {project.createdAt}</div>
+              <div className="project-info-value">{project.createdAt ? new Date(project.createdAt).toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" }) : "—"}</div>
+              <div className="project-info-sub">{project.type || ""}</div>
             </div>
           </div>
 
