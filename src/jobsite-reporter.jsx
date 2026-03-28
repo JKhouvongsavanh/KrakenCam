@@ -3029,7 +3029,7 @@ function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose 
                     {/* Project Events */}
           <div className="form-section">
             <div className="form-section-title" style={{ cursor:"pointer", userSelect:"none" }} onClick={() => set("projectEventsEnabled", !form.projectEventsEnabled)}>
-              <Icon d={ic.calendar} size={15} stroke="var(--accent)" /> Project Events
+              <Icon d={ic.clockIcon} size={15} stroke="var(--accent)" /> Project Events
               <span style={{ marginLeft:"auto", fontSize:12, color:"var(--text3)", fontWeight:400, background:"var(--surface3)", padding:"2px 10px", borderRadius:10 }}>
                 {form.projectEventsEnabled ? "▲ Hide" : "▼ Add"}
               </span>
