@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from "
 import { supabase, getAuthHeaders } from "./lib/supabase";
 import { loadSettingsFromDB, saveSettingsToDB, stripBinary } from "./lib/settingsSync";
 import { uploadOrgLogo, uploadUserAvatar } from "./lib/uploadImage";
-import { updateTeamMember, removeUser as dbRemoveUser } from "./lib/team";
+import { createTeamMember, updateTeamMember, removeUser as dbRemoveUser } from "./lib/team";
 import { useAuth } from "./components/AuthProvider.jsx";
 import {
   getProjects     as dbGetProjects,
@@ -18141,6 +18141,7 @@ function InviteUserButton({ canEdit }) {
 }
 
 function AccountPage({ settings, onSettingsChange, projects, users, onUsersChange, onProjectsChange, onNotify }) {
+  const { profile: acctAuthProfile } = useAuth();
   const [tab, setTab]         = useState("team");
   const [editingUser, setEditingUser] = useState(null);
   const [addingUser, setAddingUser]   = useState(false);
@@ -18227,12 +18228,23 @@ function AccountPage({ settings, onSettingsChange, projects, users, onUsersChang
     };
     const exists = users.find(x => x.id === normalizedUser.id);
     onUsersChange(exists ? users.map(x => x.id===normalizedUser.id ? normalizedUser : x) : [...users, normalizedUser]);
-    // Persist to Supabase profiles table (pass previous email so auth email can be updated if changed)
+    // Persist to Supabase profiles table
     if (normalizedUser.email) {
-      const previousEmail = exists?.email || null;
-      updateTeamMember(normalizedUser, previousEmail).catch(err =>
-        console.warn("[KrakenCam] Failed to save team member:", err.message || err)
-      );
+      if (!exists) {
+        // Brand-new user — insert a pending profile (no auth account yet)
+        const orgId = acctAuthProfile?.organization_id;
+        if (orgId) {
+          createTeamMember(normalizedUser, orgId).catch(err =>
+            console.warn("[KrakenCam] Failed to create team member:", err.message || err)
+          );
+        }
+      } else {
+        // Existing user — update their profile (pass previous email so auth email can be updated if changed)
+        const previousEmail = exists.email || null;
+        updateTeamMember(normalizedUser, previousEmail).catch(err =>
+          console.warn("[KrakenCam] Failed to save team member:", err.message || err)
+        );
+      }
     }
 
     // Sync user.assignedProjects → each project's assignedUserIds
@@ -21832,6 +21844,16 @@ const { profile: authProfile, user: authUser, loading: authLoading } = useAuth()
 useEffect(() => {
   setAuthKey(k => k + 1);
 }, [authProfile?.user_id]);
+  // ── Persist AI generation usage immediately when Kraken count changes ──
+  const prevAiUsed = useRef(undefined);
+  useEffect(() => {
+    const cur = settings?.aiGenerationsUsed;
+    if (cur === undefined || cur === prevAiUsed.current) return;
+    prevAiUsed.current = cur;
+    const orgId  = authProfile?.organization_id;
+    const userId = authProfile?.user_id;
+    if (orgId || userId) saveSettingsToDB(orgId, userId, settings).catch(() => {});
+  }, [settings?.aiGenerationsUsed]);
   // ── One-time migration: push localStorage projects to Supabase ───────────
   // Runs once when authenticated. Finds projects that exist in localStorage
   // but not in Supabase and saves them. Safe to run repeatedly.
