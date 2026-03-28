@@ -21382,9 +21382,13 @@ function TemplatesPage({ projects, onUseTemplate, templates: templatesProp, onTe
 
     const handleSave = () => {
       if (!name.trim()) return;
+      // Always generate a real UUID: uid() produces a short non-UUID string that
+      // fails Supabase's uuid column. Also re-generate for default templates
+      // whose IDs are integers (1-6) so they get proper UUIDs on first save.
+      const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       const saved = {
         ...base,
-        id: isNew ? uid() : base.id,
+        id: (isNew || !UUID_RE.test(String(base.id))) ? crypto.randomUUID() : base.id,
         name: name.trim(), type, desc, recipient,
         color: colorForType(type),
         sections: Object.fromEntries(ALL_SECTIONS.map(s => [s, { enabled: secEnabled[s], text: secText[s]||"" }])),
@@ -22106,7 +22110,19 @@ useEffect(() => {
             }
             return { ...row, photos: mergedPhotos };
           });
-          setProjects(merged);
+          // Use functional update to preserve secondary-loaded data (sketches, voiceNotes, videos)
+          // that live in separate tables and are NOT returned by getProjects().
+          // Without this, every time loadProjectsFromDB() runs (e.g. on auth cycle), it wipes
+          // those arrays back to [] — causing the "tabs show no items" intermittent bug.
+          setProjects(prev => merged.map(newProj => {
+            const oldProj = prev.find(p => p.id === newProj.id);
+            return {
+              ...newProj,
+              sketches:   oldProj?.sketches?.length   ? oldProj.sketches   : newProj.sketches,
+              voiceNotes: oldProj?.voiceNotes?.length ? oldProj.voiceNotes : newProj.voiceNotes,
+              videos:     oldProj?.videos?.length     ? oldProj.videos     : newProj.videos,
+            };
+          }));
         }
       } catch (err) {
         console.warn("[KrakenCam] Could not load projects from Supabase:", err.message || err);
@@ -23440,16 +23456,24 @@ useEffect(() => {
                 const url = import.meta.env.VITE_SUPABASE_URL;
                 // Upsert all templates with full data
                 getAuthHeaders({ 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }).then(headers => {
+                  // Only upsert templates with valid UUIDs — default templates
+                  // have integer IDs (1-6) which PostgreSQL rejects on a uuid column.
+                  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+                  const toSave = newTemplates.filter(t => UUID_RE.test(String(t.id || '')));
+                  if (!toSave.length) return;
                   fetch(`${url}/rest/v1/report_templates?on_conflict=id`, {
                     method: 'POST', headers,
-                    body: JSON.stringify(newTemplates.map(t => ({
+                    body: JSON.stringify(toSave.map(t => ({
                       id: t.id,
                       organization_id: orgId,
                       name: t.name,
                       type: t.type || '',
                       color: t.color || '#4a90d9',
-                      // Store extra fields in sections._meta until ALTER TABLE adds columns
-                      sections: { ...(t.sections || {}), _meta: { desc: t.desc || '', recipient: t.recipient || 'Client', coverImg: (!t.coverImg || t.coverImg.startsWith('data:')) ? null : t.coverImg, signatureImg: (!t.signatureImg || t.signatureImg.startsWith('data:')) ? null : t.signatureImg } },
+                      description: t.desc || '',
+                      recipient: t.recipient || 'Client',
+                      cover_img: (!t.coverImg || t.coverImg.startsWith('data:')) ? null : t.coverImg,
+                      signature_img: (!t.signatureImg || t.signatureImg.startsWith('data:')) ? null : t.signatureImg,
+                      sections: Object.fromEntries(Object.entries(t.sections || {}).filter(([k]) => k !== '_meta')),
                       updated_at: new Date().toISOString(),
                     }))),
                   }).catch(() => {});
