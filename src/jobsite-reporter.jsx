@@ -11582,6 +11582,202 @@ function AiWriterUpgradeModal({ onUpgrade, onClose, isAdmin, settings, users }) 
   );
 }
 
+// ── 1-Click Report Upgrade Modal ──────────────────────────────────────────────────────
+function OneClickUpgradeModal({ onClose, isAdmin }) {
+  return (
+    <div style={{ position:"fixed",inset:0,zIndex:600,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(0,0,0,.55)" }}
+      onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div style={{ background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,boxShadow:"0 16px 60px rgba(0,0,0,.7)",width:"min(440px,95vw)",overflow:"hidden" }}>
+        <div style={{ padding:"28px 28px 22px",background:"linear-gradient(135deg,#d97706 0%,#f59e0b 60%,#fbbf24 100%)",textAlign:"center" }}>
+          <div style={{ width:52,height:52,borderRadius:14,background:"rgba(255,255,255,.2)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 12px" }}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <div style={{ fontSize:20,fontWeight:800,color:"white",marginBottom:6 }}>⧆ Command III Feature</div>
+          <div style={{ fontSize:13.5,color:"rgba(255,255,255,.88)",lineHeight:1.55 }}>1-Click AI Report Writer is available exclusively on Command III</div>
+        </div>
+        <div style={{ padding:"20px 24px 24px" }}>
+          <div style={{ fontSize:13.5,color:"var(--text2)",lineHeight:1.65,marginBottom:16 }}>Generate complete professional reports in a single click — Project Overview, Site Findings, Completion Reports, and fully custom reports. Upgrade to Command III to unlock this for your team.</div>
+          <div style={{ display:"flex",gap:8 }}>
+            <button className="btn btn-secondary btn-sm" style={{ flex:1 }} onClick={onClose}>Maybe Later</button>
+            {isAdmin && (
+              <button className="btn btn-primary btn-sm" style={{ flex:2,background:"linear-gradient(135deg,#d97706,#f59e0b)",border:"none",fontWeight:700 }}
+                onClick={()=>alert("Upgrade to Command III in Account \u2192 Billing.")}>
+                Upgrade to Command III
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const OCR_TYPES = [
+  { id:"summary",    label:"Project Overview Report",   desc:"Current status, scope, and progress \u2014 ideal for quick briefings", cost:2, icon:"M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
+  { id:"findings",   label:"Site Findings & Issues",    desc:"Jobsite conditions, deficiencies, damaged areas, and issues requiring attention", cost:2, icon:"M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" },
+  { id:"completion", label:"Project Completion Report", desc:"Full coverage \u2014 completed work, findings, materials, recommendations, and next steps", cost:3, icon:"M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" },
+  { id:"custom",     label:"Custom Report",             desc:"Select the sections you need and add custom details for a tailored report", cost:4, icon:"M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" },
+];
+const OCR_SECTIONS = [
+  "Executive Summary","Project Overview","Site Conditions","Scope of Work",
+  "Findings & Observations","Issues & Deficiencies","Work Completed","Materials Used",
+  "Recommendations","Next Steps","Safety Concerns","Timeline & Progress","Client Notes","Closing Statement",
+];
+
+// ── 1-Click Report Modal ────────────────────────────────────────────────────────────
+function OneClickReportModal({ project, settings, onSettingsChange, orgId, onAccept, onClose }) {
+  const [sel, setSel]             = useState(null);
+  const [customSecs, setCustomSecs] = useState([]);
+  const [customText, setCustomText] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [result, setResult]       = useState("");
+  const [error, setError]         = useState(null);
+  const cost = OCR_TYPES.find(t=>t.id===sel)?.cost || 0;
+  const toggleSec = s => setCustomSecs(prev => prev.includes(s) ? prev.filter(x=>x!==s) : [...prev,s]);
+  const buildCtx = () => {
+    const rooms      = (project.rooms||[]).map(r=>r.name).join(", ")||"None";
+    const photoRooms = [...new Set((project.photos||[]).map(p=>p.room).filter(Boolean))].join(", ")||"None";
+    const checklists = (project.checklists||[]).map(cl=>{const f=cl.fields||[];const done=f.filter(x=>x.value||x.checked||x.response).length;return cl.name+" ("+done+"/"+f.length+(cl.completedAt?" \u2014 COMPLETED":"")+")";}).join("; ")||"None";
+    const actNotes   = (project.activity||[]).filter(a=>a.text||a.content).map(a=>a.text||a.content).slice(0,8).join(" | ")||"None";
+    return [
+      "Project: "+project.title,
+      "Type: "+(project.type||"N/A"),
+      "Status: "+(project.status||"Active"),
+      "Client: "+(project.clientName||"N/A"),
+      "Address: "+([project.address,project.city,project.state].filter(Boolean).join(", ")||"N/A"),
+      "Cause of Loss: "+(project.causeOfLoss||"N/A"),
+      "Property Type: "+(project.propertyType||"N/A"),
+      "Notes: "+(project.notes||"None"),
+      "Rooms: "+rooms,
+      "Photo Areas: "+photoRooms,
+      "Checklists: "+checklists,
+      "Field Notes: "+actNotes,
+      "Inspector: "+((settings?.userFirstName||"")+" "+(settings?.userLastName||"")),
+      "Company: "+(settings?.companyName||"N/A"),
+    ].join("\n");
+  };
+  const buildPrompt = () => {
+    const co = settings?.companyName||"a restoration company";
+    const base = "You are a professional construction and restoration report writer for "+co+". Write professional, factual, industry-standard report content only. No preamble or meta-commentary. Use clear section headers where appropriate.";
+    if (sel==="summary")    return base+"\n\nWrite a Professional Project Overview Report in 2-3 paragraphs covering: project scope and purpose, current status and progress, key jobsite details, site conditions, and any notable information relevant to office staff or management.";
+    if (sel==="findings")   return base+"\n\nWrite a Site Findings & Issues Report. Focus exclusively on: observed site conditions, documented findings and deficiencies, damaged or affected areas, and issues requiring attention. Be specific and factual. Use section headers for multiple areas.";
+    if (sel==="completion") return base+"\n\nWrite a comprehensive Project Completion Report with sections: Project Overview, Work Completed, Site Conditions & Findings, Issues Encountered, Materials & Methods Used, Recommendations, and Next Steps. Be thorough and professional.";
+    if (sel==="custom") {
+      const secs = customSecs.length>0 ? customSecs.join(", ") : "Project Overview, Findings, Recommendations";
+      return base+"\n\nWrite a custom project report with the following sections: "+secs+". Include relevant details for each section based on the project data."+(customText.trim()?"\n\nAdditional instructions: "+customText.trim():"");
+    }
+    return base;
+  };
+  const handleGenerate = async () => {
+    if (!sel) { setError("Please select a report type first."); return; }
+    const plan  = settings?.plan||"base";
+    const limit = PLAN_AI_LIMITS[plan]||0;
+    const curWin = getWeekWindowStart();
+    const wStart = settings?.aiGenerationsWindowStart ? new Date(settings.aiGenerationsWindowStart) : null;
+    const valid  = wStart && wStart >= curWin;
+    const used   = valid ? (settings?.aiGenerationsUsed||0) : 0;
+    if (used+cost > limit) {
+      const reset = getNextResetDate();
+      setError("Not enough AI Krakens. This report costs "+cost+" Krakens \u2014 you have "+Math.max(0,limit-used)+" remaining. Limit resets "+reset.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})+".");
+      return;
+    }
+    setGenerating(true); setError(null);
+    try {
+      const {data:{session}} = await supabase.auth.getSession();
+      const token = session?.access_token||"";
+      const res = await fetch("/api/generate-report",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({projectName:project.title,projectDescription:buildCtx(),photos:[],customPrompt:buildPrompt()})});
+      const json = await res.json();
+      if (json.error) throw new Error(json.error);
+      const text = (json.report||"").trim();
+      if (!text) throw new Error("AI returned empty content");
+      setResult(text);
+      try {
+        const supaUrl = import.meta.env.VITE_SUPABASE_URL;
+        const h = await getAuthHeaders({"Content-Type":"application/json","Prefer":"return=minimal"});
+        await fetch(supaUrl+"/rest/v1/ai_one_click_reports",{method:"POST",headers:h,body:JSON.stringify({organization_id:orgId,project_id:String(project.id),report_type:sel,generated_text:text,kraken_cost:cost,custom_sections:sel==="custom"?customSecs:null,custom_prompt_text:sel==="custom"?customText||null:null,created_by:session?.user?.id||null})});
+      } catch(saveErr){console.warn("1-click save:",saveErr);}
+      if (onSettingsChange) onSettingsChange(prev=>({...prev,aiGenerationsUsed:used+cost,aiGenerationsWindowStart:valid?prev.aiGenerationsWindowStart:curWin.toISOString()}));
+    } catch(err){setError("Generation failed: "+err.message);}
+    finally{setGenerating(false);}
+  };
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:600,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(0,0,0,.55)"}} onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,boxShadow:"0 16px 60px rgba(0,0,0,.7)",width:"min(640px,96vw)",maxHeight:"90vh",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+        <div style={{padding:"16px 20px 14px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:10}}>
+          <div style={{width:34,height:34,borderRadius:9,background:"linear-gradient(135deg,#d97706,#f59e0b)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:800,fontSize:14.5}}>1-Click AI Report Writer</div>
+            <div style={{fontSize:11.5,color:"var(--text2)"}}>Pulls data from <span style={{color:"var(--accent)",fontWeight:600}}>{project.title}</span> only</div>
+          </div>
+          <button className="btn btn-ghost btn-sm btn-icon" onClick={onClose}><Icon d={ic.close} size={16}/></button>
+        </div>
+        <div style={{flex:1,overflowY:"auto",padding:"16px 20px",display:"flex",flexDirection:"column",gap:14}}>
+          {!result && (
+            <>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                {OCR_TYPES.map(t=>(
+                  <div key={t.id} onClick={()=>{setSel(t.id);setError(null);}} style={{border:"2px solid "+(sel===t.id?"var(--accent)":"var(--border)"),borderRadius:10,padding:"12px 14px",cursor:"pointer",background:sel===t.id?"rgba(43,127,232,.07)":"var(--surface2)",transition:"border-color .15s,background .15s",position:"relative"}}>
+                    <div style={{display:"flex",alignItems:"flex-start",gap:9,marginBottom:6}}>
+                      <div style={{width:28,height:28,borderRadius:7,background:sel===t.id?"var(--accent)":"var(--surface)",border:"1px solid var(--border)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"background .15s"}}>
+                        <Icon d={t.icon} size={13} stroke={sel===t.id?"white":"var(--text2)"}/>
+                      </div>
+                      <div>
+                        <div style={{fontSize:12.5,fontWeight:700,color:"var(--text)",lineHeight:1.3}}>{t.label}</div>
+                        <div style={{fontSize:11,color:"var(--text3)",lineHeight:1.4,marginTop:2}}>{t.desc}</div>
+                      </div>
+                    </div>
+                    <div style={{position:"absolute",top:10,right:10,display:"flex",alignItems:"center",gap:3,background:sel===t.id?"var(--accent)":"var(--surface)",border:"1px solid "+(sel===t.id?"var(--accent)":"var(--border)"),borderRadius:20,padding:"2px 8px",fontSize:10,fontWeight:700,color:sel===t.id?"white":"var(--text2)",transition:"all .15s"}}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>{t.cost}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {sel==="custom" && (
+                <div style={{background:"var(--surface2)",border:"1px solid var(--border)",borderRadius:10,padding:"14px 16px",display:"flex",flexDirection:"column",gap:12}}>
+                  <div style={{fontSize:12,fontWeight:700,color:"var(--text2)"}}>Select Sections to Include</div>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:7}}>
+                    {OCR_SECTIONS.map(s=>{const on=customSecs.includes(s);return <div key={s} onClick={()=>toggleSec(s)} style={{fontSize:11.5,padding:"4px 11px",borderRadius:20,border:"1.5px solid "+(on?"var(--accent)":"var(--border)"),background:on?"rgba(43,127,232,.1)":"var(--surface)",color:on?"var(--accent)":"var(--text2)",cursor:"pointer",fontWeight:on?700:500,transition:"all .12s",userSelect:"none"}}>{s}</div>;})} 
+                  </div>
+                  <div>
+                    <div style={{fontSize:11.5,fontWeight:600,color:"var(--text2)",marginBottom:5}}>Additional Details <span style={{fontWeight:400,color:"var(--text3)"}}>(optional)</span></div>
+                    <textarea value={customText} onChange={e=>setCustomText(e.target.value)} placeholder="Any specific info, context, or instructions for the AI\u2026" style={{width:"100%",minHeight:72,background:"var(--surface)",border:"1px solid var(--border)",borderRadius:8,padding:"9px 12px",fontSize:12.5,color:"var(--text)",fontFamily:"inherit",resize:"vertical",outline:"none",boxSizing:"border-box"}}/>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+          {result && (
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <div style={{width:20,height:20,borderRadius:5,background:"#3dba7e",display:"flex",alignItems:"center",justifyContent:"center"}}><Icon d={ic.check} size={12} stroke="white" strokeWidth={3}/></div>
+                <div style={{fontSize:12.5,fontWeight:700,color:"#3dba7e"}}>Report generated \u2014 edit as needed before adding to your report</div>
+              </div>
+              <textarea value={result} onChange={e=>setResult(e.target.value)} style={{width:"100%",minHeight:280,background:"var(--surface2)",border:"1px solid var(--border)",borderRadius:8,padding:"12px 14px",fontSize:13,lineHeight:1.75,fontFamily:"inherit",color:"var(--text)",resize:"vertical",outline:"none",boxSizing:"border-box"}}/>
+              <button className="btn btn-ghost btn-sm" style={{alignSelf:"flex-start",fontSize:11.5}} onClick={()=>{setResult("");setError(null);}}>&#8592; Choose Different Type</button>
+            </div>
+          )}
+          {error && <div style={{padding:"10px 14px",background:"rgba(232,90,58,.1)",border:"1px solid rgba(232,90,58,.3)",borderRadius:8,fontSize:12.5,color:"#e85a3a"}}>{error}</div>}
+        </div>
+        <div style={{padding:"12px 20px",borderTop:"1px solid var(--border)",display:"flex",gap:8,justifyContent:"flex-end",alignItems:"center"}}>
+          {sel && !result && <div style={{fontSize:11,color:"var(--text3)",marginRight:"auto"}}>Cost: <strong style={{color:"var(--text)"}}>{cost} AI Krakens</strong></div>}
+          <button className="btn btn-secondary btn-sm" onClick={onClose}>Cancel</button>
+          {!result ? (
+            <button className="btn btn-primary btn-sm" onClick={handleGenerate} disabled={generating||!sel} style={{background:"linear-gradient(135deg,#d97706,#f59e0b)",border:"none",gap:6,fontWeight:700,minWidth:140}}>
+              {generating ? <><span style={{display:"inline-block",width:12,height:12,border:"2px solid rgba(255,255,255,.3)",borderTopColor:"white",borderRadius:"50%",animation:"spin .7s linear infinite"}}/> Generating...</> : <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Generate Report</>}
+            </button>
+          ) : (
+            <button className="btn btn-primary btn-sm" onClick={()=>onAccept(result)} style={{background:"linear-gradient(135deg,#3dba7e,#2fa065)",border:"none",gap:6,fontWeight:700}}>
+              <Icon d={ic.check} size={14}/> Add to Report
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ReportCreator({ project, reportData, settings, onSettingsChange, templates, users, onSave, onClose, onUpgradeAi, userRole }) {
   const isNew = !reportData;
   const coverRef  = useRef();
@@ -11641,6 +11837,8 @@ function ReportCreator({ project, reportData, settings, onSettingsChange, templa
   const [printing, setPrinting] = useState(false);
   const [aiWriterBlock, setAiWriterBlock] = useState(null);   // blockId being written
   const [showAiUpgrade, setShowAiUpgrade] = useState(false);
+  const [show1ClickModal, setShow1ClickModal] = useState(false);
+  const [show1ClickUpgrade, setShow1ClickUpgrade] = useState(false);
   const printLayerRef = useRef(null);
   const aiEnabled = settings?.plan === "pro" || settings?.plan === "command";
   const canExportReports = canAccessFeature(settings, "exports", "view");
@@ -12076,6 +12274,7 @@ function ReportCreator({ project, reportData, settings, onSettingsChange, templa
           {/* Add block at top */}
           <BlockInsertBar prefix="Add at top:"
             onAdd={id=>{const nb={id:uid(),type:id,content:id==="text"?"":undefined,photos:id==="photos"||id==="textphoto"?[]:undefined,files:id==="files"?[]:undefined,label:id==="divider"?"Section":id==="signature"?"Authorized Signature":undefined,sideText:id==="textphoto"?"":undefined,signatureImg:id==="signature"?null:undefined,signerName:id==="signature"?(settings?.userFirstName||"")+" "+(settings?.userLastName||""):undefined,signerTitle:id==="signature"?(settings?.userTitle||""):undefined,sigDate:id==="signature"?formatDate(new Date().toISOString().slice(0,10),settings):undefined,signerCertCodes:id==="signature"?defaultSignerCertCodes:undefined,caption:id==="photos"||id==="sketch"||id==="files"?"":undefined,dataUrl:id==="sketch"?null:undefined,sketchTitle:id==="sketch"?"Sketch / Map":undefined};setBlocks(prev=>[nb,...prev]);setEditingBlock(nb.id);}}
+          extraRight={<button onClick={e=>{e.stopPropagation();settings?.plan==="command"?setShow1ClickModal(true):setShow1ClickUpgrade(true);}} title="1-Click AI Report" style={{display:"flex",alignItems:"center",gap:4,padding:"2px 9px",borderRadius:6,border:"none",background:"linear-gradient(135deg,#d97706,#f59e0b)",color:"white",fontSize:11,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:3}}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>1-Click</button>}
           />
 
           {/* Content blocks */}
@@ -12694,6 +12893,8 @@ function ReportCreator({ project, reportData, settings, onSettingsChange, templa
                 </>}
                 extraRight={<>
                   <div style={{ width:1,height:14,background:"var(--border)",margin:"0 3px",flexShrink:0 }} />
+                  <button onClick={e=>{e.stopPropagation();settings?.plan==="command"?setShow1ClickModal(true):setShow1ClickUpgrade(true);}} title="1-Click AI Report" style={{display:"flex",alignItems:"center",gap:4,padding:"2px 9px",borderRadius:6,border:"none",background:"linear-gradient(135deg,#d97706,#f59e0b)",color:"white",fontSize:11,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>1-Click</button>
+                  <div style={{ width:1,height:14,background:"var(--border)",margin:"0 3px",flexShrink:0 }} />
                   <button className="btn btn-ghost btn-sm btn-icon" title="Delete block" onClick={e=>{e.stopPropagation();deleteBlock(block.id);}} style={{ color:"#e85a3a",padding:"2px 5px",flexShrink:0 }}><Icon d={ic.trash} size={13} /></button>
                 </>}
               />
@@ -13015,6 +13216,27 @@ function ReportCreator({ project, reportData, settings, onSettingsChange, templa
           users={users || []}
           onUpgrade={()=>{ setShowAiUpgrade(false); onUpgradeAi && onUpgradeAi(); }}
           onClose={()=>setShowAiUpgrade(false)}
+        />
+      )}
+      {show1ClickModal && (
+        <OneClickReportModal
+          project={project}
+          settings={settings}
+          onSettingsChange={onSettingsChange}
+          orgId={project?.organization_id||settings?.organizationId}
+          onAccept={text=>{
+            const newId = uid();
+            const html = text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");
+            setBlocks(prev=>[{id:newId,type:"text",content:html},...prev]);
+            setShow1ClickModal(false);
+          }}
+          onClose={()=>setShow1ClickModal(false)}
+        />
+      )}
+      {show1ClickUpgrade && (
+        <OneClickUpgradeModal
+          isAdmin={userRole === "admin"}
+          onClose={()=>setShow1ClickUpgrade(false)}
         />
       )}
     </>
