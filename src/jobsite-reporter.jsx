@@ -9732,8 +9732,7 @@ function AIProjectOverview({ project, settings, onSettingsChange, orgId, userId 
         `Reports Generated: ${reports}`,
         `Voice Notes: ${voiceNotes}`,
         `Activity/Field Notes: ${actNotes}`,
-      ].join("
-");
+      ].join("\n");
 
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
