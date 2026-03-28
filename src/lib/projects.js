@@ -67,6 +67,8 @@ function toDbRow(p) {
     time_inspection:       p.timeInspection        || '',
     date_work_performed:   p.dateWorkPerformed      || '',
     time_work_performed:   p.timeWorkPerformed      || '',
+    completion_date:       p.completionDate        || '',
+    completion_time:       p.completionTime        || '',
 
     // Site conditions
     access_limitations:    p.accessLimitations     || '',
@@ -155,6 +157,8 @@ function fromDbRow(row) {
     timeInspection:       row.time_inspection       || '',
     dateWorkPerformed:    row.date_work_performed    || '',
     timeWorkPerformed:    row.time_work_performed    || '',
+    completionDate:       row.completion_date       || '',
+    completionTime:       row.completion_time       || '',
 
     // Site conditions
     accessLimitations:    row.access_limitations    || '',
