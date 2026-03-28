@@ -2636,14 +2636,18 @@ function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose 
     timeInspection:      project?.timeInspection      || "",
     dateWorkPerformed:   project?.dateWorkPerformed   || "",
     timeWorkPerformed:   project?.timeWorkPerformed   || "",
+    completionDate:      project?.completionDate      || "",
+    completionTime:      project?.completionTime      || "",
     accessLimitations:   project?.accessLimitations   || "",
     lat:                 project?.lat                 || "",
     lng:                 project?.lng                 || "",
     manualGps:           project?.manualGps           || false,
-    powerStatus:         project?.powerStatus         || "on",
-    waterStatus:         project?.waterStatus         || "on",
+    powerStatus:         project?.powerStatus         || "n/a",
+    waterStatus:         project?.waterStatus         || "n/a",
     ppeItems:            project?.ppeItems            || [],
     ppeOtherText:        project?.ppeOtherText        || "",
+    siteConditionsEnabled: project?.siteConditionsEnabled || false,
+    projectEventsEnabled:   project?.projectEventsEnabled   || false,
     // Insurance
     insuranceEnabled:    project?.insuranceEnabled    || false,
     insuranceCarrier:    project?.insuranceCarrier    || "",
@@ -2823,36 +2827,6 @@ function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose 
                 </select>
               </div>
             </div>
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label">Date of Inspection / Assessment</label>
-                <div className="date-input-wrap">
-                  <input className="form-input" type="date" value={form.dateInspection} onChange={e => set("dateInspection", e.target.value)} />
-                  <span className="date-icon"><Icon d="M8 2v3M16 2v3M3 8h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" size={18} stroke="var(--accent)" strokeWidth={2} /></span>
-                </div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Time of Inspection / Assessment</label>
-                <input className="form-input" type="time"
-                  value={form.timeInspection}
-                  onChange={e => set("timeInspection", e.target.value)}
-                  style={{ colorScheme:"dark" }}
-                />
-              </div>
-            </div>
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label">Date Work Performed</label>
-                <div className="date-input-wrap">
-                  <input className="form-input" type="date" value={form.dateWorkPerformed} onChange={e => set("dateWorkPerformed", e.target.value)} />
-                  <span className="date-icon"><Icon d="M8 2v3M16 2v3M3 8h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" size={18} stroke="var(--accent)" strokeWidth={2} /></span>
-                </div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Time Work Performed</label>
-                <input className="form-input" type="time" value={form.timeWorkPerformed} onChange={e => set("timeWorkPerformed", e.target.value)} style={{ colorScheme:"dark" }} />
-              </div>
-            </div>
           </div>
 
           {/* Address */}
@@ -2986,8 +2960,14 @@ function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose 
 
           {/* Site Conditions */}
           <div className="form-section">
-            <div className="form-section-title"><Icon d={ic.alert} size={15} stroke="var(--accent)" /> Site Conditions</div>
-
+            <div className="form-section-title" style={{ cursor:"pointer", userSelect:"none" }} onClick={() => set("siteConditionsEnabled", !form.siteConditionsEnabled)}>
+              <Icon d={ic.alert} size={15} stroke="var(--accent)" /> Site Conditions
+              <span style={{ marginLeft:"auto", fontSize:12, color:"var(--text3)", fontWeight:400, background:"var(--surface3)", padding:"2px 10px", borderRadius:10 }}>
+                {form.siteConditionsEnabled ? "▲ Hide" : "▼ Add"}
+              </span>
+            </div>
+            {form.siteConditionsEnabled && (
+              <>
             <div className="form-group">
               <label className="form-label">Access Limitations / Restricted Areas</label>
               <input className="form-input" placeholder="e.g. Basement locked, roof access restricted…" value={form.accessLimitations} onChange={e => set("accessLimitations", e.target.value)} />
@@ -2998,10 +2978,10 @@ function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose 
               <div className="form-group">
                 <label className="form-label">Power Status</label>
                 <div style={{ display:"flex", gap:8, marginTop:4 }}>
-                  {["on","off"].map(v => (
+                  {["on","off","n/a"].map(v => (
                     <div key={v} onClick={() => set("powerStatus", v)}
                       style={{ flex:1, padding:"9px 0", textAlign:"center", borderRadius:"var(--radius-sm)", border:`2px solid ${form.powerStatus===v ? "var(--accent)" : "var(--border)"}`, background: form.powerStatus===v ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:13, fontWeight:600, color: form.powerStatus===v ? "var(--accent)" : "var(--text2)", transition:"all .15s" }}>
-                      {v === "on" ? "On" : "Off"}
+                      {v === "on" ? "On" : v === "off" ? "Off" : "N/A"}
                     </div>
                   ))}
                 </div>
@@ -3010,10 +2990,10 @@ function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose 
               <div className="form-group">
                 <label className="form-label">Water Status</label>
                 <div style={{ display:"flex", gap:8, marginTop:4 }}>
-                  {["on","off"].map(v => (
+                  {["on","off","n/a"].map(v => (
                     <div key={v} onClick={() => set("waterStatus", v)}
                       style={{ flex:1, padding:"9px 0", textAlign:"center", borderRadius:"var(--radius-sm)", border:`2px solid ${form.waterStatus===v ? "var(--accent)" : "var(--border)"}`, background: form.waterStatus===v ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:13, fontWeight:600, color: form.waterStatus===v ? "var(--accent)" : "var(--text2)", transition:"all .15s" }}>
-                      {v === "on" ? "On" : "Off"}
+                      {v === "on" ? "On" : v === "off" ? "Off" : "N/A"}
                     </div>
                   ))}
                 </div>
@@ -3043,6 +3023,60 @@ function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose 
                 <input className="form-input" style={{ marginTop:10 }} placeholder="Describe other PPE required…" value={form.ppeOtherText} onChange={e => set("ppeOtherText", e.target.value)} />
               )}
             </div>
+                      </>)}
+          </div>
+
+                    {/* Project Events */}
+          <div className="form-section">
+            <div className="form-section-title" style={{ cursor:"pointer", userSelect:"none" }} onClick={() => set("projectEventsEnabled", !form.projectEventsEnabled)}>
+              <Icon d={ic.calendar} size={15} stroke="var(--accent)" /> Project Events
+              <span style={{ marginLeft:"auto", fontSize:12, color:"var(--text3)", fontWeight:400, background:"var(--surface3)", padding:"2px 10px", borderRadius:10 }}>
+                {form.projectEventsEnabled ? "▲ Hide" : "▼ Add"}
+              </span>
+            </div>
+            {form.projectEventsEnabled && (
+              <>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Date of Inspection / Assessment</label>
+                    <div className="date-input-wrap">
+                      <input className="form-input" type="date" value={form.dateInspection} onChange={e => set("dateInspection", e.target.value)} />
+                      <span className="date-icon"><Icon d="M8 2v3M16 2v3M3 8h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" size={18} stroke="var(--accent)" strokeWidth={2} /></span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Time of Inspection / Assessment</label>
+                    <input className="form-input" type="time" value={form.timeInspection} onChange={e => set("timeInspection", e.target.value)} style={{ colorScheme:"dark" }} />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Date Work Performed</label>
+                    <div className="date-input-wrap">
+                      <input className="form-input" type="date" value={form.dateWorkPerformed} onChange={e => set("dateWorkPerformed", e.target.value)} />
+                      <span className="date-icon"><Icon d="M8 2v3M16 2v3M3 8h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" size={18} stroke="var(--accent)" strokeWidth={2} /></span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Time Work Performed</label>
+                    <input className="form-input" type="time" value={form.timeWorkPerformed} onChange={e => set("timeWorkPerformed", e.target.value)} style={{ colorScheme:"dark" }} />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Completion Date</label>
+                    <div className="date-input-wrap">
+                      <input className="form-input" type="date" value={form.completionDate} onChange={e => set("completionDate", e.target.value)} />
+                      <span className="date-icon"><Icon d="M8 2v3M16 2v3M3 8h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" size={18} stroke="var(--accent)" strokeWidth={2} /></span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Completion Time</label>
+                    <input className="form-input" type="time" value={form.completionTime} onChange={e => set("completionTime", e.target.value)} style={{ colorScheme:"dark" }} />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Insurance — collapsible */}
