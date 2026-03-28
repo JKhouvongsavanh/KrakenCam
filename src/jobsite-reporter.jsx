@@ -11582,6 +11582,41 @@ function AiWriterUpgradeModal({ onUpgrade, onClose, isAdmin, settings, users }) 
   );
 }
 
+// ── AI Write Kraken Limit Modal ────────────────────────────────────────────────────────
+function AiWriterKrakenLimitModal({ onClose, isAdmin, settings }) {
+  const plan  = settings?.plan || "base";
+  const limit = PLAN_AI_LIMITS[plan] || 0;
+  const reset = getNextResetDate();
+  const resetStr = reset.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+  return (
+    <div style={{ position:"fixed",inset:0,zIndex:600,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(0,0,0,.55)" }} onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div style={{ background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,boxShadow:"0 16px 60px rgba(0,0,0,.7)",width:"min(420px,95vw)",overflow:"hidden" }}>
+        <div style={{ padding:"22px 24px 18px",background:"linear-gradient(135deg,#d97706 0%,#f59e0b 100%)",textAlign:"center" }}>
+          <div style={{ width:44,height:44,borderRadius:11,background:"rgba(255,255,255,.2)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 10px" }}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+          <div style={{ fontSize:17,fontWeight:800,color:"white",marginBottom:4 }}>Weekly Kraken Limit Reached</div>
+          <div style={{ fontSize:12.5,color:"rgba(255,255,255,.85)",lineHeight:1.5 }}>You've used all {limit} AI Generation Krakens this week</div>
+        </div>
+        <div style={{ padding:"18px 22px 22px" }}>
+          {isAdmin ? (
+            <>
+              <div style={{ fontSize:13.5,color:"var(--text2)",lineHeight:1.65,marginBottom:16 }}>Your weekly limit resets <strong style={{ color:"var(--text)" }}>{resetStr}</strong>. Upgrade your plan to increase the weekly AI Kraken allowance for your whole team.</div>
+              <div style={{ display:"flex",gap:8 }}>
+                <button className="btn btn-secondary btn-sm" style={{ flex:1 }} onClick={onClose}>Wait for Reset</button>
+                <button className="btn btn-primary btn-sm" style={{ flex:2,background:"linear-gradient(135deg,#d97706,#f59e0b)",border:"none",fontWeight:700 }} onClick={()=>alert("Upgrade your plan in Account \u2192 Billing to increase your weekly AI Kraken limit.")}>View Upgrade Options</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontSize:13.5,color:"var(--text2)",lineHeight:1.65,marginBottom:16 }}>Your team's weekly AI Kraken limit has been reached. Resets <strong style={{ color:"var(--text)" }}>{resetStr}</strong>. Please speak with your account admin to upgrade the plan.</div>
+              <button className="btn btn-secondary btn-sm" style={{ width:"100%" }} onClick={onClose}>Close</button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── 1-Click Report Upgrade Modal ──────────────────────────────────────────────────────
 function OneClickUpgradeModal({ onClose, isAdmin }) {
   return (
@@ -11841,6 +11876,7 @@ function ReportCreator({ project, reportData, settings, onSettingsChange, templa
   const [showAiUpgrade, setShowAiUpgrade] = useState(false);
   const [show1ClickModal, setShow1ClickModal] = useState(false);
   const [show1ClickUpgrade, setShow1ClickUpgrade] = useState(false);
+  const [showAiKrakenLimit, setShowAiKrakenLimit] = useState(false);
   const printLayerRef = useRef(null);
   const aiEnabled = settings?.plan === "pro" || settings?.plan === "command";
   const canExportReports = canAccessFeature(settings, "exports", "view");
@@ -12336,13 +12372,15 @@ function ReportCreator({ project, reportData, settings, onSettingsChange, templa
                       {!block.content && editingBlock!==block.id && (
                         <div style={{ position:"absolute",top:10,left:10,color:"#aaa",fontSize:(block.textStyle?.fontSize||12.5)+"px",pointerEvents:"none",fontStyle:"italic" }}>Click to type text…</div>
                       )}
-                      <button title="✨ Write with AI" onClick={e=>{e.stopPropagation(); aiEnabled ? setAiWriterBlock(block.id) : setShowAiUpgrade(true);}}
-                        style={{ position:"absolute",top:6,right:6,height:32,padding:"0 10px",borderRadius:7,border:"none",background:"linear-gradient(135deg,#2b7fe8,#1a5fc8)",display:"flex",alignItems:"center",justifyContent:"center",gap:5,cursor:"pointer",boxShadow:"0 2px 8px rgba(43,127,232,.45)",transition:"transform .1s,box-shadow .1s",whiteSpace:"nowrap" }}
-                        onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.05)";e.currentTarget.style.boxShadow="0 3px 12px rgba(43,127,232,.6)";}}
-                        onMouseLeave={e=>{e.currentTarget.style.transform="scale(1)";e.currentTarget.style.boxShadow="0 2px 8px rgba(43,127,232,.45)";}}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-                        <span style={{ fontSize:11,fontWeight:700,color:"white" }}>AI Write</span>
-                      </button>
+                      <button title="✨ AI Write · 1⚡" onClick={e=>{e.stopPropagation(); if(!aiEnabled){setShowAiUpgrade(true);return;} const _s=orgSettings||{}; const _u=_s.aiGenerationsUsed||0; const _l=PLAN_AI_LIMITS[plan]||5; if(_u>=_l){setShowAiKrakenLimit(true);return;} setAiWriterBlock(block.id);}}
+  style={{ position:"absolute",top:6,right:6,height:32,padding:"0 10px",borderRadius:7,border:"none",background:"linear-gradient(135deg,#f59e0b,#d97706)",display:"flex",alignItems:"center",justifyContent:"center",gap:5,cursor:"pointer",boxShadow:"0 2px 8px rgba(245,158,11,.45)",transition:"transform .1s,box-shadow .1s",whiteSpace:"nowrap" }}
+  onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.05)";e.currentTarget.style.boxShadow="0 3px 12px rgba(245,158,11,.6)";}}
+  onMouseLeave={e=>{e.currentTarget.style.transform="scale(1)";e.currentTarget.style.boxShadow="0 2px 8px rgba(245,158,11,.45)";}}
+>
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+  <span style={{ fontSize:11,fontWeight:700,color:"white" }}>AI Write</span>
+  <span style={{ fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.85)" }}>· 1⚡</span>
+</button>
                     </div>
                   </div>
                 )}
@@ -13241,6 +13279,7 @@ function ReportCreator({ project, reportData, settings, onSettingsChange, templa
           onClose={()=>setShow1ClickUpgrade(false)}
         />
       )}
+      {showAiKrakenLimit && <AiWriterKrakenLimitModal isAdmin={userRole === "admin"} onClose={()=>setShowAiKrakenLimit(false)} onUpgrade={()=>{setShowAiKrakenLimit(false);setShowUpgrade(true);}} />}
     </>
   );
 }
