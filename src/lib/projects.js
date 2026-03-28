@@ -217,9 +217,9 @@ function fromDbRow(row) {
     reports:              row.reports               || [],
     checklists:           row.checklists            || [],
     photos:               row.photos                || [],
-    videos:               row.videos               || [],
-    voiceNotes:           row.voice_notes           || [],
-    sketches:             row.sketches              || [],
+    videos:               row.videos               || [],   // loaded separately from video_recordings table
+    voiceNotes:           row.voice_notes           || [],   // loaded separately from voice_notes table
+    sketches:             row.sketches              || [],   // loaded separately from sketches table
     files:                row.files                 || [],
     photoTags:            row.photo_tags            || [],
     beforeAfterPairs:     row.ba_pairs              || [],
