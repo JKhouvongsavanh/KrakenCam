@@ -17731,7 +17731,6 @@ function AccountPage({ settings, onSettingsChange, projects, users, onUsersChang
   const currentPlan   = settings?.plan || "base";
   const isCommand     = currentPlan === "command";
   const isPro         = currentPlan === "pro" || isCommand;
-  const hasAI         = aiLimit > 0;
   const cycle         = settings?.billingCycle || "monthly";
   const prices        = PRICING[cycle][currentPlan] || PRICING[cycle].base;
   const adminSeat     = prices.admin;
@@ -17748,6 +17747,7 @@ function AccountPage({ settings, onSettingsChange, projects, users, onUsersChang
 
   // AI generation tracking — reset if window has expired
   const aiLimit       = PLAN_AI_LIMITS[currentPlan] || 0;
+  const hasAI         = aiLimit > 0;
   const windowStart   = settings?.aiGenerationsWindowStart ? new Date(settings.aiGenerationsWindowStart) : null;
   const currentWindowStart = getWeekWindowStart();
   const windowExpired = !windowStart || windowStart < currentWindowStart;
