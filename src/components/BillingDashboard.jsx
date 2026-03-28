@@ -121,7 +121,7 @@ export default function BillingDashboard() {
         {/* Past due warning */}
         {subscription.status === 'past_due' && (
           <div className="billing-warning">
-            ⚠ Your last payment failed. Please update your payment method to avoid
+            â  Your last payment failed. Please update your payment method to avoid
             losing access.
           </div>
         )}
@@ -139,7 +139,7 @@ export default function BillingDashboard() {
             </div>
           )}
           <div className="billing-detail-row">
-            <span>AI generations this week</span>
+            <span>AI Generation Krakens this week</span>
             <span>{limits.aiWeeklyLimit === Infinity ? 'Unlimited' : `${limits.aiWeeklyLimit}/week`}</span>
           </div>
         </div>
@@ -183,18 +183,18 @@ export default function BillingDashboard() {
             {limits.calendarUsers === Infinity ? 'Unlimited' : `up to ${limits.calendarUsers}`}
           </li>
           <li>
-            AI Report Writer:{' '}
+            AI Generation Krakens:{' '}
             {limits.aiWeeklyLimit === Infinity ? 'Unlimited' : `${limits.aiWeeklyLimit}/week`}
           </li>
-          {limits.clientPortal && <li>✓ Client Portal (desktop)</li>}
-          {limits.beforeAfter && <li>✓ Before & After comparison</li>}
+          {limits.clientPortal && <li>â Client Portal (desktop)</li>}
+          {limits.beforeAfter && <li>â Before & After comparison</li>}
         </ul>
       </div>
 
       {/* Data deletion warning for cancelled orgs */}
       {subscription.status === 'cancelled' && (
         <div className="billing-card billing-card--danger">
-          <h3>⚠ Account Cancelled</h3>
+          <h3>â  Account Cancelled</h3>
           <p>
             Your subscription has been cancelled. You can reactivate within 60 days
             to restore full access to your data.
