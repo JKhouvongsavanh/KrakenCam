@@ -2617,7 +2617,8 @@ function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose 
     city:                project?.city               || "",
     state:               project?.state               || "",
     zip:                 project?.zip                 || "",
-    clientName:          project?.clientName          || "",
+    clientFirstName:     project?.clientFirstName     || (project?.clientFirstName === undefined && project?.clientLastName === undefined && project?.clientName ? project.clientName.trim().split(/\s+/).slice(0, -1).join(' ') || project.clientName : ""),
+    clientLastName:      project?.clientLastName      || (project?.clientFirstName === undefined && project?.clientLastName === undefined && project?.clientName ? project.clientName.trim().split(/\s+/).slice(-1)[0] || '' : ""),
     clientEmail:         project?.clientEmail         || "",
     clientPhone:         project?.clientPhone         || "",
     clientRelationship:  project?.clientRelationship  || "",
@@ -2920,7 +2921,10 @@ function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose 
           {/* Client */}
           <div className="form-section">
             <div className="form-section-title"><Icon d={ic.user} size={15} stroke="var(--accent)" /> Client Information</div>
-            <div className="form-group"><label className="form-label">Client Name</label><input className="form-input" placeholder="Jane Smith" value={form.clientName} onChange={e => set("clientName", e.target.value)} /></div>
+            <div className="form-row">
+              <div className="form-group"><label className="form-label">First Name</label><input className="form-input" placeholder="Jane" value={form.clientFirstName} onChange={e => set("clientFirstName", e.target.value)} /></div>
+              <div className="form-group"><label className="form-label">Last Name</label><input className="form-input" placeholder="Smith" value={form.clientLastName} onChange={e => set("clientLastName", e.target.value)} /></div>
+            </div>
             <div className="form-row">
               <div className="form-group"><label className="form-label">Email</label><input className="form-input" placeholder="client@email.com" value={form.clientEmail} onChange={e => set("clientEmail", e.target.value)} /></div>
               <div className="form-group"><label className="form-label">Phone</label><input className="form-input" placeholder="(555) 000-0000" value={form.clientPhone} onChange={e => set("clientPhone", e.target.value)} /></div>
@@ -3277,7 +3281,7 @@ function ProjectsList({ projects, teamUsers = [], settings = {}, onSelect, onNew
   const filtered = projects
     .filter(p => !myOnly || (p.assignedUserIds||[]).includes(currentUserId))
     .filter(p => filterStatus === "all" || p.status === filterStatus)
-    .filter(p => !search || p.title.toLowerCase().includes(search.toLowerCase()) || p.address.toLowerCase().includes(search.toLowerCase()) || p.clientName.toLowerCase().includes(search.toLowerCase()))
+    .filter(p => !search || p.title.toLowerCase().includes(search.toLowerCase()) || p.address.toLowerCase().includes(search.toLowerCase()) || ((p.clientFirstName || '') + ' ' + (p.clientLastName || '')).trim().toLowerCase().includes(search.toLowerCase()) || (p.clientName || '').toLowerCase().includes(search.toLowerCase()))
     .slice()
     .sort((a, b) => {
       const sort = settings.projectSort || "recent";
@@ -22153,7 +22157,7 @@ useEffect(() => {
             return [...prev, {
               id: r.id, title: r.title || "Untitled Project",
               address: r.address || "", city: r.city || "", state: r.state || "", zip: r.zip || "",
-              clientName: r.client_name || "", type: r.type || "", status: r.status || "active",
+              clientFirstName: r.client_first_name || "", clientLastName: r.client_last_name || "", clientName: r.client_first_name || r.client_last_name ? [r.client_first_name, r.client_last_name].filter(Boolean).join(' ') : (r.client_name || ""), type: r.type || "", status: r.status || "active",
               notes: r.notes || "", color: r.color || "#4a90d9", createdAt: r.created_at || "",
               photos: [], rooms: [], reports: [], videos: [], voiceNotes: [],
               sketches: [], files: [], checklists: [], tasks: [],

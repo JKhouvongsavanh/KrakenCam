@@ -1,12 +1,12 @@
 /**
  * src/lib/projects.js
- * Supabase CRUD for projects — complete field mapping including all
+ * Supabase CRUD for projects â complete field mapping including all
  * site conditions, insurance, timeline, rooms, and team assignment.
  */
 
 import { supabase } from './supabase';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ââ Helpers âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 function isUuid(str) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
@@ -40,7 +40,7 @@ function stripFiles(files = []) {
   });
 }
 
-/** App camelCase → DB snake_case */
+/** App camelCase â DB snake_case */
 function toDbRow(p) {
   return {
     organization_id:       p.organization_id,
@@ -78,7 +78,9 @@ function toDbRow(p) {
     ppe_other_text:        p.ppeOtherText          || '',
 
     // Client
-    client_name:           p.clientName            || '',
+    client_first_name:     p.clientFirstName       || '',
+    client_last_name:      p.clientLastName        || '',
+    client_name:           [p.clientFirstName, p.clientLastName].filter(Boolean).join(' ') || p.clientName || '',
     client_email:          p.clientEmail           || '',
     client_phone:          p.clientPhone           || '',
     client_relationship:   p.clientRelationship    || '',
@@ -129,7 +131,7 @@ function toDbRow(p) {
   };
 }
 
-/** DB snake_case → app camelCase */
+/** DB snake_case â app camelCase */
 function fromDbRow(row) {
   return {
     id:                   row.id,
@@ -168,7 +170,12 @@ function fromDbRow(row) {
     ppeOtherText:         row.ppe_other_text        || '',
 
     // Client
-    clientName:           row.client_name           || '',
+    clientFirstName:      row.client_first_name     || '',
+    clientLastName:       row.client_last_name      || '',
+    // Derive full clientName: prefer new split fields, fall back to old client_name for legacy records
+    clientName:           (row.client_first_name || row.client_last_name)
+                            ? [row.client_first_name, row.client_last_name].filter(Boolean).join(' ')
+                            : (row.client_name || ''),
     clientEmail:          row.client_email          || '',
     clientPhone:          row.client_phone          || '',
     clientRelationship:   row.client_relationship   || '',
@@ -226,7 +233,7 @@ function fromDbRow(row) {
   };
 }
 
-// ── CRUD ──────────────────────────────────────────────────────────────────────
+// ââ CRUD ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 export async function getProjects() {
   const { data, error } = await supabase
@@ -272,7 +279,7 @@ export async function deleteProject(id) {
   if (error) throw error;
 }
 
-// ── Picture Folders ────────────────────────────────────────────────────────────
+// ââ Picture Folders ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 export async function getFolders(projectId) {
   const { data, error } = await supabase
@@ -299,7 +306,7 @@ export async function deleteFolder(id) {
   if (error) throw error;
 }
 
-// ── Pictures ──────────────────────────────────────────────────────────────────
+// ââ Pictures ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 export async function getPictures(folderId) {
   const { data, error } = await supabase
