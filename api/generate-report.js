@@ -30,9 +30,9 @@ const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL             = 'claude-haiku-4-5-20251001';
 const MAX_TOKENS        = 2000;
 const SYSTEM_PROMPT     =
-  'You are an expert construction/restoration project report writer. ' +
-  'Write professional, detailed reports based on the provided project information. ' +
-  'Use clear headings, bullet points where appropriate, and formal business language.';
+  'You are a professional construction/restoration project assistant. ' +
+  'Generate content exactly as instructed — whether a brief summary or a detailed report. ' +
+  'Use clear, formal business language.';
 
 export default async function handler(req, res) {
   // ── CORS headers (adjust origin in production) ────────────────────────────
@@ -91,15 +91,14 @@ export default async function handler(req, res) {
   } = req.body || {};
 
   // Build the user message
-  let userMessage = `Please write a professional project report for the following:\n\n`;
-  userMessage    += `**Project Name:** ${projectName}\n\n`;
+  let userMessage = `**Project Name:** ${projectName}\n\n`;
 
   if (projectDescription) {
-    userMessage += `**Project Description:**\n${projectDescription}\n\n`;
+    userMessage += `**Project Details:**\n${projectDescription}\n\n`;
   }
 
   if (photos && photos.length > 0) {
-    userMessage += `**Photos / Site Observations (${photos.length} photos):**\n`;
+    userMessage += `**Site Observations (${photos.length} photos):**\n`;
     photos.slice(0, 20).forEach((desc, i) => {
       if (typeof desc === 'string' && desc.trim()) {
         userMessage += `  ${i + 1}. ${desc.trim()}\n`;
@@ -109,16 +108,18 @@ export default async function handler(req, res) {
   }
 
   if (customPrompt && customPrompt.trim()) {
-    userMessage += `**Additional Instructions:**\n${customPrompt.trim()}\n\n`;
+    // customPrompt is the primary instruction — use it directly
+    userMessage += customPrompt.trim();
+  } else {
+    // Default: full comprehensive report
+    userMessage +=
+      'Please provide a comprehensive, professional report with:\n' +
+      '- Executive Summary\n' +
+      '- Site Conditions\n' +
+      '- Findings and Observations\n' +
+      '- Recommendations\n' +
+      '- Next Steps\n';
   }
-
-  userMessage +=
-    'Please provide a comprehensive, professional report with:\n' +
-    '- Executive Summary\n' +
-    '- Site Conditions\n' +
-    '- Findings and Observations\n' +
-    '- Recommendations\n' +
-    '- Next Steps\n';
 
   // ── Check Anthropic key ───────────────────────────────────────────────────
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
