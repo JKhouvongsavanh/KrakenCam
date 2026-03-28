@@ -11599,11 +11599,13 @@ function OneClickUpgradeModal({ onClose, isAdmin }) {
           <div style={{ fontSize:13.5,color:"var(--text2)",lineHeight:1.65,marginBottom:16 }}>Generate complete professional reports in a single click — Project Overview, Site Findings, Completion Reports, and fully custom reports. Upgrade to Command III to unlock this for your team.</div>
           <div style={{ display:"flex",gap:8 }}>
             <button className="btn btn-secondary btn-sm" style={{ flex:1 }} onClick={onClose}>Maybe Later</button>
-            {isAdmin && (
+            {isAdmin ? (
               <button className="btn btn-primary btn-sm" style={{ flex:2,background:"linear-gradient(135deg,#d97706,#f59e0b)",border:"none",fontWeight:700 }}
                 onClick={()=>alert("Upgrade to Command III in Account \u2192 Billing.")}>
                 Upgrade to Command III
               </button>
+            ) : (
+              <div style={{ flex:2,fontSize:12.5,color:"var(--text2)",background:"var(--surface2)",border:"1px solid var(--border)",borderRadius:8,padding:"8px 12px",lineHeight:1.5,display:"flex",alignItems:"center" }}>Please speak with your admin to upgrade to Command III.</div>
             )}
           </div>
         </div>
@@ -11659,12 +11661,12 @@ function OneClickReportModal({ project, settings, onSettingsChange, orgId, onAcc
   const buildPrompt = () => {
     const co = settings?.companyName||"a restoration company";
     const base = "You are a professional construction and restoration report writer for "+co+". Write professional, factual, industry-standard report content only. No preamble or meta-commentary. Use clear section headers where appropriate.";
-    if (sel==="summary")    return base+"\n\nWrite a Professional Project Overview Report in 2-3 paragraphs covering: project scope and purpose, current status and progress, key jobsite details, site conditions, and any notable information relevant to office staff or management.";
-    if (sel==="findings")   return base+"\n\nWrite a Site Findings & Issues Report. Focus exclusively on: observed site conditions, documented findings and deficiencies, damaged or affected areas, and issues requiring attention. Be specific and factual. Use section headers for multiple areas.";
-    if (sel==="completion") return base+"\n\nWrite a comprehensive Project Completion Report with sections: Project Overview, Work Completed, Site Conditions & Findings, Issues Encountered, Materials & Methods Used, Recommendations, and Next Steps. Be thorough and professional.";
+    if (sel==="summary")    return base+"\n\nWrite a Professional Project Overview Report in 2-4 paragraphs covering: project scope and purpose, current status and progress, key jobsite details, site conditions, and any notable information relevant to office staff or management.";
+    if (sel==="findings")   return base+"\n\nWrite a Site Findings & Issues Report in 2-4 paragraphs. Focus exclusively on: observed site conditions, documented findings and deficiencies, damaged or affected areas, and issues requiring attention. Be specific and factual. Use section headers for multiple areas.";
+    if (sel==="completion") return base+"\n\nWrite a comprehensive Project Completion Report with 6-8 paragraphs covering sections: Project Overview, Work Completed, Site Conditions & Findings, Issues Encountered, Materials & Methods Used, Recommendations, and Next Steps. Be thorough and professional.";
     if (sel==="custom") {
       const secs = customSecs.length>0 ? customSecs.join(", ") : "Project Overview, Findings, Recommendations";
-      return base+"\n\nWrite a custom project report with the following sections: "+secs+". Include relevant details for each section based on the project data."+(customText.trim()?"\n\nAdditional instructions: "+customText.trim():"");
+      return base+"\n\nWrite a custom project report in 7-10 paragraphs covering the following sections: "+secs+". Include relevant and detailed content for each section based on the project data."+(customText.trim()?"\n\nAdditional instructions: "+customText.trim():"");
     }
     return base;
   };
