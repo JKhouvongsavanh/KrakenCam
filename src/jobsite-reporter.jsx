@@ -11318,13 +11318,12 @@ Project context:
 - Client: ${project.clientName||"N/A"}
 - Inspector: ${settings?.userFirstName||""} ${settings?.userLastName||""}, ${settings?.userTitle||""}
 - Company: ${settings?.companyName||"N/A"}
-Write ONLY the report text content. No preamble, no "here is the text", no markdown headers. Plain professional prose ready to paste into the report.`;
+Write ONLY the report text content in 1-4 paragraphs. No preamble, no "here is the text", no markdown headers. Plain professional prose ready to paste into the report.`;
 
   const generate = async () => {
     if (!prompt.trim() && !result) return;
     const plan  = settings?.plan || "base";
-    const limit = PLAN_AI_LIMITS[plan] || 0;
-    if (limit === 0) { setError("AI Write is not available on your current plan."); return; }
+    const limit = PLAN_AI_LIMITS[plan] || 5; // base plan gets 5 krakens
     const wStart   = settings?.aiGenerationsWindowStart ? new Date(settings.aiGenerationsWindowStart) : null;
     const curWin   = getWeekWindowStart();
     const valid    = wStart && wStart >= curWin;
@@ -11336,8 +11335,8 @@ Write ONLY the report text content. No preamble, no "here is the text", no markd
     }
     setLoading(true); setError("");
     const userMsg = prompt.trim()
-      ? `Write the "${blockLabel}" section. Instructions: ${prompt}`
-      : `Rewrite this text more professionally: ${result}`;
+      ? `Write the "${blockLabel}" section in 1-4 paragraphs. Instructions: ${prompt}`
+      : `Rewrite this text more professionally in 1-4 paragraphs: ${result}`;
     try {
       // ── Proxy via Vercel serverless function (/api/generate-report) ──────
       // This keeps ANTHROPIC_API_KEY server-side; never in the browser bundle.
@@ -11802,7 +11801,7 @@ function OneClickReportModal({ project, settings, onSettingsChange, orgId, onAcc
           <button className="btn btn-secondary btn-sm" onClick={onClose}>Cancel</button>
           {!result ? (
             <button className="btn btn-primary btn-sm" onClick={handleGenerate} disabled={generating||!sel} style={{background:"linear-gradient(135deg,#d97706,#f59e0b)",border:"none",gap:6,fontWeight:700,minWidth:140}}>
-              {generating ? <><span style={{display:"inline-block",width:12,height:12,border:"2px solid rgba(255,255,255,.3)",borderTopColor:"white",borderRadius:"50%",animation:"spin .7s linear infinite"}}/> Generating...</> : <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Generate Report</>}
+              {generating ? <><span style={{display:"inline-block",width:12,height:12,border:"2px solid rgba(255,255,255,.3)",borderTopColor:"white",borderRadius:"50%",animation:"spin .7s linear infinite"}}/> Generating...</> : <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Generate Report</>}
             </button>
           ) : (
             <button className="btn btn-primary btn-sm" onClick={()=>onAccept(result)} style={{background:"linear-gradient(135deg,#3dba7e,#2fa065)",border:"none",gap:6,fontWeight:700}}>
@@ -12372,14 +12371,14 @@ function ReportCreator({ project, reportData, settings, onSettingsChange, templa
                       {!block.content && editingBlock!==block.id && (
                         <div style={{ position:"absolute",top:10,left:10,color:"#aaa",fontSize:(block.textStyle?.fontSize||12.5)+"px",pointerEvents:"none",fontStyle:"italic" }}>Click to type text…</div>
                       )}
-                      <button title="✨ AI Write · 1⚡" onClick={e=>{e.stopPropagation(); if(!aiEnabled){setShowAiUpgrade(true);return;} const _s=orgSettings||{}; const _u=_s.aiGenerationsUsed||0; const _l=PLAN_AI_LIMITS[plan]||5; if(_u>=_l){setShowAiKrakenLimit(true);return;} setAiWriterBlock(block.id);}}
-  style={{ position:"absolute",top:6,right:6,height:32,padding:"0 10px",borderRadius:7,border:"none",background:"linear-gradient(135deg,#f59e0b,#d97706)",display:"flex",alignItems:"center",justifyContent:"center",gap:5,cursor:"pointer",boxShadow:"0 2px 8px rgba(245,158,11,.45)",transition:"transform .1s,box-shadow .1s",whiteSpace:"nowrap" }}
+                      <button title="✨ AI Write · 1 Kraken" onClick={e=>{e.stopPropagation(); const _s=orgSettings||{}; const _u=_s.aiGenerationsUsed||0; const _l=PLAN_AI_LIMITS[plan]||5; if(_u>=_l){setShowAiKrakenLimit(true);return;} setAiWriterBlock(block.id);}}
+  style={{ position:"absolute",top:6,right:6,height:26,padding:"0 7px",borderRadius:6,border:"none",background:"linear-gradient(135deg,#f59e0b,#d97706)",display:"flex",alignItems:"center",justifyContent:"center",gap:4,cursor:"pointer",boxShadow:"0 2px 6px rgba(245,158,11,.4)",transition:"transform .1s,box-shadow .1s",whiteSpace:"nowrap" }}
   onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.05)";e.currentTarget.style.boxShadow="0 3px 12px rgba(245,158,11,.6)";}}
   onMouseLeave={e=>{e.currentTarget.style.transform="scale(1)";e.currentTarget.style.boxShadow="0 2px 8px rgba(245,158,11,.45)";}}
 >
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-  <span style={{ fontSize:11,fontWeight:700,color:"white" }}>AI Write</span>
-  <span style={{ fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.85)" }}>· 1⚡</span>
+  <span style={{ fontSize:10,fontWeight:700,color:"white" }}>AI Write</span>
+  <span style={{ fontSize:9,fontWeight:600,color:"rgba(255,255,255,0.85)" }}>1 Kraken</span>
 </button>
                     </div>
                   </div>
