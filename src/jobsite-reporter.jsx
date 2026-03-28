@@ -3228,7 +3228,7 @@ function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose 
 // ── Projects List (Home) ───────────────────────────────────────────────────────
 function ProjectsList({ projects, teamUsers = [], settings = {}, onSelect, onNew, onEdit, onDelete }) {
   const [showDeleteId, setShowDeleteId] = useState(null);
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("active");
   const [search, setSearch] = useState("");
   const [myOnly, setMyOnly] = useState(false);
 
@@ -13223,7 +13223,7 @@ function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNot
                   <label className="form-label">Linked Project</label>
                   <select className="form-input form-select" value={form.projectId} onChange={e=>set("projectId",e.target.value)}>
                     <option value="">— None —</option>
-                    {projects.map(p=><option key={p.id} value={p.id}>{p.title}</option>)}
+                    {projects.filter(p=>p.status==="active").map(p=><option key={p.id} value={p.id}>{p.title}</option>)}
                   </select>
                 </div>
               </div>
