@@ -13397,17 +13397,23 @@ function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNot
   };
   const saveAsTemplate = async () => {
     if (!tplName.trim() || !form.checklist.length) return;
+    let orgId = settings?.organizationId;
+    if (!orgId) {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: prof } = await supabase.from('profiles').select('organization_id').eq('user_id', user?.id).single();
+      orgId = prof?.organization_id;
+    }
     const { data, error } = await supabase.from('task_checklist_templates').insert({
       name: tplName.trim(),
       items: form.checklist.map(c => c.text),
-      organization_id: settings?.organizationId
+      organization_id: orgId
     }).select().single();
     if (!error && data) {
       setTplList(t => [...t, data].sort((a, b) => a.name.localeCompare(b.name)));
       setTplName('');
       setShowSaveTpl(false);
     }
-  };
+  };;
   const deleteTpl = async (id) => {
     await supabase.from('task_checklist_templates').delete().eq('id', id);
     setTplList(t => t.filter(x => x.id !== id));
