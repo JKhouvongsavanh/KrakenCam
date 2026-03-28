@@ -9669,7 +9669,166 @@ function ProjectActivityFeed({ project, onUpdateProject, settings }) {
 }
 
 // ── Project Detail (tabs: Overview, Photos, Rooms, Reports, Checklists) ────────
-function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onEdit, onOpenCamera, onEditPhoto, onUpdateProject, onOpenReportCreator, onSendVoiceNoteToChat, onSendFileToChat, onSendPhotoToChat, settings, orgId }) {
+// ── AI Project Overview ─────────────────────────────────────────────────────
+function AIProjectOverview({ project, settings, onSettingsChange, orgId, userId }) {
+  const [overviewData,    setOverviewData]    = useState(null);
+  const [loadingOverview, setLoadingOverview] = useState(true);
+  const [generating,      setGenerating]      = useState(false);
+  const [expanded,        setExpanded]        = useState(false);
+  const [genError,        setGenError]        = useState(null);
+  const supaUrl = import.meta.env.VITE_SUPABASE_URL;
+
+  useEffect(() => {
+    if (!orgId || !project?.id) return;
+    setLoadingOverview(true);
+    setOverviewData(null);
+    getAuthHeaders()
+      .then(h => fetch(
+        `${supaUrl}/rest/v1/project_ai_overviews?organization_id=eq.${orgId}&project_id=eq.${encodeURIComponent(String(project.id))}&select=overview_text,updated_at&order=updated_at.desc&limit=1`,
+        { headers: h }
+      ))
+      .then(r => r.ok ? r.json() : [])
+      .then(rows => { if (rows.length > 0) setOverviewData({ text: rows[0].overview_text, updatedAt: rows[0].updated_at }); })
+      .catch(() => {})
+      .finally(() => setLoadingOverview(false));
+  }, [project?.id, orgId]);
+
+  const handleGenerate = async () => {
+    const plan  = settings?.plan || "base";
+    const limit = PLAN_AI_LIMITS[plan] || 0;
+    if (limit === 0) { setGenError("AI features are not available on your current plan."); return; }
+    const curWin  = getWeekWindowStart();
+    const wStart  = settings?.aiGenerationsWindowStart ? new Date(settings.aiGenerationsWindowStart) : null;
+    const valid   = wStart && wStart >= curWin;
+    const usedNow = valid ? (settings?.aiGenerationsUsed || 0) : 0;
+    if (usedNow >= limit) {
+      const reset = getNextResetDate();
+      setGenError(`Weekly limit reached (${limit} AI Generation Krakens). Resets ${reset.toLocaleDateString("en-US", { weekday:"short", month:"short", day:"numeric" })} at 11:59 PM.`);
+      return;
+    }
+    setGenerating(true); setGenError(null);
+    try {
+      const rooms      = (project.rooms || []).map(r => r.name).join(", ") || "None";
+      const photoRooms = [...new Set((project.photos || []).map(p => p.room).filter(Boolean))].join(", ") || "None";
+      const checklists = (project.checklists || []).map(cl => {
+        const fields = cl.fields || [];
+        const done   = fields.filter(f => f.value || f.checked || f.response).length;
+        return `${cl.name} (${done}/${fields.length} items${cl.completedAt ? " — COMPLETED" : ""})`;
+      }).join("; ") || "None";
+      const reports    = (project.reports  || []).map(r => r.title || r.type || "Report").join(", ") || "None";
+      const voiceNotes = (project.voiceNotes || []).map(v => v.name || v.label || "Voice note").join(", ") || "None";
+      const actNotes   = (project.activity || []).filter(a => a.text || a.content).map(a => a.text || a.content || "").filter(Boolean).slice(0, 6).join(" | ") || "None";
+      const dateInsp   = project.dateInspection ? formatDate(project.dateInspection, settings) : "N/A";
+      const ctx = [
+        `Project Title: ${project.title}`,
+        `Project Type: ${project.type || "N/A"}`,
+        `Status: ${project.status || "Active"}`,
+        `Client: ${project.clientName || "N/A"}`,
+        `Date of Inspection/Assessment: ${dateInsp}`,
+        `Project Notes: ${project.notes || "None"}`,
+        `Rooms Documented: ${rooms}`,
+        `Photo Areas: ${photoRooms}`,
+        `Checklists: ${checklists}`,
+        `Reports Generated: ${reports}`,
+        `Voice Notes: ${voiceNotes}`,
+        `Activity/Field Notes: ${actNotes}`,
+      ].join("
+");
+
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const res = await fetch("/api/generate-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({
+          projectName:        project.title,
+          projectDescription: ctx,
+          photos:             [],
+          customPrompt: "Write a concise professional AI overview of this jobsite project in 1–2 paragraphs. Focus on: what the job entails, job type, key findings or observations, work completed or in progress, and any other notable details specific to this project. Do not mention photo counts or generic statistics. Use bullet points within the paragraphs for key findings if helpful. Keep it informative but concise — about 1–2 paragraphs total.",
+        }),
+      });
+      if (!res.ok) throw new Error(`API error ${res.status}`);
+      const data = await res.json();
+      const text = (data.report || data.text || "").trim();
+      if (!text) throw new Error("No content returned from AI");
+
+      const now = new Date().toISOString();
+      const h2  = await getAuthHeaders({ "Content-Type": "application/json", Prefer: "return=minimal" });
+      await fetch(`${supaUrl}/rest/v1/project_ai_overviews`, {
+        method: "POST", headers: h2,
+        body: JSON.stringify({ organization_id: orgId, project_id: String(project.id), overview_text: text, updated_at: now, updated_by: userId || null }),
+      });
+      setOverviewData({ text, updatedAt: now });
+
+      if (onSettingsChange) {
+        const curWin2 = getWeekWindowStart();
+        const wStart2 = settings?.aiGenerationsWindowStart ? new Date(settings.aiGenerationsWindowStart) : null;
+        const valid2  = wStart2 && wStart2 >= curWin2;
+        const used2   = valid2 ? (settings?.aiGenerationsUsed || 0) : 0;
+        onSettingsChange(prev => ({ ...prev, aiGenerationsUsed: used2 + 1, aiGenerationsWindowStart: valid2 ? prev.aiGenerationsWindowStart : curWin2.toISOString() }));
+      }
+    } catch (err) { setGenError(`Generation failed: ${err.message}`); }
+    finally { setGenerating(false); }
+  };
+
+  const lastUpdatedLabel = overviewData?.updatedAt
+    ? new Date(overviewData.updatedAt).toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" })
+      + " at " + new Date(overviewData.updatedAt).toLocaleTimeString("en-US", { hour:"2-digit", minute:"2-digit" })
+    : null;
+
+  return (
+    <div className="card" style={{ marginBottom:16 }}>
+      <div className="card-header" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:8 }}>
+        <span style={{ fontWeight:700, display:"flex", alignItems:"center", gap:7 }}>
+          <Icon d={ic.zap} size={14} stroke="var(--accent)" />
+          AI Project Overview
+        </span>
+        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+          {lastUpdatedLabel && (
+            <span style={{ fontSize:11.5, color:"var(--text3)" }}>Last updated: {lastUpdatedLabel}</span>
+          )}
+          <button className="btn btn-primary btn-sm" onClick={handleGenerate} disabled={generating}
+            style={{ display:"flex", alignItems:"center", gap:6 }}>
+            {generating
+              ? <><div style={{ width:11,height:11,border:"2px solid rgba(255,255,255,.4)",borderTop:"2px solid white",borderRadius:"50%",animation:"spin 0.7s linear infinite" }} />Updating…</>
+              : <>&#10022; Update&nbsp;<span style={{ fontSize:10,fontWeight:700,background:"rgba(255,255,255,.2)",borderRadius:8,padding:"1px 6px" }}>1 Kraken</span></>}
+          </button>
+        </div>
+      </div>
+      <div className="card-body" style={{ padding:"14px 20px" }}>
+        {genError && (
+          <div style={{ fontSize:12.5,color:"#ff6b6b",background:"rgba(220,60,60,.08)",border:"1px solid rgba(220,60,60,.22)",borderRadius:8,padding:"8px 12px",marginBottom:10 }}>
+            {genError}
+          </div>
+        )}
+        {loadingOverview ? (
+          <div style={{ color:"var(--text3)",fontSize:13,textAlign:"center",padding:"18px 0" }}>Loading…</div>
+        ) : overviewData ? (
+          <>
+            <div style={{ position:"relative" }}>
+              <div style={{ fontSize:13.5,lineHeight:1.75,color:"var(--text2)",whiteSpace:"pre-wrap",overflow:"hidden",maxHeight:expanded?"none":"6em" }}>
+                {overviewData.text}
+              </div>
+              {!expanded && (
+                <div style={{ position:"absolute",bottom:0,left:0,right:0,height:32,background:"linear-gradient(transparent, var(--surface))",pointerEvents:"none" }} />
+              )}
+            </div>
+            <button className="btn btn-ghost btn-sm" onClick={() => setExpanded(v => !v)}
+              style={{ marginTop:6,fontSize:12,color:"var(--accent)",padding:"3px 0" }}>
+              {expanded ? "↑ Show less" : "↓ Show more"}
+            </button>
+          </>
+        ) : (
+          <div style={{ fontSize:13,color:"var(--text3)",textAlign:"center",padding:"18px 0",lineHeight:1.6 }}>
+            No overview yet. Click <strong style={{ color:"var(--text2)" }}>Update</strong> to generate an AI summary of this jobsite — costs <strong style={{ color:"var(--accent)" }}>1 AI Generation Kraken</strong>.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onEdit, onOpenCamera, onEditPhoto, onUpdateProject, onOpenReportCreator, onSendVoiceNoteToChat, onSendFileToChat, onSendPhotoToChat, settings, onSettingsChange, orgId, userId }) {
   const _tabKey = `kc_tab_${project?.id}`;
   const _sketchKey = `kc_sketch_${project?.id}`;
   const [tab, setTab] = useState(() => {
@@ -10046,6 +10205,15 @@ function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onEdit, on
               </div>
             );
           })()}
+
+          {/* AI Project Overview */}
+          <AIProjectOverview
+            project={project}
+            settings={settings}
+            onSettingsChange={onSettingsChange}
+            orgId={orgId}
+            userId={userId}
+          />
 
           <div className="grid-2">
             <div className="card">
@@ -22767,7 +22935,9 @@ useEffect(() => {
               onSendFileToChat={sendProjectFileToDirectMessage}
               onSendPhotoToChat={sendProjectPhotoToChat}
               settings={settings}
+              onSettingsChange={setSettings}
               orgId={authProfile?.organization_id}
+              userId={authProfile?.user_id}
             />
           )}
           {page === "camera" && (
