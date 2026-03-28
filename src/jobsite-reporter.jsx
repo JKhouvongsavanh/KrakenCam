@@ -13375,7 +13375,11 @@ function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNot
   const [showTplPicker, setShowTplPicker] = useState(false);
   const [showSaveTpl, setShowSaveTpl] = useState(false);
   const [tplName, setTplName] = useState('');
-  useEffect(() => {
+
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState('');
+  const dragItem = useRef(null);
+  const dragOver = useRef(null);  useEffect(() => {
     supabase.from('task_checklist_templates').select('*').order('name')
       .then(({ data }) => data && setTplList(data));
   }, []);
@@ -13407,6 +13411,20 @@ function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNot
   const deleteTpl = async (id) => {
     await supabase.from('task_checklist_templates').delete().eq('id', id);
     setTplList(t => t.filter(x => x.id !== id));
+  };
+  const startEdit = (item) => { setEditingId(item.id); setEditText(item.text); };
+  const saveEdit = () => {
+    if (editText.trim()) setForm(f => ({ ...f, checklist: f.checklist.map(c => c.id === editingId ? { ...c, text: editText.trim() } : c) }));
+    setEditingId(null);
+    setEditText('');
+  };
+  const handleDragEnd = () => {
+    const items = [...form.checklist];
+    const dragged = items.splice(dragItem.current, 1)[0];
+    items.splice(dragOver.current, 0, dragged);
+    dragItem.current = null;
+    dragOver.current = null;
+    setForm(f => ({ ...f, checklist: items }));
   };const toggleCheck = id => set("checklist", form.checklist.map(c=>c.id===id?{...c,done:!c.done}:c));
   const removeCheck = id => set("checklist", form.checklist.filter(c=>c.id!==id));
 
@@ -13709,13 +13727,29 @@ function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNot
                 </div>
               )}
               <div style={{ display:"flex",flexDirection:"column",gap:6,marginBottom:14 }}>
-                {form.checklist.map(item=>(
-                  <div key={item.id} style={{ display:"flex",alignItems:"center",gap:10,padding:"8px 12px",background:"var(--surface2)",borderRadius:"var(--radius-sm)",border:"1px solid var(--border)" }}>
+                {form.checklist.map((item,idx)=>(
+                  <div
+                    key={item.id}
+                    draggable
+                    onDragStart={()=>{ dragItem.current=idx; }}
+                    onDragEnter={()=>{ dragOver.current=idx; }}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={e=>e.preventDefault()}
+                    style={{ display:"flex",alignItems:"center",gap:8,padding:"8px 12px",background:"var(--surface2)",borderRadius:"var(--radius-sm)" }}
+                  >
+                    <div style={{ cursor:"grab",color:"var(--text3)",display:"flex",alignItems:"center",flexShrink:0 }} title="Drag to reorder"><Icon d={ic.grip} size={13}/></div>
                     <div onClick={()=>toggleCheck(item.id)} style={{ width:18,height:18,borderRadius:4,border:`2px solid ${item.done?"var(--accent)":"var(--border)"}`,background:item.done?"var(--accent)":"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .15s" }}>
                       {item.done && <Icon d={ic.check} size={11} stroke="white" strokeWidth={3}/>}
                     </div>
-                    <span style={{ flex:1,fontSize:13,textDecoration:item.done?"line-through":"none",color:item.done?"var(--text3)":"var(--text)",transition:"all .15s" }}>{item.text}</span>
-                    <button className="btn btn-ghost btn-icon" style={{ width:24,height:24,color:"var(--text3)" }} onClick={()=>removeCheck(item.id)}><Icon d={ic.close} size={12}/></button>
+                    {editingId===item.id ? (
+                      <input className="form-input" style={{ flex:1,fontSize:13,padding:"2px 6px",height:26 }} value={editText} onChange={e=>setEditText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")saveEdit();if(e.key==="Escape")setEditingId(null);}} onBlur={saveEdit} autoFocus/>
+                    ) : (
+                      <span style={{ flex:1,fontSize:13,textDecoration:item.done?"line-through":"none",color:item.done?"var(--text3)":"var(--text)",transition:"all .15s" }}>{item.text}</span>
+                    )}
+                    {editingId!==item.id && (
+                      <button className="btn btn-ghost btn-icon" style={{ width:24,height:24,color:"var(--text3)",flexShrink:0 }} onClick={()=>startEdit(item)} title="Edit"><Icon d={ic.pen} size={12}/></button>
+                    )}
+                    <button className="btn btn-ghost btn-icon" style={{ width:24,height:24,color:"var(--text3)",flexShrink:0 }} onClick={()=>removeCheck(item.id)}><Icon d={ic.close} size={12}/></button>
                   </div>
                 ))}
               </div>
