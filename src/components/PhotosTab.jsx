@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Icon, ic } from "../utils/icons.jsx";
-import { uid, today , getStatusMeta
+import { uid, today , getStatusMeta, getCertStatus
 } from "../utils/helpers.js";
 
-// ── Camera Component ───────────────────────────────────────────────────────────
+// ââ Camera Component âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRef, addUploadedPhotos, settings, teamUsers = [], chats = [], onSendPhotoToChat }) {
   const photos    = project.photos    || [];
   const rooms     = project.rooms     || [];
@@ -176,7 +176,7 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
           </>) : (<>
             {photos.length > 0 && (
               <button className="btn btn-secondary btn-sm" onClick={() => setSelectMode(true)}>
-                ☑ Select
+                â Select
               </button>
             )}
             {canBeforeAfter ? (
@@ -195,10 +195,10 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
       </div>
       <input ref={fileRef} type="file" multiple accept="image/*" style={{ display:"none" }} onChange={e => addUploadedPhotos(e.target.files)} />
 
-      {/* Floor filter — only shown when photos have floor data */}
+      {/* Floor filter â only shown when photos have floor data */}
       {floors.length > 0 && (
         <div style={{ display:"flex",alignItems:"center",flexWrap:"wrap",gap:7,marginBottom:10,padding:"8px 14px",background:"var(--surface2)",borderRadius:"var(--radius-sm)",border:"1px solid var(--border)" }}>
-          <span style={{ fontSize:11,fontWeight:700,color:"var(--text3)",textTransform:"uppercase",letterSpacing:".05em",whiteSpace:"nowrap" }}>🏢 Floor:</span>
+          <span style={{ fontSize:11,fontWeight:700,color:"var(--text3)",textTransform:"uppercase",letterSpacing:".05em",whiteSpace:"nowrap" }}>ð¢ Floor:</span>
           {["all", ...floors].map(f => (
             <span key={f} onClick={() => setFilterFloor(f)}
               style={{ fontSize:12,padding:"3px 10px",borderRadius:20,cursor:"pointer",fontWeight:600,userSelect:"none",
@@ -209,14 +209,14 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
             </span>
           ))}
           {filterFloor !== "all" && (
-            <button className="btn btn-ghost btn-sm" style={{ marginLeft:"auto",fontSize:11.5,color:"var(--text3)" }} onClick={() => setFilterFloor("all")}>× Clear</button>
+            <button className="btn btn-ghost btn-sm" style={{ marginLeft:"auto",fontSize:11.5,color:"var(--text3)" }} onClick={() => setFilterFloor("all")}>Ã Clear</button>
           )}
         </div>
       )}
 
       {/* Tags management row */}
       <div style={{ display:"flex",alignItems:"center",flexWrap:"wrap",gap:7,marginBottom:14,padding:"10px 14px",background:"var(--surface2)",borderRadius:"var(--radius-sm)",border:"1px solid var(--border)" }}>
-        <span style={{ fontSize:11,fontWeight:700,color:"var(--text3)",textTransform:"uppercase",letterSpacing:".05em",whiteSpace:"nowrap" }}>📁 Tags:</span>
+        <span style={{ fontSize:11,fontWeight:700,color:"var(--text3)",textTransform:"uppercase",letterSpacing:".05em",whiteSpace:"nowrap" }}>ð Tags:</span>
         {photoTags.map(tag => (
           <div key={tag} style={{ display:"flex",alignItems:"center",gap:4 }}>
             {editingTag===tag ? (
@@ -233,13 +233,13 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
                 {tag}
               </span>
             )}
-            <button onClick={() => setEditingTag(tag)} title="Rename" style={{ background:"none",border:"none",cursor:"pointer",color:"var(--text3)",padding:"2px 3px",fontSize:11,lineHeight:1 }}>✏</button>
-            <button onClick={() => deleteTag(tag)} title="Delete" style={{ background:"none",border:"none",cursor:"pointer",color:"var(--text3)",padding:"2px 3px",fontSize:11,lineHeight:1 }}>×</button>
+            <button onClick={() => setEditingTag(tag)} title="Rename" style={{ background:"none",border:"none",cursor:"pointer",color:"var(--text3)",padding:"2px 3px",fontSize:11,lineHeight:1 }}>â</button>
+            <button onClick={() => deleteTag(tag)} title="Delete" style={{ background:"none",border:"none",cursor:"pointer",color:"var(--text3)",padding:"2px 3px",fontSize:11,lineHeight:1 }}>Ã</button>
           </div>
         ))}
         {addingTag ? (
           <input autoFocus className="form-input" style={{ width:110,padding:"2px 8px",fontSize:12,height:26 }}
-            placeholder="Tag name…" value={newTagInput} onChange={e => setNewTagInput(e.target.value)}
+            placeholder="Tag nameâ¦" value={newTagInput} onChange={e => setNewTagInput(e.target.value)}
             onBlur={addTag}
             onKeyDown={e => { if (e.key==="Enter") addTag(); if (e.key==="Escape") { setAddingTag(false); setNewTagInput(""); }}} />
         ) : (
@@ -248,7 +248,7 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
           </button>
         )}
         {filterTag !== "all" && (
-          <button className="btn btn-ghost btn-sm" style={{ marginLeft:"auto",fontSize:11.5,color:"var(--text3)" }} onClick={() => setFilterTag("all")}>× Clear</button>
+          <button className="btn btn-ghost btn-sm" style={{ marginLeft:"auto",fontSize:11.5,color:"var(--text3)" }} onClick={() => setFilterTag("all")}>Ã Clear</button>
         )}
       </div>
 
@@ -337,8 +337,8 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
               <div className="photo-card-info">
                 <div className="photo-card-name">{photo.name}</div>
                 <div style={{ fontSize:11.5,color:"var(--text2)",marginBottom:4,display:"flex",alignItems:"center",gap:4,flexWrap:"wrap" }}>
-                  {photo.room && <span><span style={{ fontSize:11 }}>📍</span> {photo.room}</span>}
-                  {photo.floor && <><span style={{ color:"var(--border)" }}>·</span><span><span style={{ fontSize:11 }}>🏢</span> {photo.floor}</span></>}
+                  {photo.room && <span><span style={{ fontSize:11 }}>ð</span> {photo.room}</span>}
+                  {photo.floor && <><span style={{ color:"var(--border)" }}>Â·</span><span><span style={{ fontSize:11 }}>ð¢</span> {photo.floor}</span></>}
                 </div>
                 {/* Tag chips */}
                 {(photo.tags||[]).length > 0 && (
@@ -370,7 +370,7 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
 
       <style>{`.photo-card:hover .photo-actions{opacity:1!important}`}</style>
 
-      {/* ── Photo Lightbox Viewer ── */}
+      {/* ââ Photo Lightbox Viewer ââ */}
       {viewerPhoto && (() => {
         const idx = filtered.findIndex(p => p.id === viewerPhoto.id);
         const prev = idx > 0 ? filtered[idx - 1] : null;
@@ -396,16 +396,16 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
             ref={el=>el&&el.focus()}
             onClick={e=>{ if(e.target===e.currentTarget) setViewerPhoto(null); }}
           >
-            {/* Top bar — stacks info above buttons on mobile */}
+            {/* Top bar â stacks info above buttons on mobile */}
             <div style={{ display:"flex",flexDirection:"column",gap:8,padding:"10px 16px",background:"rgba(0,0,0,.6)",flexShrink:0 }}>
               {/* Photo info row */}
               <div style={{ minWidth:0 }}>
                 <div style={{ fontWeight:700,fontSize:14,color:"white",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{photo.name||"Photo"}</div>
                 <div style={{ fontSize:11,color:"rgba(255,255,255,.5)",display:"flex",gap:10,flexWrap:"wrap",marginTop:2 }}>
-                  {photo.room && <span>📍 {photo.room}{photo.floor?` · ${photo.floor}`:""}</span>}
-                  {photo.date && <span>🗓 {photo.date}{photo.time?` ${photo.time}`:""}</span>}
-                  {photo.gps  && <span>🌐 {photo.gps.lat}, {photo.gps.lng}</span>}
-                  {(photo.tags||[]).length>0 && <span>🏷 {photo.tags.join(", ")}</span>}
+                  {photo.room && <span>ð {photo.room}{photo.floor?` Â· ${photo.floor}`:""}</span>}
+                  {photo.date && <span>ð {photo.date}{photo.time?` ${photo.time}`:""}</span>}
+                  {photo.gps  && <span>ð {photo.gps.lat}, {photo.gps.lng}</span>}
+                  {(photo.tags||[]).length>0 && <span>ð· {photo.tags.join(", ")}</span>}
                   <span style={{ color:"rgba(255,255,255,.3)" }}>{idx+1} / {filtered.length}</span>
                 </div>
               </div>
@@ -452,11 +452,11 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
               </div>
             </div>
 
-            {/* Image area — arrows are siblings on desktop (absolute), row below on mobile */}
+            {/* Image area â arrows are siblings on desktop (absolute), row below on mobile */}
             <div className="viewer-img-wrap" style={{ flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",position:"relative",minHeight:0,overflow:"hidden" }}>
               {/* Desktop prev arrow (absolute, hidden on mobile) */}
               {prev && (
-                <button onClick={()=>setViewerPhoto(prev)} title="Previous (←)" className="viewer-arrow-desktop"
+                <button onClick={()=>setViewerPhoto(prev)} title="Previous (â)" className="viewer-arrow-desktop"
                   style={{ position:"absolute",left:12,zIndex:10,background:"rgba(0,0,0,.55)",border:"1px solid rgba(255,255,255,.15)",color:"white",borderRadius:"50%",width:44,height:44,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"background .15s" }}
                   onMouseEnter={e=>e.currentTarget.style.background="rgba(43,127,232,.7)"}
                   onMouseLeave={e=>e.currentTarget.style.background="rgba(0,0,0,.55)"}>
@@ -489,7 +489,7 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
 
               {/* Desktop next arrow (absolute, hidden on mobile) */}
               {next && (
-                <button onClick={()=>setViewerPhoto(next)} title="Next (→)" className="viewer-arrow-desktop"
+                <button onClick={()=>setViewerPhoto(next)} title="Next (â)" className="viewer-arrow-desktop"
                   style={{ position:"absolute",right:12,zIndex:10,background:"rgba(0,0,0,.55)",border:"1px solid rgba(255,255,255,.15)",color:"white",borderRadius:"50%",width:44,height:44,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"background .15s" }}
                   onMouseEnter={e=>e.currentTarget.style.background="rgba(43,127,232,.7)"}
                   onMouseLeave={e=>e.currentTarget.style.background="rgba(0,0,0,.55)"}>
@@ -497,7 +497,7 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
                 </button>
               )}
 
-              {/* Mobile arrow row — shown below image on mobile only */}
+              {/* Mobile arrow row â shown below image on mobile only */}
               {filtered.length > 1 && (
                 <div className="viewer-arrow-mobile" style={{ display:"none",gap:16,marginTop:10,flexShrink:0 }}>
                   <button onClick={()=>prev&&setViewerPhoto(prev)} disabled={!prev}
@@ -533,7 +533,7 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
         );
       })()}
 
-      {/* ── Before & After Pairs ── */}
+      {/* ââ Before & After Pairs ââ */}
       {canBeforeAfter && baPairs.length > 0 && (
         <div style={{ marginTop:20 }}>
           <div style={{ display:"flex",alignItems:"center",gap:8,marginBottom:10,cursor:"pointer" }}
@@ -792,7 +792,7 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
                 <div className="form-group" style={{ marginBottom:0 }}>
                   <label className="form-label">Room / Area</label>
                   <select className="form-input form-select" value={baRoom} onChange={e=>setBaRoom(e.target.value)}>
-                    <option value="">— None —</option>
+                    <option value="">â None â</option>
                     {rooms.map(r=><option key={r.id} value={r.name}>{r.name}</option>)}
                   </select>
                 </div>
@@ -800,7 +800,7 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
               {/* Notes */}
               <div className="form-group" style={{ marginBottom:16 }}>
                 <label className="form-label">Notes (optional)</label>
-                <input className="form-input" placeholder="e.g. Mold remediated, drywall replaced…" value={baNotes} onChange={e=>setBaNotes(e.target.value)} />
+                <input className="form-input" placeholder="e.g. Mold remediated, drywall replacedâ¦" value={baNotes} onChange={e=>setBaNotes(e.target.value)} />
               </div>
 
               {/* Before / After selectors */}
@@ -869,7 +869,7 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
 }
 
 
-// ── Sketch Editor ──────────────────────────────────────────────────────────────
+// ââ Sketch Editor ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const SKETCH_TOOLS = [
   { id:"pan",       icon:"M18 11V6a2 2 0 00-2-2 2 2 0 00-2 2 2 2 0 00-2-2 2 2 0 00-2 2v.5 M14 10.5V4a2 2 0 00-2-2 2 2 0 00-2 2v.5 M10 10.5V6a2 2 0 00-2-2 2 2 0 00-2 2v8a6 6 0 006 6h2a6 6 0 006-6v-2.5",  label:"Pan / Move Screen" },
   { id:"select",    icon:"M3 3l7 18 3-7 7-3z",                        label:"Select Element" },
@@ -1012,7 +1012,7 @@ export function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onE
                   const isApple = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent);
                   const mapsUrl = isApple ? `maps://maps.apple.com/?q=${encoded}` : `https://www.google.com/maps/search/?api=1&query=${encoded}`;
                   return <a href={mapsUrl} target="_blank" rel="noopener noreferrer" style={{ color:"var(--text2)",textDecoration:"none" }} onMouseEnter={e=>e.currentTarget.style.color="var(--accent)"} onMouseLeave={e=>e.currentTarget.style.color="var(--text2)"}>{addr}</a>;
-                })() : "—"}
+                })() : "â"}
               </div>
             </div>
             <div className="proj-hero-btns" style={{ display:"flex",gap:8,alignItems:"center",flexShrink:0 }}>
@@ -1025,18 +1025,18 @@ export function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onE
           <div className="project-info-grid" style={{ marginTop:16 }}>
             <div className="project-info-box">
               <div className="project-info-label"><Icon d={ic.user} size={11} /> Client</div>
-              <div className="project-info-value">{project.clientName || "—"}</div>
+              <div className="project-info-value">{project.clientName || "â"}</div>
               {project.clientPhone && <div className="project-info-sub"><a href={`tel:${project.clientPhone.replace(/\D/g,"")}`} style={{ color:"var(--text2)",textDecoration:"none" }} onMouseEnter={e=>e.currentTarget.style.color="var(--accent)"} onMouseLeave={e=>e.currentTarget.style.color="var(--text2)"}>{project.clientPhone}</a></div>}
               {project.clientEmail && <div className="project-info-sub">{project.clientEmail}</div>}
             </div>
             <div className="project-info-box">
               <div className="project-info-label"><Icon d={ic.building} size={11} /> Contractor</div>
-              <div className="project-info-value">{project.contractorName || "—"}</div>
+              <div className="project-info-value">{project.contractorName || "â"}</div>
               {project.contractorPhone && <div className="project-info-sub"><a href={`tel:${project.contractorPhone.replace(/\D/g,"")}`} style={{ color:"var(--text2)",textDecoration:"none" }} onMouseEnter={e=>e.currentTarget.style.color="var(--accent)"} onMouseLeave={e=>e.currentTarget.style.color="var(--text2)"}>{project.contractorPhone}</a></div>}
             </div>
             <div className="project-info-box">
               <div className="project-info-label"><Icon d={ic.clockIcon} size={11} /> Details</div>
-              <div className="project-info-value">{project.createdAt ? new Date(project.createdAt).toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" }) : "—"}</div>
+              <div className="project-info-value">{project.createdAt ? new Date(project.createdAt).toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" }) : "â"}</div>
               <div className="project-info-sub">{project.type || ""}</div>
             </div>
           </div>
@@ -1047,7 +1047,7 @@ export function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onE
             </div>
           )}
 
-          {/* ── Scratch Pad ── */}
+          {/* ââ Scratch Pad ââ */}
           <div style={{ marginTop:10,padding:"8px 12px",background:"var(--surface2)",borderRadius:8,border:"1px solid var(--border)" }}>
             <div style={{ display:"flex",alignItems:"center",gap:6,marginBottom:5 }}>
               <Icon d={ic.pen} size={11} stroke="var(--accent)" />
@@ -1057,13 +1057,13 @@ export function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onE
                 onClick={saveScratchPad}
                 title="Save (Ctrl+S)"
                 style={{ fontSize:11.5,height:24,padding:"0 10px",fontWeight:600,color:scratchSaved?"var(--green)":"var(--text3)",transition:"color .2s",flexShrink:0 }}>
-                {scratchSaved ? "✓ Saved" : "Save"}
+                {scratchSaved ? "â Saved" : "Save"}
               </button>
             </div>
             <textarea
               className="form-input"
               rows={2}
-              placeholder="Quick notes, measurements, reminders…"
+              placeholder="Quick notes, measurements, remindersâ¦"
               value={scratchPad}
               onChange={e => setScratchPad(e.target.value)}
               onKeyDown={e => { if (e.key==="s" && (e.metaKey||e.ctrlKey)) { e.preventDefault(); saveScratchPad(); } }}
@@ -1071,7 +1071,7 @@ export function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onE
             />
           </div>
 
-          {/* ── Assigned team members strip ── */}
+          {/* ââ Assigned team members strip ââ */}
           {(() => {
             const assigned = (project.assignedUserIds||[])
               .map(id => teamUsers.find(u => u.id === id))
@@ -1139,7 +1139,7 @@ export function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onE
         </div>
       </div>
 
-      {/* Tabs — horizontally scrollable, compact labels */}
+      {/* Tabs â horizontally scrollable, compact labels */}
       <div style={{ overflowX:"auto", WebkitOverflowScrolling:"touch", scrollbarWidth:"none", marginBottom:20, borderBottom:"1px solid var(--border)" }}>
         <div style={{ display:"flex", gap:0, minWidth:"max-content" }}>
           {TABS.map(t => {
@@ -1172,15 +1172,15 @@ export function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onE
           {/* Timeline card */}
           {(() => {
             const TL_STAGES = [
-              { id:"lead",        label:"Lead",        icon:"📋" },
-              { id:"assessment",  label:"Assessment",  icon:"🔍" },
-              { id:"approved",    label:"Approved",    icon:"✅" },
-              { id:"planning",    label:"Planning",    icon:"🗂️" },
-              { id:"in_progress", label:"In Progress", icon:"🔨" },
-              { id:"final_walk",  label:"Final Walk",  icon:"🚶" },
-              { id:"completion_phase", label:"Completion Phase", icon:"🧩" },
-              { id:"invoiced",    label:"Invoiced",    icon:"🧾" },
-              { id:"completed",   label:"Completed",   icon:"🏁" },
+              { id:"lead",        label:"Lead",        icon:"ð" },
+              { id:"assessment",  label:"Assessment",  icon:"ð" },
+              { id:"approved",    label:"Approved",    icon:"â" },
+              { id:"planning",    label:"Planning",    icon:"ðï¸" },
+              { id:"in_progress", label:"In Progress", icon:"ð¨" },
+              { id:"final_walk",  label:"Final Walk",  icon:"ð¶" },
+              { id:"completion_phase", label:"Completion Phase", icon:"ð§©" },
+              { id:"invoiced",    label:"Invoiced",    icon:"ð§¾" },
+              { id:"completed",   label:"Completed",   icon:"ð" },
             ];
             const aIdx = TL_STAGES.findIndex(s => s.id === project.timelineStage);
             const activeStage = TL_STAGES.find(s => s.id === project.timelineStage);
@@ -1192,7 +1192,7 @@ export function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onE
                   <span style={{ fontWeight:700 }}>Project Timeline</span>
                   {activeStage
                     ? <span style={{ fontSize:11.5, fontWeight:600, color:"var(--accent)", background:"var(--accent-glow)", padding:"3px 10px", borderRadius:20 }}>{activeStage.icon} {activeStage.label}</span>
-                    : <span style={{ fontSize:11.5, color:"var(--text3)" }}>No stage set — click to update</span>
+                    : <span style={{ fontSize:11.5, color:"var(--text3)" }}>No stage set â click to update</span>
                   }
                 </div>
                 <div className="card-body" style={{ padding:"14px 20px 18px" }}>
@@ -1232,7 +1232,7 @@ export function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onE
                       <input
                         className="form-input"
                         style={{ fontSize:12.5 }}
-                        placeholder={`Internal note for "${activeStage?.label || "this stage"}"…`}
+                        placeholder={`Internal note for "${activeStage?.label || "this stage"}"â¦`}
                         value={project.timelineNotes?.[project.timelineStage] || ""}
                         onChange={e => onUpdateProject({
                           ...project,
@@ -1245,7 +1245,7 @@ export function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onE
                       <input
                         className="form-input"
                         style={{ fontSize:12.5 }}
-                        placeholder={`Client portal note for "${activeStage?.label || "this stage"}"…`}
+                        placeholder={`Client portal note for "${activeStage?.label || "this stage"}"â¦`}
                         value={project.timelineClientNotes?.[project.timelineStage] || ""}
                         onChange={e => onUpdateProject({
                           ...project,
@@ -1455,7 +1455,7 @@ export function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onE
               };
             }
             onUpdateProject(updatedProj);
-            // ── Fire-and-forget: persist sketch to Supabase ──
+            // ââ Fire-and-forget: persist sketch to Supabase ââ
             if (orgId && project.id && savedSketch.dataUrl) {
               try {
                 // Convert dataUrl PNG to Blob
@@ -1505,7 +1505,7 @@ export function ProjectDetail({ project, teamUsers = [], chats = [], onBack, onE
   );
 }
 
-// ── Sketches Tab ───────────────────────────────────────────────────────────────
+// ââ Sketches Tab âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function SketchesTab({ project, onUpdateProject, onNewSketch, onEditSketch }) {
   const sketches = project.sketches || [];
   const [selectMode,  setSelectMode]  = useState(false);
@@ -1557,7 +1557,7 @@ function SketchesTab({ project, onUpdateProject, onNewSketch, onEditSketch }) {
             )}
             <button className="btn btn-secondary btn-sm" onClick={() => { setSelectMode(false); setSelectedIds(new Set()); }}>Cancel</button>
           </>) : (<>
-            {sketches.length > 0 && <button className="btn btn-secondary btn-sm" onClick={() => setSelectMode(true)}>☑ Select</button>}
+            {sketches.length > 0 && <button className="btn btn-secondary btn-sm" onClick={() => setSelectMode(true)}>â Select</button>}
             <button className="btn btn-primary btn-sm" onClick={onNewSketch}><Icon d={ic.plus} size={13} /> New Sketch</button>
           </>)}
         </div>
@@ -1590,7 +1590,7 @@ function SketchesTab({ project, onUpdateProject, onNewSketch, onEditSketch }) {
               <div style={{ fontWeight:600,fontSize:13.5,marginBottom:3,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{sk.title}</div>
               <div style={{ fontSize:11.5,color:"var(--text3)",display:"flex",gap:8 }}>
                 <span>{sk.date}</span>
-                {sk.scale && <span>· {sk.scale}</span>}
+                {sk.scale && <span>Â· {sk.scale}</span>}
               </div>
               {sk.notes && <div style={{ fontSize:11.5,color:"var(--text2)",marginTop:5,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden" }}>{sk.notes}</div>}
               {!selectMode && (
@@ -1645,11 +1645,11 @@ export function TemplatesPage({ projects, onUseTemplate, templates: templatesPro
   };
   const [editTmpl,    setEditTmpl]    = useState(null);   // null | template obj | "new"
   const [deleteTmpl,  setDeleteTmpl]  = useState(null);
-  const [useTmpl,     setUseTmpl]     = useState(null);   // template to use — triggers project picker
+  const [useTmpl,     setUseTmpl]     = useState(null);   // template to use â triggers project picker
 
   const REPORT_TYPES = ["Insurance","Inspection","Contractor","Damage","Progress","Assessment","Quote","Other"];
 
-  // Map report type → tag colour class
+  // Map report type â tag colour class
   const typeTag = type => {
     if (!type) return "orange";
     const t = type.toLowerCase();
@@ -1703,7 +1703,7 @@ export function TemplatesPage({ projects, onUseTemplate, templates: templatesPro
     </div>
   );
 
-  // ── Template edit/create modal ──────────────────────────────────────────────
+  // ââ Template edit/create modal ââââââââââââââââââââââââââââââââââââââââââââââ
   function TemplateModal({ tmpl, onClose }) {
     const isNew = !tmpl || tmpl === "new";
     const base  = isNew ? { name:"", type:"Inspection", desc:"", color:"#4a90d9" } : tmpl;
@@ -1766,7 +1766,7 @@ export function TemplatesPage({ projects, onUseTemplate, templates: templatesPro
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">Report Type <span style={{ fontWeight:400, color:"var(--text3)" }}>— sets the tag</span></label>
+                <label className="form-label">Report Type <span style={{ fontWeight:400, color:"var(--text3)" }}>â sets the tag</span></label>
                 <select className="form-input form-select" value={type} onChange={e => setType(e.target.value)}>
                   {REPORT_TYPES.map(t => <option key={t}>{t}</option>)}
                 </select>
@@ -1785,7 +1785,7 @@ export function TemplatesPage({ projects, onUseTemplate, templates: templatesPro
             </div>
             <div className="form-group">
               <label className="form-label">Description</label>
-              <textarea className="form-input form-textarea" value={desc} onChange={e => setDesc(e.target.value)} placeholder="Short description of when to use this template…" />
+              <textarea className="form-input form-textarea" value={desc} onChange={e => setDesc(e.target.value)} placeholder="Short description of when to use this templateâ¦" />
             </div>
 
             {/* Sections */}
@@ -1805,13 +1805,13 @@ export function TemplatesPage({ projects, onUseTemplate, templates: templatesPro
                       {isAuto && <span style={{ fontSize:11, color:"var(--text3)", background:"var(--surface2)", padding:"2px 8px", borderRadius:10, flexShrink:0, whiteSpace:"nowrap" }}>Auto-filled</span>}
                       {isText && isOn && (
                         <button onClick={() => toggleExpand(s)} style={{ background:"none", border:"1px solid var(--border)", borderRadius:6, padding:"4px 12px", fontSize:12, color:"var(--text2)", cursor:"pointer", display:"flex", alignItems:"center", gap:4, flexShrink:0 }}>
-                          {isOpen ? "▲ Hide" : "▼ Edit"}
+                          {isOpen ? "â² Hide" : "â¼ Edit"}
                         </button>
                       )}
                     </div>
                     {isText && isOn && isOpen && (
                       <div style={{ paddingBottom:14, display:"flex", flexDirection:"column", gap:10 }}>
-                        <textarea className="form-input form-textarea" value={secText[s]} onChange={e => setSecText(p => ({ ...p, [s]: e.target.value }))} placeholder={`Default ${s} text…`} style={{ minHeight:100, fontSize:13, resize:"vertical" }} />
+                        <textarea className="form-input form-textarea" value={secText[s]} onChange={e => setSecText(p => ({ ...p, [s]: e.target.value }))} placeholder={`Default ${s} textâ¦`} style={{ minHeight:100, fontSize:13, resize:"vertical" }} />
                         {isSignOff && (
                           <div>
                             <div style={{ fontSize:12, fontWeight:600, color:"var(--text2)", marginBottom:8 }}>Company Signature</div>
@@ -1849,7 +1849,7 @@ export function TemplatesPage({ projects, onUseTemplate, templates: templatesPro
     );
   }
 
-  // ── Project picker modal for "Use" ─────────────────────────────────────────
+  // ââ Project picker modal for "Use" âââââââââââââââââââââââââââââââââââââââââ
   function ProjectPickerModal({ tmpl, onClose }) {
     return (
       <div className="modal-overlay" onClick={e => e.target===e.currentTarget && onClose()}>
@@ -1860,7 +1860,7 @@ export function TemplatesPage({ projects, onUseTemplate, templates: templatesPro
           </div>
           <div className="modal-body">
             <div style={{ fontSize:13, color:"var(--text2)", marginBottom:14 }}>
-              Using <strong style={{ color:"var(--text)" }}>{tmpl.name}</strong> — select which jobsite to create the report under:
+              Using <strong style={{ color:"var(--text)" }}>{tmpl.name}</strong> â select which jobsite to create the report under:
             </div>
             {projects?.length > 0 ? (
               <div style={{ display:"flex", flexDirection:"column", gap:7 }}>
