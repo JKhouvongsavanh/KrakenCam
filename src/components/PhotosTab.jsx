@@ -875,6 +875,79 @@ function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRe
 }
 
 
+// ── Photo Settings Modal ───────────────────────────────────────────────────────
+function PhotoSettingsModal({ photo, rooms, photoTags, onSave, onClose }) {
+  const [name,    setName]    = useState(photo?.name    || "");
+  const [caption, setCaption] = useState(photo?.caption || "");
+  const [room,    setRoom]    = useState(photo?.room    || "");
+  const [tags,    setTags]    = useState(photo?.tags    || []);
+
+  const toggleTag = (tag) => setTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+
+  const handleSave = () => {
+    onSave({ name: name.trim() || photo?.name, caption: caption.trim(), room, tags });
+    onClose();
+  };
+
+  return (
+    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="modal fade-in" style={{ maxWidth: 420 }}>
+        <div className="modal-header">
+          <div className="modal-title"><Icon d={ic.settings} size={15} /> Photo Settings</div>
+          <button className="btn btn-ghost btn-sm btn-icon" onClick={onClose}><Icon d={ic.close} size={16} /></button>
+        </div>
+        <div className="modal-body" style={{ display:"grid", gap:14 }}>
+          {/* Thumbnail */}
+          {photo?.dataUrl && (
+            <div style={{ width:"100%", height:120, borderRadius:"var(--radius-sm)", overflow:"hidden", background:"var(--surface2)" }}>
+              <img src={photo.dataUrl} alt={photo.name} style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+            </div>
+          )}
+          {/* Name */}
+          <div className="form-group" style={{ marginBottom:0 }}>
+            <label className="form-label">Photo Name</label>
+            <input className="form-input" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Front entrance" />
+          </div>
+          {/* Caption */}
+          <div className="form-group" style={{ marginBottom:0 }}>
+            <label className="form-label">Caption</label>
+            <input className="form-input" value={caption} onChange={e => setCaption(e.target.value)} placeholder="Add a caption…" />
+          </div>
+          {/* Room */}
+          <div className="form-group" style={{ marginBottom:0 }}>
+            <label className="form-label">Room</label>
+            <select className="form-input form-select" value={room} onChange={e => setRoom(e.target.value)}>
+              <option value="">— None —</option>
+              {rooms.map(r => <option key={r.name || r} value={r.name || r}>{r.name || r}</option>)}
+            </select>
+          </div>
+          {/* Tags */}
+          {photoTags.length > 0 && (
+            <div className="form-group" style={{ marginBottom:0 }}>
+              <label className="form-label">Tags</label>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginTop:4 }}>
+                {photoTags.map(tag => {
+                  const active = tags.includes(tag);
+                  return (
+                    <div key={tag} onClick={() => toggleTag(tag)}
+                      style={{ padding:"5px 14px", borderRadius:20, border:`1.5px solid ${active ? "var(--accent)" : "var(--border)"}`, background: active ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:12.5, fontWeight:600, color: active ? "var(--accent)" : "var(--text2)", transition:"all .15s", userSelect:"none" }}>
+                      {active ? "✓ " : ""}{tag}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-secondary btn-sm" onClick={onClose}>Cancel</button>
+          <button className="btn btn-primary btn-sm" onClick={handleSave}>Save</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Sketch Editor ──────────────────────────────────────────────────────────────
 const SKETCH_TOOLS = [
   { id:"pan",       icon:"M18 11V6a2 2 0 00-2-2 2 2 0 00-2 2 2 2 0 00-2-2 2 2 0 00-2 2v.5 M14 10.5V4a2 2 0 00-2-2 2 2 0 00-2 2v.5 M10 10.5V6a2 2 0 00-2-2 2 2 0 00-2 2v8a6 6 0 006 6h2a6 6 0 006-6v-2.5",  label:"Pan / Move Screen" },

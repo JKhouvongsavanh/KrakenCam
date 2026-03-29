@@ -1409,14 +1409,12 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
             {["draft","review","sent","final"].map(s=><option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
           </select>
           <button className="btn btn-secondary btn-sm" onClick={()=>setPreviewOpen(true)}><Icon d={ic.eye} size={13} /> Preview</button>
-          {settings?.plan === "command" && (
-            <button className="btn btn-sm" onClick={() => aiEnabled ? setShowAiOneClick(true) : setShowAiUpgrade(true)}
-              title="AI 1-Click Report Generator — Command Plan exclusive"
-              style={{ background:"linear-gradient(135deg,#7c3aed,#a855f7)",color:"white",border:"none",display:"flex",alignItems:"center",gap:5,padding:"5px 12px",borderRadius:7,fontWeight:700,fontSize:13,cursor:"pointer" }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-              1 Click
-            </button>
-          )}
+          <button className="btn btn-sm" onClick={() => aiEnabled ? setShowAiOneClick(true) : setShowAiUpgrade(true)}
+            title="AI 1-Click Report Generator"
+            style={{ background:"linear-gradient(135deg,#7c3aed,#a855f7)",color:"white",border:"none",display:"flex",alignItems:"center",gap:5,padding:"5px 12px",borderRadius:7,fontWeight:700,fontSize:13,cursor:"pointer" }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+            1 Click
+          </button>
           <button className="btn btn-secondary btn-sm" onClick={handlePrintOrExport} disabled={!canExportReports}><Icon d={ic.download} size={13} /> Export PDF</button>
           <button className="btn btn-secondary btn-sm btn-icon" title="Print" onClick={handlePrintOrExport} disabled={!canExportReports}><Icon d={ic.printer} size={13} /></button>
           <button className="btn btn-primary btn-sm" onClick={handleSaveReport}><Icon d={ic.check} size={13} /> Save Report</button>

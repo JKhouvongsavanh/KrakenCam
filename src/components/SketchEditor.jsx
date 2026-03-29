@@ -8,6 +8,18 @@ import {
 import { PLAN_AI_LIMITS, getWeekWindowStart, getNextResetDate } from "../utils/constants.js";
 import { getAuthHeaders } from "../lib/supabase.js";
 
+const SKETCH_TOOLS = [
+  { id:"pan",       icon:"M18 11V6a2 2 0 00-2-2 2 2 0 00-2 2 2 2 0 00-2-2 2 2 0 00-2 2v.5 M14 10.5V4a2 2 0 00-2-2 2 2 0 00-2 2v.5 M10 10.5V6a2 2 0 00-2-2 2 2 0 00-2 2v8a6 6 0 006 6h2a6 6 0 006-6v-2.5",  label:"Pan / Move Screen" },
+  { id:"select",    icon:"M3 3l7 18 3-7 7-3z",                        label:"Select Element" },
+  { id:"pen",       icon:"M12 20h9 M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z", label:"Pen" },
+  { id:"line",      icon:"M5 19L19 5",                                  label:"Line"      },
+  { id:"rect",      icon:"M3 3h18v18H3z",                              label:"Rectangle" },
+  { id:"circle",    icon:"M12 22a10 10 0 100-20 10 10 0 000 20z",      label:"Circle"    },
+  { id:"dimension", icon:"M21 6H3 M3 6l3-3M3 6l3 3 M21 6l-3-3 M21 6l-3 3 M12 6v8", label:"Dimension"},
+  { id:"text",      icon:"M4 7V4h16v3 M9 20h6 M12 4v16",               label:"Text"      },
+  { id:"eraser",    icon:"M20 20H7L3 16l10-10 7 7-2.5 2.5",            label:"Eraser"    },
+];
+
 export function SketchEditor({ sketch, rooms, reports, project, settings, onSave, onClose }) {
   const { useState: us, useRef: ur, useEffect: ue, useCallback: uc } = React;
   const canvasRef    = ur(null);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Icon, ic, RoomIcon } from "../utils/icons.jsx";
 import { PLAN_VIDEO_LIMIT_SECS } from "../utils/constants.js";
-import { uid, today , parseTagInput, ROLE_META
+import { uid, today, parseTagInput, ROLE_META, getExifOrientation, drawImageWithOrientation
 } from "../utils/helpers.js";
 
 export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
