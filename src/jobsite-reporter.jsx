@@ -16241,7 +16241,7 @@ const PRICING = {
     command: { admin: 67, user: 26 },
   },
 };
-const PLAN_NAMES = { base: "Capture I", pro: "Intelligence II", command: "Command III" };const PLAN_CHAT_LIMITS     = { base: 4, pro: 15, command: 50  }; // max chat groups per accountconst PLAN_VIDEO_LIMIT_SECS = { base: 90, pro: 360, command: 720 }; // max video recording seconds (90s=1.5min, 360s=6min, 720s=12min)const PLAN_CALENDAR_DISPATCH = { base: false, pro: false, command: true }; // dispatch board view
+const PLAN_NAMES = { base: "Capture I", pro: "Intelligence II", command: "Command III" };
 
 // Returns the start of the current week's generation window (Saturday 23:59 reset)
 // Returns ISO date string of next Saturday 23:59 reset
