@@ -87,7 +87,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
   const histIdxRef = ur(histIdx);
   ue(() => { histIdxRef.current = histIdx; }, [histIdx]);
 
-  // drawing state refs (not state — no re-render needed mid-stroke)
+  // drawing state refs (not state â no re-render needed mid-stroke)
   const drawing   = ur(false);
   const startPt   = ur({x:0,y:0});
   const lastPt    = ur({x:0,y:0});
@@ -129,7 +129,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     pushHistory(elementsRef.current.map(el => el.id === selectedTitleBlock.id ? { ...el, w: width, h: height } : el));
   }
 
-  // ── Render all elements to main canvas ──
+  // ââ Render all elements to main canvas ââ
   const redraw = uc(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -200,7 +200,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     });
   }, [elements, floorLabel, floorPlanMode, showGrid, selectedEl, tool]);
 
-  // ── Keyboard: delete selected element ──
+  // ââ Keyboard: delete selected element ââ
   ue(() => {
     function onKey(e) {
       if ((e.key === "Delete" || e.key === "Backspace") && selectedEl && tool === "select") {
@@ -309,11 +309,11 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
       const labelW = Math.max(76, Math.round(w * 0.28));
       const rows = [
         ["PROJECT", blockData.projectName || "Untitled Project"],
-        ["PROJECT #", blockData.projectNumber || "—"],
-        ["TYPE", blockData.projectType || "—"],
-        ["ADDRESS", blockData.projectAddress || "—"],
-        ["COMPANY", blockData.siteCompany || "—"],
-        ["CLIENT", blockData.clientName || "—"],
+        ["PROJECT #", blockData.projectNumber || "â"],
+        ["TYPE", blockData.projectType || "â"],
+        ["ADDRESS", blockData.projectAddress || "â"],
+        ["COMPANY", blockData.siteCompany || "â"],
+        ["CLIENT", blockData.clientName || "â"],
       ];
       const footerTop = y + headerH + ((h - headerH) * 0.68);
       const bodyH = footerTop - (y + headerH);
@@ -345,7 +345,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
       const userMaxW = Math.max(72, w * 0.34);
       if (userDisplay) {
         while (userDisplay.length > 8 && ctx.measureText(userDisplay).width > userMaxW) {
-          userDisplay = `${userDisplay.slice(0, -2)}…`;
+          userDisplay = `${userDisplay.slice(0, -2)}â¦`;
         }
       }
       const userW = userDisplay ? ctx.measureText(userDisplay).width : 0;
@@ -353,7 +353,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
       let companyDisplay = blockData.companyName || "";
       if (companyDisplay) {
         while (companyDisplay.length > 8 && ctx.measureText(companyDisplay).width > companyMaxW) {
-          companyDisplay = `${companyDisplay.slice(0, -2)}…`;
+          companyDisplay = `${companyDisplay.slice(0, -2)}â¦`;
         }
       }
       if (companyDisplay) {
@@ -382,11 +382,11 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
         ctx.fillText(label, x + 8, rowY + rowH / 2);
         ctx.font = `600 ${Math.max(8, Math.round(w * 0.03))}px 'Courier New', monospace`;
         ctx.fillStyle = "#10253a";
-        const text = String(value || "—");
+        const text = String(value || "â");
         const availableW = Math.max(40, w - labelW - 16);
         const measured = ctx.measureText(text).width;
         const displayText = measured > availableW
-          ? `${text.slice(0, Math.max(8, Math.floor(text.length * (availableW / measured)) - 1))}…`
+          ? `${text.slice(0, Math.max(8, Math.floor(text.length * (availableW / measured)) - 1))}â¦`
           : text;
         ctx.fillText(displayText, x + labelW + 8, rowY + rowH / 2);
       });
@@ -409,7 +409,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
 
       ctx.font = `600 ${footerFont}px 'Courier New', monospace`;
       ctx.fillStyle = "#10253a";
-      ctx.fillText(blockData.floorLabel || "—", x + 62, footerTop + footerH * 0.32);
+      ctx.fillText(blockData.floorLabel || "â", x + 62, footerTop + footerH * 0.32);
       ctx.fillText(blockData.scale || "No Scale", x + 62, footerTop + footerH * 0.72);
       ctx.fillText(blockData.draftDate || today(), footerMid + 54, footerTop + footerH * 0.32);
 
@@ -421,7 +421,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     ctx.restore();
   }
 
-  // ── Preview overlay ──
+  // ââ Preview overlay ââ
   function drawPreview(el) {
     const oc = overlayRef.current;
     if (!oc) return;
@@ -435,7 +435,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     overlayRef.current.getContext("2d").clearRect(0,0,CANVAS_W,CANVAS_H);
   }
 
-  // ── Coordinate helpers ──
+  // ââ Coordinate helpers ââ
   // Returns canvas-space coords accounting for current zoom+pan
   function getPos(e) {
     const canvas = canvasRef.current;
@@ -462,7 +462,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     return { x: src.clientX, y: src.clientY };
   }
 
-  // ── Push to history ──
+  // ââ Push to history ââ
   function pushHistory(newEls) {
     setHistory(h => {
       const trimmed = h.slice(0, histIdxRef.current+1);
@@ -472,15 +472,15 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     setElements(newEls);
   }
 
-  // ── Scale helper: pixels per unit ──
+  // ââ Scale helper: pixels per unit ââ
   function pxPerUnit(scaleStr) {
-    // "1 sq = X ft" or "1 sq = X in" — 1 grid square = 30px
+    // "1 sq = X ft" or "1 sq = X in" â 1 grid square = 30px
     if (!scaleStr || String(scaleStr).toLowerCase() === "no scale") return null;
     const m = scaleStr.match(/([\d.]+)\s*(ft|in)/i);
     if (!m) return null;
     const val  = parseFloat(m[1]);
     const unit = m[2].toLowerCase();
-    // 30px = val ft  →  pxPerFt = 30/val
+    // 30px = val ft  â  pxPerFt = 30/val
     return unit === "in" ? { px: 30, val, unit:"in" } : { px: 30, val, unit:"ft" };
   }
 
@@ -515,7 +515,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     setPlacingRoomLabel(false);
   }
 
-  // ── Hit testing ──
+  // ââ Hit testing ââ
   function hitTest(el, pt, thresh = 8) {
     if (el.type === "pen") {
       const pts = el.points || [];
@@ -559,7 +559,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     return Math.hypot(p.x - (a.x+t*dx), p.y - (a.y+t*dy));
   }
 
-  // ── Move element by delta ──
+  // ââ Move element by delta ââ
   function moveElement(el, dx, dy) {
     if (el.type === "pen") return { ...el, points: el.points.map(p => ({x:p.x+dx,y:p.y+dy})) };
     if (el.type === "line") return { ...el, x1:el.x1+dx,y1:el.y1+dy,x2:el.x2+dx,y2:el.y2+dy };
@@ -579,7 +579,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
   const dragEl     = ur(null);  // element being dragged
   const dragOffset = ur({x:0,y:0});
 
-  // ── Pointer down ──
+  // ââ Pointer down ââ
   function onDown(e) {
     e.preventDefault();
     if (placingRoomLabel) return;
@@ -619,7 +619,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     }
   }
 
-  // ── Pointer move ──
+  // ââ Pointer move ââ
   function onMove(e) {
     e.preventDefault();
     if (!drawing.current) return;
@@ -679,7 +679,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     }
   }
 
-  // ── Pointer up ──
+  // ââ Pointer up ââ
   function onUp(e) {
     if (!drawing.current) return;
     drawing.current = false;
@@ -742,7 +742,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     penPoints.current = [];
   }
 
-  // ── Text tool ──
+  // ââ Text tool ââ
   function onCanvasClick(e) {
     const pt = maybeSnapPoint(getPos(e));
     if (placingRoomLabel) {
@@ -763,7 +763,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     setTempText("");
   }
 
-  // ── Undo / Redo ──
+  // ââ Undo / Redo ââ
   function undo() {
     if (histIdx <= 0) return;
     const ni = histIdx - 1;
@@ -777,14 +777,14 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     setElements(history[ni]);
   }
 
-  // ── Export canvas as dataUrl ──
+  // ââ Export canvas as dataUrl ââ
   function exportDataUrl() {
     const canvas = canvasRef.current;
     if (!canvas) return null;
     return canvas.toDataURL("image/png");
   }
 
-  // ── Save ──
+  // ââ Save ââ
   function handleSave() {
     const dataUrl = exportDataUrl();
     onSave({ id: sketch?.id || uid(), title, notes, scale, roomTag, editorMode, floorLabel, snapToGrid, elements, dataUrl, date: today() });
@@ -794,7 +794,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     setTimeout(() => setSaved(false), 2000);
   }
 
-  // ── Add to report ──
+  // ââ Add to report ââ
   function handleAddToReport() {
     if (!selReport) return;
     const dataUrl = exportDataUrl();
@@ -802,7 +802,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
     setShowExport(false);
   }
 
-  // ── Clear canvas ──
+  // ââ Clear canvas ââ
   function clearAll() {
     if (!window.confirm("Clear all drawing content?")) return;
     pushHistory([]);
@@ -825,7 +825,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
   return (
     <div style={{ position:"fixed",inset:0,zIndex:200,background:"var(--bg)",display:"flex",flexDirection:"column",overflow:"hidden" }}>
 
-      {/* ── Top bar ── */}
+      {/* ââ Top bar ââ */}
       <div style={{ height:54,background:"var(--surface)",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:10,padding:"0 12px",flexShrink:0 }}>
         <button className="btn btn-ghost btn-sm btn-icon" onClick={onClose} title="Close">
           <Icon d={ic.close} size={18} />
@@ -833,7 +833,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
         <input value={title} onChange={e=>setTitle(e.target.value)}
           style={{ background:"transparent",border:"none",outline:"none",color:"var(--text)",fontWeight:700,fontSize:15,flex:1,minWidth:0 }} />
         <div style={{ display:"flex",alignItems:"center",gap:6,marginLeft:"auto" }}>
-          {saved && <span style={{ fontSize:12,color:"var(--green)" }}>✓ Saved</span>}
+          {saved && <span style={{ fontSize:12,color:"var(--green)" }}>â Saved</span>}
 
           <button className="btn btn-secondary btn-sm" onClick={() => setShowNotes(!showNotes)}>
             <Icon d={ic.text} size={14} /><span className="desktop-only" style={{ marginLeft:5 }}>Notes</span>
@@ -860,10 +860,10 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
         </div>
       </div>
 
-      {/* ── Main layout ── */}
+      {/* ââ Main layout ââ */}
       <div style={{ flex:1,display:"flex",overflow:"hidden" }}>
 
-        {/* ── Left toolbar ── */}
+        {/* ââ Left toolbar ââ */}
         <div style={{ width:64,background:"var(--surface)",borderRight:"1px solid var(--border)",display:"flex",flexDirection:"column",alignItems:"center",padding:"8px 0",gap:2,flexShrink:0,overflowY:"auto" }}>
           {SKETCH_TOOLS.map(t => (
             <button key={t.id} title={t.label} onClick={()=>setTool(t.id)}
@@ -878,7 +878,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
 
           <div style={{ width:36,height:1,background:"var(--border)",margin:"8px 0" }} />
 
-          {/* Stroke width — horizontal line preview */}
+          {/* Stroke width â horizontal line preview */}
           {[1,3,5,9].map(w => (
             <button key={w} title={`Stroke ${w}`} onClick={()=>setStrokeW(w)}
               style={{ width:52,height:40,borderRadius:10,border:strokeW===w?"2px solid var(--accent)":"2px solid transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",
@@ -889,7 +889,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
 
           <div style={{ width:36,height:1,background:"var(--border)",margin:"8px 0" }} />
 
-          {/* Font size — only when text tool */}
+          {/* Font size â only when text tool */}
           {tool === "text" && (<>
             <div style={{ fontSize:8,color:"var(--text3)",textAlign:"center",letterSpacing:".04em",marginBottom:2 }}>SIZE</div>
             {[10,14,18,24,32].map(fs => (
@@ -935,7 +935,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
           </button>
         </div>
 
-        {/* ── Canvas area ── */}
+        {/* ââ Canvas area ââ */}
         <div ref={containerRef} style={{ flex:1,overflow:"hidden",background:"#1a1e28",position:"relative" }}>
           {/* Zoom + pan transform wrapper */}
           <div style={{
@@ -971,19 +971,19 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
             </div>
           </div>
 
-          {/* ── Undo/Redo overlay — top-right, always visible ── */}
+          {/* ââ Undo/Redo overlay â top-right, always visible ââ */}
           <div style={{ position:"absolute",top:12,right:12,display:"flex",flexDirection:"row",gap:4,zIndex:20 }}>
             <button onClick={undo} title="Undo"
               style={{ height:40,padding:"0 12px",borderRadius:10,background:"var(--surface)",border:"1px solid var(--border)",color:"var(--text)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:5,boxShadow:"0 2px 12px rgba(0,0,0,.4)",fontSize:14,fontWeight:600 }}>
-              ↩ <span style={{ fontSize:12 }}>Undo</span>
+              â© <span style={{ fontSize:12 }}>Undo</span>
             </button>
             <button onClick={redo} title="Redo"
               style={{ height:40,padding:"0 12px",borderRadius:10,background:"var(--surface)",border:"1px solid var(--border)",color:"var(--text)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:5,boxShadow:"0 2px 12px rgba(0,0,0,.4)",fontSize:14,fontWeight:600 }}>
-              ↪ <span style={{ fontSize:12 }}>Redo</span>
+              âª <span style={{ fontSize:12 }}>Redo</span>
             </button>
           </div>
 
-          {/* ── Zoom controls overlay — bottom-right, horizontal ── */}
+          {/* ââ Zoom controls overlay â bottom-right, horizontal ââ */}
           {floorPlanMode && (
             <div style={{ position:"absolute",left:12,bottom:56,zIndex:24,background:"rgba(13,15,20,.95)",border:"1px solid var(--border)",borderRadius:14,padding:"10px 12px",minWidth:fpPanelCollapsed?120:230,maxWidth:"min(92vw, 320px)",boxShadow:"0 10px 30px rgba(0,0,0,.35)",display:"flex",flexDirection:"column",gap:8,transition:"min-width .2s" }}>
               <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",gap:8 }}>
@@ -991,11 +991,11 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
                 <div style={{ display:"flex",alignItems:"center",gap:6 }}>
                   {!fpPanelCollapsed && selectedLine && <div style={{ fontSize:11,color:"var(--accent)" }}>Wall selected</div>}
                   <button onClick={() => setFpPanelCollapsed(v => !v)} title={fpPanelCollapsed ? "Expand" : "Collapse"} style={{ background:"none",border:"none",cursor:"pointer",color:"var(--text3)",fontSize:16,lineHeight:1,padding:"0 2px" }}>
-                    {fpPanelCollapsed ? "▲" : "▼"}
+                    {fpPanelCollapsed ? "â²" : "â¼"}
                   </button>
                 </div>
               </div>
-              {fpPanelCollapsed && <div style={{ fontSize:11,color:"var(--text3)",textAlign:"center" }}>Tap ▲ to expand</div>}
+              {fpPanelCollapsed && <div style={{ fontSize:11,color:"var(--text3)",textAlign:"center" }}>Tap â² to expand</div>}
               {!fpPanelCollapsed && <>
               <button className={`btn btn-sm ${snapToGrid ? "btn-primary" : "btn-secondary"}`} onClick={() => setSnapToGrid(v => !v)} style={{ alignSelf:"flex-start" }}>
                 <Icon d={ic.grid} size={13} /> {snapToGrid ? "Snap On" : "Snap Off"}
@@ -1081,8 +1081,8 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
 
           <div style={{ position:"absolute",bottom:12,right:12,display:"flex",flexDirection:"row",alignItems:"center",gap:4,zIndex:20 }}>
             <button onClick={zoomOut} title="Zoom Out"
-              style={{ width:40,height:40,borderRadius:10,background:"var(--surface)",border:"1px solid var(--border)",color:"var(--text)",cursor:"pointer",fontSize:20,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 12px rgba(0,0,0,.4)" }}>−</button>
-            <button onClick={zoomReset} title={`${Math.round(zoom*100)}% — Click to reset`}
+              style={{ width:40,height:40,borderRadius:10,background:"var(--surface)",border:"1px solid var(--border)",color:"var(--text)",cursor:"pointer",fontSize:20,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 12px rgba(0,0,0,.4)" }}>â</button>
+            <button onClick={zoomReset} title={`${Math.round(zoom*100)}% â Click to reset`}
               style={{ height:40,padding:"0 8px",minWidth:44,borderRadius:8,background:"var(--surface2)",border:"1px solid var(--border)",color:"var(--text2)",cursor:"pointer",fontSize:10,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center" }}>
               {Math.round(zoom*100)}%
             </button>
@@ -1091,7 +1091,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
           </div>
         </div>
 
-        {/* ── Notes panel — side panel on desktop, bottom sheet on mobile ── */}
+        {/* ââ Notes panel â side panel on desktop, bottom sheet on mobile ââ */}
         {showNotes && (
           <>
             {/* Mobile bottom sheet backdrop */}
@@ -1123,7 +1123,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
               <div className="form-group">
                 <label className="form-label">Room / Area</label>
                 <select className="form-input form-select" style={{ fontSize:12.5 }} value={roomTag} onChange={e=>setRoomTag(e.target.value)}>
-                  <option value="">— None —</option>
+                  <option value="">â None â</option>
                   {(rooms||[]).map(r=><option key={r.id} value={r.name}>{r.name}</option>)}
                   <option value="General">General</option>
                   <option value="Exterior">Exterior</option>
@@ -1227,7 +1227,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
         )}
       </div>
 
-      {/* ── Bottom info bar ── */}
+      {/* ââ Bottom info bar ââ */}
       <div style={{ height:36,background:"var(--surface)",borderTop:"1px solid var(--border)",display:"flex",alignItems:"center",padding:"0 14px",gap:16,flexShrink:0 }}>
         <span style={{ fontSize:11.5,color:"var(--text3)" }}>Tool: <b style={{ color:"var(--text2)" }}>{SKETCH_TOOLS.find(t=>t.id===tool)?.label}</b></span>
         <span style={{ fontSize:11.5,color:"var(--text3)" }}>Mode: <b style={{ color:"var(--text2)" }}>{floorPlanMode ? "Floor Plan" : "Sketch"}</b></span>
@@ -1244,7 +1244,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
         <span style={{ fontSize:11.5,color:"var(--text3)",marginLeft:"auto" }}>{elements.length} element{elements.length!==1?"s":""}</span>
       </div>
 
-      {/* ── Add to Report modal ── */}
+      {/* ââ Add to Report modal ââ */}
       {showExport && (
         <div style={{ position:"fixed",inset:0,zIndex:300,background:"rgba(0,0,0,.7)",display:"flex",alignItems:"center",justifyContent:"center",padding:20 }}>
           <div style={{ background:"var(--surface)",borderRadius:16,padding:24,width:"100%",maxWidth:380,boxShadow:"0 20px 60px rgba(0,0,0,.5)" }}>
@@ -1256,7 +1256,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
               <div className="form-group" style={{ marginBottom:16 }}>
                 <label className="form-label">Select Report</label>
                 <select className="form-input form-select" value={selReport} onChange={e=>setSelReport(e.target.value)}>
-                  <option value="">— Choose a report —</option>
+                  <option value="">â Choose a report â</option>
                   {activeReports.map(r=><option key={r.id} value={r.id}>{r.title}</option>)}
                 </select>
               </div>
@@ -1274,7 +1274,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
   );
 }
 
-// ── Project Activity Feed ──────────────────────────────────────────────────────
+// ââ Project Activity Feed ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 export function ProjectActivityFeed({ project, onUpdateProject, settings }) {
   const [newNote, setNewNote] = useState("");
   const [posting, setPosting] = useState(false);
@@ -1283,46 +1283,46 @@ export function ProjectActivityFeed({ project, onUpdateProject, settings }) {
   const events = [];
 
   // Project created
-  if (project.date) events.push({ id:"created", type:"created", date: project.date, time:"", icon:"🏗", label:"Project created", detail: project.title });
+  if (project.date) events.push({ id:"created", type:"created", date: project.date, time:"", icon:"ð", label:"Project created", detail: project.title });
 
   // Photos
   (project.photos || []).forEach(p => {
-    if (p.date) events.push({ id:`ph-${p.id}`, type:"photo", date:p.date, time:p.time||"", icon:"📷", label:"Photo captured", detail: `${p.name || "Photo"}${p.room ? ` · ${p.room}` : ""}` });
+    if (p.date) events.push({ id:`ph-${p.id}`, type:"photo", date:p.date, time:p.time||"", icon:"ð·", label:"Photo captured", detail: `${p.name || "Photo"}${p.room ? ` Â· ${p.room}` : ""}` });
   });
 
   // Videos
   (project.videos || []).forEach(v => {
-    if (v.date) events.push({ id:`vid-${v.id}`, type:"video", date:v.date, time:"", icon:"🎬", label:"Video recorded", detail: v.name || "Video clip" });
+    if (v.date) events.push({ id:`vid-${v.id}`, type:"video", date:v.date, time:"", icon:"ð¬", label:"Video recorded", detail: v.name || "Video clip" });
   });
 
   // Voice notes
   (project.voiceNotes || []).forEach(vn => {
-    if (vn.date) events.push({ id:`vn-${vn.id}`, type:"voice", date:vn.date, time:"", icon:"🎙", label:"Voice note recorded", detail: vn.name || "Voice note" });
+    if (vn.date) events.push({ id:`vn-${vn.id}`, type:"voice", date:vn.date, time:"", icon:"ð", label:"Voice note recorded", detail: vn.name || "Voice note" });
   });
 
   // Reports
   (project.reports || []).forEach(r => {
-    if (r.date) events.push({ id:`rpt-${r.id}`, type:"report", date:r.date, time:"", icon:"📄", label:`Report ${r.status === "final" ? "finalised" : r.status === "sent" ? "sent" : "created"}`, detail: r.title || "Report" });
+    if (r.date) events.push({ id:`rpt-${r.id}`, type:"report", date:r.date, time:"", icon:"ð", label:`Report ${r.status === "final" ? "finalised" : r.status === "sent" ? "sent" : "created"}`, detail: r.title || "Report" });
   });
 
   // Checklists
   (project.checklists || []).forEach(cl => {
-    if (cl.date) events.push({ id:`cl-${cl.id}`, type:"checklist", date:cl.date, time:"", icon:"✅", label:`Checklist ${cl.status === "complete" ? "completed" : "started"}`, detail: cl.name || "Checklist" });
+    if (cl.date) events.push({ id:`cl-${cl.id}`, type:"checklist", date:cl.date, time:"", icon:"â", label:`Checklist ${cl.status === "complete" ? "completed" : "started"}`, detail: cl.name || "Checklist" });
   });
 
   // Files
   (project.files || []).forEach(f => {
-    if (f.date || f.uploadedAt) events.push({ id:`fl-${f.id}`, type:"file", date:f.date||f.uploadedAt, time:"", icon:"📎", label:"File uploaded", detail: f.name || "File" });
+    if (f.date || f.uploadedAt) events.push({ id:`fl-${f.id}`, type:"file", date:f.date||f.uploadedAt, time:"", icon:"ð", label:"File uploaded", detail: f.name || "File" });
   });
 
   // Activity log notes (manual entries)
   (project.activityLog || []).forEach(a => {
-    events.push({ id:`al-${a.id}`, type:"note", date:a.date, time:a.time||"", icon:"💬", label:a.author ? `Note by ${a.author}` : "Note added", detail:a.text, deletable: true, _raw: a });
+    events.push({ id:`al-${a.id}`, type:"note", date:a.date, time:a.time||"", icon:"ð¬", label:a.author ? `Note by ${a.author}` : "Note added", detail:a.text, deletable: true, _raw: a });
   });
 
   // Timeline stage changes
   if (project.timelineStage) {
-    events.push({ id:"stage", type:"stage", date: project.date || today(), time:"", icon:"🏷", label:"Stage updated", detail: project.timelineStage.replace(/_/g," ") });
+    events.push({ id:"stage", type:"stage", date: project.date || today(), time:"", icon:"ð·", label:"Stage updated", detail: project.timelineStage.replace(/_/g," ") });
   }
 
   // Sort newest first
@@ -1350,12 +1350,12 @@ export function ProjectActivityFeed({ project, onUpdateProject, settings }) {
     <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
       {/* Add a note */}
       <div className="card">
-        <div className="card-header"><span style={{ fontWeight:700 }}>💬 Add Note</span></div>
+        <div className="card-header"><span style={{ fontWeight:700 }}>ð¬ Add Note</span></div>
         <div className="card-body" style={{ padding:"14px 20px" }}>
           <div style={{ display:"flex", gap:10, alignItems:"flex-start" }}>
             <textarea
               className="form-input form-textarea"
-              placeholder="Log an update, note, or observation about this project…"
+              placeholder="Log an update, note, or observation about this projectâ¦"
               value={newNote}
               onChange={e => setNewNote(e.target.value)}
               style={{ flex:1, minHeight:72, resize:"vertical" }}
@@ -1370,7 +1370,7 @@ export function ProjectActivityFeed({ project, onUpdateProject, settings }) {
       {/* Activity timeline */}
       <div className="card">
         <div className="card-header" style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <span style={{ fontWeight:700 }}>📋 Activity Feed</span>
+          <span style={{ fontWeight:700 }}>ð Activity Feed</span>
           <span style={{ fontSize:12, color:"var(--text3)" }}>{sorted.length} event{sorted.length!==1?"s":""}</span>
         </div>
         <div className="card-body" style={{ padding:"6px 0" }}>
@@ -1392,7 +1392,7 @@ export function ProjectActivityFeed({ project, onUpdateProject, settings }) {
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
                   <span style={{ fontSize:13, fontWeight:600, color:"var(--text)" }}>{ev.label}</span>
-                  <span style={{ fontSize:11, color:"var(--text3)" }}>{ev.date}{ev.time ? ` · ${ev.time}` : ""}</span>
+                  <span style={{ fontSize:11, color:"var(--text3)" }}>{ev.date}{ev.time ? ` Â· ${ev.time}` : ""}</span>
                 </div>
                 <div style={{ fontSize:13, color:"var(--text2)", marginTop:3, lineHeight:1.5, wordBreak:"break-word" }}>
                   {ev.detail}
@@ -1402,7 +1402,7 @@ export function ProjectActivityFeed({ project, onUpdateProject, settings }) {
               {ev.deletable && (
                 <button onClick={() => deleteNote(ev._raw.id)} style={{ background:"none", border:"none", color:"var(--text3)", cursor:"pointer", padding:"2px 4px", flexShrink:0, opacity:.6, fontSize:16, lineHeight:1 }}
                   onMouseEnter={e => e.currentTarget.style.opacity=1}
-                  onMouseLeave={e => e.currentTarget.style.opacity=0.6}>×</button>
+                  onMouseLeave={e => e.currentTarget.style.opacity=0.6}>Ã</button>
               )}
             </div>
           ))}
@@ -1412,9 +1412,9 @@ export function ProjectActivityFeed({ project, onUpdateProject, settings }) {
   );
 }
 
-// ── Project Detail (tabs: Overview, Photos, Rooms, Reports, Checklists) ────────
-// ── AI Project Overview ─────────────────────────────────────────────────────
-function AIProjectOverview({ project, settings, onSettingsChange, orgId, userId }) {
+// ââ Project Detail (tabs: Overview, Photos, Rooms, Reports, Checklists) ââââââââ
+// ââ AI Project Overview âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+export function AIProjectOverview({ project, settings, onSettingsChange, orgId, userId }) {
   const [overviewData,    setOverviewData]    = useState(null);
   const [loadingOverview, setLoadingOverview] = useState(true);
   const [generating,      setGenerating]      = useState(false);
