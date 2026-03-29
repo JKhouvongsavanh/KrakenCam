@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { supabase } from "../lib/supabase";
-import { Icon, ic, RoomIcon } from "../utils/icons.jsx";
+import { Icon, ic, RoomIcon, RoomIconBadge } from "../utils/icons.jsx";
 import { hasPermissionLevel, getEffectivePermissions, getPermissionPolicies, FIELD_TYPES } from "../utils/constants.js";
 import { uid, today , ROOM_ICONS, ROOM_COLORS, STATUS_META, normaliseStatuses, getStatusMeta, ROLE_META
 } from "../utils/helpers.js";
@@ -641,7 +641,7 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
 // ── Projects List (Home) ───────────────────────────────────────────────────────
 export function ProjectsList({ projects, teamUsers = [], settings = {}, onSelect, onNew, onEdit, onDelete }) {
   const [showDeleteId, setShowDeleteId] = useState(null);
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("active");
   const [search, setSearch] = useState("");
   const [myOnly, setMyOnly] = useState(false);
 

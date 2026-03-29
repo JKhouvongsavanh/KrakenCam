@@ -529,6 +529,15 @@ const getCertStatus = (dateExpires) => {
   return "valid";
 };
 
+// getDueUrgency — compute urgency from dueDate: "overdue" | "soon" (≤3 days) | "normal" | null
+const getDueUrgency = (dueDate) => {
+  if (!dueDate) return null;
+  const diff = Math.ceil((new Date(dueDate + "T12:00:00") - new Date()) / 86400000);
+  if (diff < 0)  return "overdue";
+  if (diff <= 3) return "soon";
+  return "normal";
+};
+
 // ROLE_META — shared role display metadata (admin/manager/user)
 const ROLE_META = {
   admin:   { label:"Admin",   color:"#e86c3a", desc:"Full system control"                            },
@@ -557,4 +566,5 @@ export {
   STATUS_CLS_OPTIONS,
   getCertStatus,
   ROLE_META,
+  getDueUrgency,
 };

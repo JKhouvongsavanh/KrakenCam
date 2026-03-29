@@ -911,7 +911,18 @@ useEffect(() => {
             }
             return { ...row, photos: mergedPhotos };
           });
-          setProjects(merged);
+          // Preserve in-memory voiceNotes/videos/sketches/files loaded from separate tables
+          // — these are NOT stored in the project row so a DB reload would wipe them.
+          setProjects(prev => merged.map(row => {
+            const existing = prev.find(p => p.id === row.id);
+            return {
+              ...row,
+              voiceNotes: existing?.voiceNotes?.length ? existing.voiceNotes : (row.voiceNotes || []),
+              videos:     existing?.videos?.length     ? existing.videos     : (row.videos     || []),
+              sketches:   existing?.sketches?.length   ? existing.sketches   : (row.sketches   || []),
+              files:      existing?.files?.length      ? existing.files      : (row.files      || []),
+            };
+          }));
         }
       } catch (err) {
         console.warn("[KrakenCam] Could not load projects from Supabase:", err.message || err);
