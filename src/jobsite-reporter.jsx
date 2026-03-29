@@ -7997,31 +7997,6 @@ const MOISTURE_COLORS = [
 
 const STROKE_COLORS = ["#000000","#e86c3a","#4a90d9","#3dba7e","#e8c53a","#e85a3a","#8b7cf8","#ffffff"];
 const REPORT_EMAIL_FEATURE_VISIBLE = false;
-  const compact = String(value).trim().toLowerCase().replace(/\s+/g, " ");
-  const exact = SKETCH_SCALE_OPTIONS.find(opt => opt.toLowerCase() === compact);
-  if (exact) return exact;
-  if (compact === "no scale" || compact === "no-scale") return "No Scale";
-  if (compact === "1 sq = 6in") return "1 sq = 6 in";
-  return value;
-}
-}
-  const userName = `${settings?.userFirstName || ""} ${settings?.userLastName || ""}`.trim() || "Inspector";
-  const draftDate = formatDate(new Date().toISOString().slice(0,10), settings);
-  return {
-    title: "PROJECT INFO",
-    companyName: settings?.companyName || "Your Company",
-    userName,
-    projectName: project?.title || project?.name || "Untitled Project",
-    projectNumber: project?.projectNumber || "—",
-    projectType: project?.projectType || "—",
-    projectAddress: projectAddress || "—",
-    siteCompany: project?.companyName || project?.contractorName || "—",
-    clientName: project?.clientName || "—",
-    floorLabel: floorLabel || "—",
-    scale: normalizeSketchScale(scale),
-    draftDate,
-  };
-}
 
 function SketchEditor({ sketch, rooms, reports, project, settings, onSave, onClose }) {
   const { useState: us, useRef: ur, useEffect: ue, useCallback: uc } = React;
@@ -10339,40 +10314,6 @@ const HEADER_H = 52;   // continuation header
 const FOOTER_H = 38;   // footer + optional disclaimer
 const COVER_H  = 1056; // page 1 is always exactly one page
 
-// Estimate the rendered height of a block (conservative pixel estimates)  if (block.type === "text") {
-    const lines = Math.max(1, Math.ceil((block.content||"").length / 85));
-    return 24 + lines * 21.25; // 12.5px font × 1.7 lineHeight ≈ 21.25px/line + padding
-  }
-  if (block.type === "photos") {
-    const photos = (block.photos||[]).length;
-    if (photos === 0) return 80; // empty placeholder
-    const cols = gridClass==="rp-photo-grid-2"?2:gridClass==="rp-photo-grid-4"?4:3;
-    const rows = Math.ceil(photos / cols);
-    const colW = (PAGE_W - 72) / cols; // 72 = 36px padding each side
-    const photoH = (colW * 3/4) + 28;  // aspect-ratio 4:3 + caption
-    return 18 + rows * (photoH + 8) + (block.caption ? 20 : 0);
-  }
-  if (block.type === "files") {
-    const count = Math.max(1, (block.files||[]).length);
-    return 40 + count * 58 + (block.caption ? 20 : 0);
-  }
-  if (block.type === "textphoto") {
-    const colW = (PAGE_W - 72 - 16) / 2;
-    const photoH = colW * 3/4 + 28;
-    const textLines = Math.max(1, Math.ceil((block.sideText||"").length / 42));
-    return 18 + Math.max(photoH, textLines * 21.25);
-  }
-  if (block.type === "signature") return 130;
-  if (block.type === "beforeafter") return 280;
-  if (block.type === "sketch") return 400;
-  if (block.type === "table") {
-    const rows = (block.tableRows||[]).length;
-    const titleH = block.tableTitle ? 22 : 0;
-    const headingH = block.tableHeading ? 18 : 0;
-    return 40 + titleH + headingH + rows * 28;
-  }
-  return 60;
-}
 
 function PageFooter({ accentColor, settings, reportDate, reportTime, pageNum, isLast }) {
   const dateStr = reportDate ? formatDate(reportDate, settings) : formatDate(new Date().toISOString().slice(0,10), settings);
