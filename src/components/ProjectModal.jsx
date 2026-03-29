@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { Icon, ic } from "../utils/icons.jsx";
-import { hasPermissionLevel, getEffectivePermissions } from "../utils/constants.js";
+import { hasPermissionLevel, getEffectivePermissions, getPermissionPolicies } from "../utils/constants.js";
 import { uid, today } from "../utils/helpers.js";
 
 export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose }) {
