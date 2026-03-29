@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Icon, ic } from "../utils/icons.jsx";
 import {
+import { PLAN_AI_LIMITS, getWeekWindowStart, getNextResetDate } from "../utils/constants.js";
   uid, formatDate, today,
   SKETCH_SCALE_OPTIONS, normalizeSketchScale,
   getTitleBlockHeight, buildSketchTitleBlockData,

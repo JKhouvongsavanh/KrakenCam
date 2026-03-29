@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Icon, ic } from "../utils/icons.jsx";
 import { uid, formatDate, today, getCertStatus, ROLE_META } from "../utils/helpers.js";
+import { DEFAULT_COLUMNS } from "../utils/constants.js";
 
 function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNotify }) {
   const isNew = !task?.id;

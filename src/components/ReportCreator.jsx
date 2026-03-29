@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { Icon, ic } from "../utils/icons.jsx";
-import { PLAN_AI_LIMITS, canAccessFeature } from "../utils/constants.js";
+import { PLAN_AI_LIMITS, canAccessFeature, getWeekWindowStart, getNextResetDate } from "../utils/constants.js";
 import {
   uid, formatDate, formatTime, formatDateTimeLabel,
   estimateBlockHeight, today,

@@ -4,7 +4,7 @@ import {
   upsertChatRoom     as dbUpsertChatRoom,
 } from "../lib/chat.js";
 import { Icon, ic } from "../utils/icons.jsx";
-import { PLAN_CHAT_LIMITS, getPermissionPolicies } from "../utils/constants.js";
+import { PLAN_CHAT_LIMITS, getPermissionPolicies, getEffectivePermissions, hasPermissionLevel } from "../utils/constants.js";
 import { uid, formatTime, _sentChatDbIds, today, formatDurationLabel, ROLE_META } from "../utils/helpers.js";
 
 export function ChatButton({ chats, currentUserId, onClick }) {
