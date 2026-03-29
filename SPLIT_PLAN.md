@@ -108,11 +108,11 @@ src/
 │   │   └── AnalyticsDashboard.jsx ← lazy loaded (~440 lines)
 │   │
 │   └── templates/
-│       └── TemplatesPage.jsx      ← lazy loaded (~395 lines)
-
+│       └── TemplatesPage.jsx     ← lazy loaded (~395 lines)
+│
 ├── lib/                          ← already exists, unchanged
-├── components/                    ← already exists, unchanged
-└── hooks/                         ← already exists, unchanged
+├── components/                   ← already exists, unchanged
+└── hooks/                        ← already exists, unchanged
 ```
 
 ---

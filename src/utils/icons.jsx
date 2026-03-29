@@ -1,5 +1,4 @@
 import React from "react";
-import { getRoomIcon } from "./helpers.js";
 
 // ── Icon component ────────────────────────────────────────────────────────────
 const Icon = ({ d, size = 20, stroke = "currentColor", fill = "none", strokeWidth = 1.8 }) => (
