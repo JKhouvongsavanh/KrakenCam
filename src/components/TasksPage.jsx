@@ -1420,7 +1420,7 @@ export function JobsiteMapPage({ projects, settings, onSelectProject }) {
       color: p.color || "#2b7fe8",
     }));
 
-    const krakenLogo = KRAKENCAM_LOGO;
+    const krakenLogo = settings?.logo || '';
 
     return `<!DOCTYPE html>
 <html lang="en">
