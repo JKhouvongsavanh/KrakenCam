@@ -153,34 +153,7 @@ const calcProration = (settings, users, fromPlan, toPlan) => {
 
   return { unusedCredit, newCharge, netCharge, daysLeft: info.daysLeft, daysTotal: info.daysTotal, cycleEnd: info.cycleEnd, fromTotal, toTotal };
 };
-const today = () => new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-
-// Settings-aware date/time formatters
-const formatDate = (dateStr, settings) => {
-  if (!dateStr) return "";
-  const fmt  = settings?.dateFormat || "MMM D, YYYY";
-  const d    = new Date(dateStr + (dateStr.includes("T") ? "" : "T12:00:00"));
-  const yyyy = d.getFullYear();
-  const mm   = String(d.getMonth() + 1).padStart(2, "0");
-  const dd   = String(d.getDate()).padStart(2, "0");
-  const mon  = d.toLocaleDateString("en-US", { month:"short" });
-  if (fmt === "MM/DD/YYYY") return `${mm}/${dd}/${yyyy}`;
-  if (fmt === "DD/MM/YYYY") return `${dd}/${mm}/${yyyy}`;
-  if (fmt === "YYYY-MM-DD") return `${yyyy}-${mm}-${dd}`;
-  return `${mon} ${d.getDate()}, ${yyyy}`;
-};
-
-const formatTime = (timeStr, settings) => {
-  if (!timeStr) return "";
-  const [h, m] = timeStr.split(":").map(Number);
-  if (settings?.timeFormat === "24hr") return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
-  const ampm = h >= 12 ? "PM" : "AM";
-  const h12  = h % 12 || 12;
-  return `${h12}:${String(m).padStart(2,"0")} ${ampm}`;
-};
-
-const todayFormatted = (settings) => formatDate(new Date().toISOString().slice(0,10), settings);
-const formatDateTimeLabel = (iso, settings) => {
+// Settings-aware date/time formattersconst formatDateTimeLabel = (iso, settings) => {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
@@ -4817,9 +4790,6 @@ function SendEmailModal({ project, reports, settings, onClose, onSent }) {
     </div>
   );
 }
-
-function buildSignature(s) {
-  const name    = s.emailSignatureName    || `${s.userFirstName||""} ${s.userLastName||""}`.trim();
   const title   = s.emailSignatureTitle   || s.userTitle   || "";
   const company = s.emailSignatureCompany || s.companyName || "";
   const phone   = s.emailSignaturePhone   || s.phone       || "";
@@ -6747,9 +6717,6 @@ function ClientPortalTab({ project, settings = {}, onUpdateProject }) {
     </div>
   );
 }
-
-function buildEmbedCode(pair, bPhoto, aPhoto, maxWidth, companyLogo) {
-  if (!bPhoto || !bPhoto.dataUrl || !aPhoto || !aPhoto.dataUrl) return "";
   var id   = "ba_" + Math.random().toString(36).slice(2, 8);
   var name = (pair.name || "Before & After").replace(/</g, "&lt;");
   var mw   = parseInt(maxWidth) || 800;
@@ -8045,19 +8012,6 @@ const MOISTURE_COLORS = [
 
 const STROKE_COLORS = ["#000000","#e86c3a","#4a90d9","#3dba7e","#e8c53a","#e85a3a","#8b7cf8","#ffffff"];
 const REPORT_EMAIL_FEATURE_VISIBLE = false;
-
-const SKETCH_SCALE_OPTIONS = [
-  "1 sq = 6 in",
-  "1 sq = 1 ft",
-  "1 sq = 2 ft",
-  "1 sq = 4 ft",
-  "1 sq = 6 ft",
-  "1 sq = 10 ft",
-  "No Scale",
-];
-
-function normalizeSketchScale(value) {
-  if (!value) return "1 sq = 1 ft";
   const compact = String(value).trim().toLowerCase().replace(/\s+/g, " ");
   const exact = SKETCH_SCALE_OPTIONS.find(opt => opt.toLowerCase() === compact);
   if (exact) return exact;
@@ -8065,13 +8019,7 @@ function normalizeSketchScale(value) {
   if (compact === "1 sq = 6in") return "1 sq = 6 in";
   return value;
 }
-
-function getTitleBlockHeight(width) {
-  return Math.round(width * 0.62);
 }
-
-function buildSketchTitleBlockData(project, settings, scale, floorLabel) {
-  const projectAddress = [project?.address, project?.city, project?.state, project?.zip].filter(Boolean).join(", ");
   const userName = `${settings?.userFirstName || ""} ${settings?.userLastName || ""}`.trim() || "Inspector";
   const draftDate = formatDate(new Date().toISOString().slice(0,10), settings);
   return {
@@ -10406,10 +10354,7 @@ const HEADER_H = 52;   // continuation header
 const FOOTER_H = 38;   // footer + optional disclaimer
 const COVER_H  = 1056; // page 1 is always exactly one page
 
-// Estimate the rendered height of a block (conservative pixel estimates)
-function estimateBlockHeight(block, gridClass) {
-  if (block.type === "divider") return 46;
-  if (block.type === "text") {
+// Estimate the rendered height of a block (conservative pixel estimates)  if (block.type === "text") {
     const lines = Math.max(1, Math.ceil((block.content||"").length / 85));
     return 24 + lines * 21.25; // 12.5px font × 1.7 lineHeight ≈ 21.25px/line + padding
   }
