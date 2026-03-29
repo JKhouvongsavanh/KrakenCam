@@ -986,6 +986,150 @@ export function AiWriterUpgradeModal({ onUpgrade, onClose, isAdmin, settings, us
   );
 }
 
+
+// ── AI 1-Click Report Generator ─────────────────────────────────────────────
+function parseAiOutputToBlocks(rawText) {
+  const paras = rawText.split(/\n{2,}/);
+  const out = [];
+  paras.forEach(para => {
+    const t = para.trim();
+    if (!t) return;
+    const lines2 = t.split("\n");
+    const firstLine2 = lines2[0].trim();
+    const looksLikeHeader = firstLine2.length <= 60 && !/[.,;!?]$/.test(firstLine2) && lines2.length === 1;
+    if (looksLikeHeader) {
+      out.push({ id: uid(), type: "divider", label: firstLine2 });
+    } else {
+      out.push({ id: uid(), type: "text", content: t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>") });
+    }
+  });
+  return out.length > 0 ? out : [{ id: uid(), type: "text", content: rawText.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>") }];
+}
+
+function AiOneClickModal({ project, settings, onGenerate, onClose, onUsageIncrement }) {
+  const REPORT_TYPES = [
+    { id:"findings",   label:"Findings Report",    krakens:2, desc:"3–6 paragraphs on identified issues, deficiencies, risks, and recommended actions." },
+    { id:"progress",   label:"Progress Report",    krakens:2, desc:"3–6 paragraphs: work completed, current conditions, concerns, and next steps." },
+    { id:"completion", label:"Completion Report",  krakens:4, desc:"6–12 paragraph professional close-out: scope, actions, final condition, recommendations, conclusion." },
+    { id:"custom",     label:"Custom Report",      krakens:6, desc:"Choose your sections and describe exactly what you need." },
+  ];
+  const CUSTOM_SECTIONS = ["Executive Summary","Scope of Work","Findings & Deficiencies","Cause of Loss","Moisture Readings","Equipment Used","Work Completed","Site Conditions","Photo Documentation","Safety Observations","Timeline","Recommendations","Next Steps","Sign-Off","Conclusion"];
+  const [sel, setSel]   = React.useState(null);
+  const [secs, setSecs] = React.useState([]);
+  const [extra, setExtra] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [err, setErr] = React.useState("");
+  const plan = settings?.plan || "base";
+  const limit = PLAN_AI_LIMITS[plan] || 0;
+  const wStart = settings?.aiGenerationsWindowStart ? new Date(settings.aiGenerationsWindowStart) : null;
+  const curWin = getWeekWindowStart();
+  const valid  = wStart && wStart >= curWin;
+  const used   = valid ? (settings?.aiGenerationsUsed || 0) : 0;
+  const remaining = Math.max(0, limit - used);
+  const canAfford = k => remaining >= k;
+  const PROMPTS = {
+    findings:   "Write a Findings Report for this project. Produce 3-6 professional paragraphs identifying key issues, deficiencies, and risks. Highlight affected areas and recommended actions. Plain text, no markdown or bullets.",
+    progress:   "Write a Progress Report for this active project. Produce 3-6 professional paragraphs covering: work completed, current site conditions, ongoing concerns, and next steps. Suitable for clients, adjusters, and property managers. Plain text, no markdown.",
+    completion: "Write a Completion Report for this finished project. Produce 6-12 professional paragraphs covering scope of work, actions taken, project progression, final site condition, recommendations, and conclusion. Format with each major section title on its own line followed by its paragraph. Professional language suitable for clients, insurers, and records.",
+    custom:     null,
+  };
+  const buildPrompt = () => {
+    if (sel === "custom") {
+      const sectList = secs.join(", ") || "Introduction, Findings, Conclusion";
+      return "Write a professional report with these sections: " + sectList + ". For each section write the section title on its own line, then a professional paragraph. " + (extra ? "Additional instructions: " + extra : "");
+    }
+    return PROMPTS[sel] || PROMPTS.findings;
+  };
+  const handleGenerate = async () => {
+    if (!sel) return;
+    const type = REPORT_TYPES.find(t => t.id === sel);
+    if (!canAfford(type.krakens)) { setErr("Not enough Krakens. Need " + type.krakens + ", have " + remaining + " remaining."); return; }
+    if (sel === "custom" && secs.length === 0) { setErr("Select at least one section."); return; }
+    setLoading(true); setErr("");
+    const sysPrompt = "You are an expert restoration and property inspection report writer for " + (settings?.companyName || "a restoration company") + ". Write professional, factual reports using industry-standard terminology. Use ONLY the project data provided.\n\nProject:\n- Property: " + ([project.address,project.city,project.state].filter(Boolean).join(", ")||"N/A") + "\n- Type: " + (project.type||"N/A") + "\n- Cause of Loss: " + (project.causeOfLoss||"N/A") + "\n- Property Type: " + (project.propertyType||"N/A") + "\n- Client: " + (project.clientName||"N/A") + "\n- Inspector: " + ((settings?.userFirstName||"")+" "+(settings?.userLastName||"")).trim() + (settings?.userTitle?", "+settings.userTitle:"") + "\n- Company: " + (settings?.companyName||"N/A") + "\n- Status: " + (project.status||"N/A");
+    try {
+      const { data:{ session:_s } } = await supabase.auth.getSession();
+      const res = await fetch("/api/generate-report", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json","Authorization":"Bearer "+(_s?.access_token||"") },
+        body: JSON.stringify({ projectName:project.title||"Project", projectDescription:sysPrompt, photos:[], customPrompt:buildPrompt() }),
+      });
+      const d = await res.json();
+      if (d.error) throw new Error(d.error);
+      if (onUsageIncrement) onUsageIncrement(type.krakens);
+      onGenerate(d.report?.trim() || "");
+    } catch(e) { setErr(e.message || "Generation failed. Please try again."); }
+    setLoading(false);
+  };
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:600,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(0,0,0,.6)"}} onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,boxShadow:"0 16px 60px rgba(0,0,0,.7)",width:"min(580px,95vw)",maxHeight:"90vh",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+        <div style={{padding:"16px 20px 14px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:10}}>
+          <div style={{width:32,height:32,borderRadius:8,background:"linear-gradient(135deg,#7c3aed,#a855f7)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+          </div>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:700,fontSize:14}}>AI 1-Click Report Generator</div>
+            <div style={{fontSize:11.5,color:"var(--text2)"}}>{remaining} Kraken{remaining!==1?"s":""} remaining · resets {getNextResetDate().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</div>
+          </div>
+          <button className="btn btn-ghost btn-sm btn-icon" onClick={onClose}><Icon d={ic.close} size={16}/></button>
+        </div>
+        <div style={{flex:1,overflowY:"auto",padding:"16px 20px",display:"flex",flexDirection:"column",gap:10}}>
+          {REPORT_TYPES.map(type => {
+            const ok = canAfford(type.krakens); const isS = sel===type.id;
+            return (
+              <div key={type.id} onClick={()=>ok&&setSel(type.id)}
+                style={{border:"2px solid "+(isS?"#a855f7":"var(--border)"),borderRadius:10,padding:"12px 16px",cursor:ok?"pointer":"not-allowed",opacity:ok?1:0.45,background:isS?"rgba(168,85,247,.08)":"var(--surface2)",transition:"all .15s",display:"flex",alignItems:"flex-start",gap:12}}>
+                <div style={{width:18,height:18,borderRadius:"50%",border:"2px solid "+(isS?"#a855f7":"var(--border)"),background:isS?"#a855f7":"transparent",flexShrink:0,marginTop:1,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  {isS&&<div style={{width:6,height:6,borderRadius:"50%",background:"white"}}/>}
+                </div>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
+                    <span style={{fontWeight:700,fontSize:13.5}}>{type.label}</span>
+                    <span style={{fontSize:11,fontWeight:700,color:"#a855f7",background:"rgba(168,85,247,.12)",padding:"2px 8px",borderRadius:20}}>⚡ {type.krakens} Krakens</span>
+                  </div>
+                  <div style={{fontSize:12,color:"var(--text2)",lineHeight:1.5}}>{type.desc}</div>
+                </div>
+              </div>
+            );
+          })}
+          {sel==="custom"&&(
+            <div style={{display:"flex",flexDirection:"column",gap:10,paddingTop:4}}>
+              <div style={{fontSize:12,fontWeight:600,color:"var(--text2)"}}>Sections to include:</div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                {CUSTOM_SECTIONS.map(s=>{const on=secs.includes(s);return(
+                  <button key={s} onClick={()=>setSecs(p=>on?p.filter(x=>x!==s):[...p,s])} className="btn btn-sm"
+                    style={{fontSize:11.5,padding:"3px 10px",background:on?"linear-gradient(135deg,#7c3aed,#a855f7)":undefined,color:on?"white":undefined,border:"1px solid "+(on?"transparent":"var(--border)")}}>{s}</button>
+                );})}
+              </div>
+              <div>
+                <div style={{fontSize:12,fontWeight:600,color:"var(--text2)",marginBottom:4}}>Additional instructions <span style={{fontWeight:400}}>(optional)</span>:</div>
+                <textarea value={extra} onChange={e=>setExtra(e.target.value)} placeholder="Describe anything specific to include or emphasize..." style={{width:"100%",minHeight:68,background:"var(--surface2)",border:"1px solid var(--border)",borderRadius:8,padding:"8px 12px",fontSize:12.5,lineHeight:1.6,fontFamily:"inherit",color:"var(--text)",resize:"vertical",outline:"none",boxSizing:"border-box"}}/>
+              </div>
+            </div>
+          )}
+          {err&&<div style={{padding:"10px 14px",background:"rgba(232,90,58,.1)",border:"1px solid rgba(232,90,58,.3)",borderRadius:8,fontSize:12.5,color:"#e85a3a"}}>{err}</div>}
+        </div>
+        <div style={{padding:"12px 20px",borderTop:"1px solid var(--border)",display:"flex",gap:8,justifyContent:"space-between",alignItems:"center"}}>
+          <div style={{fontSize:11.5,color:"var(--text3)"}}>
+            {sel?("Uses "+REPORT_TYPES.find(t=>t.id===sel)?.krakens+" Krakens · replaces current report content"):"Select a report type above"}
+          </div>
+          <div style={{display:"flex",gap:8}}>
+            <button className="btn btn-secondary btn-sm" onClick={onClose}>Cancel</button>
+            <button className="btn btn-sm" onClick={handleGenerate} disabled={!sel||loading}
+              style={{background:"linear-gradient(135deg,#7c3aed,#a855f7)",color:"white",border:"none",gap:6,display:"flex",alignItems:"center",minWidth:130,justifyContent:"center",opacity:(!sel||loading)?0.65:1,padding:"6px 14px",borderRadius:7,fontWeight:700,fontSize:13,cursor:(!sel||loading)?"not-allowed":"pointer"}}>
+              {loading
+                ?<><span style={{display:"inline-block",width:12,height:12,border:"2px solid rgba(255,255,255,.3)",borderTopColor:"white",borderRadius:"50%",animation:"spin .7s linear infinite"}}/> Generating…</>
+                :<><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg> Generate Report</>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ReportCreator({ project, reportData, settings, onSettingsChange, templates, users, onSave, onClose, onUpgradeAi, userRole }) {
   const isNew = !reportData;
   const coverRef  = useRef();
@@ -1044,9 +1188,10 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
   const [selectedProjectPhotos, setSelectedProjectPhotos] = useState([]);
   const [printing, setPrinting] = useState(false);
   const [aiWriterBlock, setAiWriterBlock] = useState(null);   // blockId being written
+  const [showAiOneClick, setShowAiOneClick] = React.useState(false);
   const [showAiUpgrade, setShowAiUpgrade] = useState(false);
   const printLayerRef = useRef(null);
-  const aiEnabled = settings?.plan === "pro" || settings?.plan === "command";
+  const aiEnabled = (PLAN_AI_LIMITS[settings?.plan || "base"] || 0) > 0;
   const canExportReports = canAccessFeature(settings, "exports", "view");
 
   const accentColor = settings?.accent || "#2b7fe8";
@@ -1264,6 +1409,14 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
             {["draft","review","sent","final"].map(s=><option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
           </select>
           <button className="btn btn-secondary btn-sm" onClick={()=>setPreviewOpen(true)}><Icon d={ic.eye} size={13} /> Preview</button>
+          {settings?.plan === "command" && (
+            <button className="btn btn-sm" onClick={() => aiEnabled ? setShowAiOneClick(true) : setShowAiUpgrade(true)}
+              title="AI 1-Click Report Generator — Command Plan exclusive"
+              style={{ background:"linear-gradient(135deg,#7c3aed,#a855f7)",color:"white",border:"none",display:"flex",alignItems:"center",gap:5,padding:"5px 12px",borderRadius:7,fontWeight:700,fontSize:13,cursor:"pointer" }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+              1 Click
+            </button>
+          )}
           <button className="btn btn-secondary btn-sm" onClick={handlePrintOrExport} disabled={!canExportReports}><Icon d={ic.download} size={13} /> Export PDF</button>
           <button className="btn btn-secondary btn-sm btn-icon" title="Print" onClick={handlePrintOrExport} disabled={!canExportReports}><Icon d={ic.printer} size={13} /></button>
           <button className="btn btn-primary btn-sm" onClick={handleSaveReport}><Icon d={ic.check} size={13} /> Save Report</button>
@@ -2385,6 +2538,28 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
             if (signatureTargetId) updateBlock(signatureTargetId, { signatureImg: dataUrl });
           }}
           onClose={() => { setShowSigModal(false); setSignatureTargetId(null); }}
+        />
+      )}
+
+      {/* AI 1-Click modal */}
+      {showAiOneClick && (
+        <AiOneClickModal
+          project={project}
+          settings={settings}
+          onGenerate={(text) => {
+            const parsed = parseAiOutputToBlocks(text);
+            setBlocks(parsed.length > 0 ? parsed : [{ id: uid(), type: "text", content: text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>") }]);
+            setShowAiOneClick(false);
+          }}
+          onClose={() => setShowAiOneClick(false)}
+          onUsageIncrement={(krakens) => {
+            if (!onSettingsChange) return;
+            const curWin2 = getWeekWindowStart();
+            const wStart2 = settings?.aiGenerationsWindowStart ? new Date(settings.aiGenerationsWindowStart) : null;
+            const valid2 = wStart2 && wStart2 >= curWin2;
+            const used2  = valid2 ? (settings?.aiGenerationsUsed || 0) : 0;
+            onSettingsChange(prev => ({ ...prev, aiGenerationsUsed: used2 + krakens, aiGenerationsWindowStart: valid2 ? prev.aiGenerationsWindowStart : curWin2.toISOString() }));
+          }}
         />
       )}
 
