@@ -22,6 +22,16 @@ export function AddItemInput({ label, onAdd }) {
 }
 
 const TAG_CLS_COLORS = { green:"#3dba7e", blue:"#3ab8e8", orange:"#e8703a", purple:"#8b7cf8", red:"#e85a3a", gray:"#6b7280" };
+const ACCENT_PRESETS = [
+  { value: '#2b7fe8', name: 'Blue'   },
+  { value: '#8b7cf8', name: 'Purple' },
+  { value: '#3dba7e', name: 'Green'  },
+  { value: '#e8c53a', name: 'Yellow' },
+  { value: '#e8703a', name: 'Orange' },
+  { value: '#e85a3a', name: 'Red'    },
+  { value: '#3ab8e8', name: 'Cyan'   },
+  { value: '#ec4899', name: 'Pink'   },
+];
 
 export function StatusListEditor({ items: rawItems, onChange }) {
   // Normalise old string[] to {id,label,cls}[] on the way in
