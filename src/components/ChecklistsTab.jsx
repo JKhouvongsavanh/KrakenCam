@@ -5,7 +5,7 @@ import { deleteVideo as dbDeleteVideo } from "../lib/videos.js";
 import { deleteProjectFile as dbDeleteProjectFile } from "../lib/projectFiles.js";
 import { Icon, ic } from "../utils/icons.jsx";
 import { hasPermissionLevel, getEffectivePermissions, DEFAULT_CL_TEMPLATES, getPermissionPolicies } from "../utils/constants.js";
-import { uid, formatDate, formatDateTimeLabel, today, buildEmbedCode } from "../utils/helpers.js";
+import { uid, formatDate, formatDateTimeLabel, today, buildEmbedCode, formatDurationLabel } from "../utils/helpers.js";
 
 function LegacyChecklistsTab({ project, onUpdateProject }) {
   const [view,          setView]          = useState("list");   // list | run | build

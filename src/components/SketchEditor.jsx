@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Icon, ic } from "../utils/icons.jsx";
 import {
-  uid, formatDate,
+  uid, formatDate, today,
   SKETCH_SCALE_OPTIONS, normalizeSketchScale,
   getTitleBlockHeight, buildSketchTitleBlockData,
 } from "../utils/helpers.js";

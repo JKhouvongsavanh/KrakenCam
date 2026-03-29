@@ -5,7 +5,7 @@ import {
 } from "../lib/chat.js";
 import { Icon, ic } from "../utils/icons.jsx";
 import { PLAN_CHAT_LIMITS, getPermissionPolicies } from "../utils/constants.js";
-import { uid, formatTime, _sentChatDbIds } from "../utils/helpers.js";
+import { uid, formatTime, _sentChatDbIds, today, formatDurationLabel } from "../utils/helpers.js";
 
 export function ChatButton({ chats, currentUserId, onClick }) {
   const unread = chats.reduce((sum, c) => {
