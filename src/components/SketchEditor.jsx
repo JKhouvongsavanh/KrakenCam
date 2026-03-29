@@ -1274,7 +1274,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
 }
 
 // ── Project Activity Feed ──────────────────────────────────────────────────────
-function ProjectActivityFeed({ project, onUpdateProject, settings }) {
+export function ProjectActivityFeed({ project, onUpdateProject, settings }) {
   const [newNote, setNewNote] = useState("");
   const [posting, setPosting] = useState(false);
 
