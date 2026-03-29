@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Icon, ic } from "../utils/icons.jsx";
 import { uid, formatDate, today, getCertStatus, ROLE_META } from "../utils/helpers.js";
-import { DEFAULT_COLUMNS } from "../utils/constants.js";
+import { DEFAULT_COLUMNS, EMPTY_TASK } from "../utils/constants.js";
 
 const TASK_PRIORITIES = [
   { id:"critical", label:"Critical", color:"#e85a3a" },

@@ -9,7 +9,7 @@ import {
 } from "../utils/helpers.js";
 
 // ── Report Pages (paginated preview) ──────────────────────────────────────────
-// Estimates block heights and splits them into 8.5Ã11 pages (816Ã1056px at 96dpi).
+// Estimates block heights and splits them into 8.5×11 pages (816×1056px at 96dpi).
 // Header/footer on each page consume fixed space; remaining body space is filled
 // block by block. A block that is too tall to fit starts a new page.
 
@@ -28,7 +28,7 @@ export function PageFooter({ accentColor, settings, reportDate, reportTime, page
       <div style={{ padding:"10px 36px",borderTop:`2px solid ${accentColor}`,display:"flex",justifyContent:"space-between",alignItems:"center",background:"#fafafa",flexShrink:0 }}>
         <div style={{ display:"flex",alignItems:"center",gap:8 }}>
           <span style={{ fontSize:10,color:"#888" }}>{dateStr}</span>
-          {timeStr && <span style={{ fontSize:10,color:"#aaa" }}>Â· {timeStr}</span>}
+          {timeStr && <span style={{ fontSize:10,color:"#aaa" }}>· {timeStr}</span>}
         </div>
         <span style={{ fontSize:10,color:accentColor,fontWeight:600 }}>{settings?.reportFooterCenter||"Confidential"}</span>
         <div style={{ textAlign:"right" }}>
@@ -129,7 +129,7 @@ export function BlockRenderer({ block, showGps, showTimestamp, showRooms, showTa
                   </div>
                 )}
                 <div style={{ display:"flex",flexWrap:"wrap",gap:6,fontSize:8.5,color:"#aaa",marginTop:1 }}>
-                  {showRooms && ph.room && <span>📍 {ph.room}{ph.floor ? ` Â· ${ph.floor}` : ""}</span>}
+                  {showRooms && ph.room && <span>📍 {ph.room}{ph.floor ? ` · ${ph.floor}` : ""}</span>}
                   {showGps && ph.gps && <span>🌐 {ph.gps.lat}, {ph.gps.lng}</span>}
                 </div>
               </div>
@@ -198,7 +198,7 @@ export function BlockRenderer({ block, showGps, showTimestamp, showRooms, showTa
                     </div>
                   )}
                   {showRooms && block.photos[0].room && (
-                    <span style={{ color:"#aaa",fontSize:8.5 }}>📍 {block.photos[0].room}{block.photos[0].floor ? ` Â· ${block.photos[0].floor}` : ""}</span>
+                    <span style={{ color:"#aaa",fontSize:8.5 }}>📍 {block.photos[0].room}{block.photos[0].floor ? ` · ${block.photos[0].floor}` : ""}</span>
                   )}
                 </div>
               </div>
@@ -328,12 +328,12 @@ export function ReportPages({ title, reportType, reportDate, reportTime, accentC
             }
             <div>
               <div style={{ fontWeight:700,fontSize:15,color:"#111" }}>{settings?.companyName||"Your Company"}</div>
-              <div style={{ fontSize:10.5,color:"#777" }}>{settings?.phone}{settings?.email?` Â· ${settings.email}`:""}</div>
+              <div style={{ fontSize:10.5,color:"#777" }}>{settings?.phone}{settings?.email?` · ${settings.email}`:""}</div>
             </div>
           </div>
           <div style={{ textAlign:"right" }}>
             <div style={{ fontWeight:700,fontSize:14,color:"#111" }}>{settings?.reportHeaderTitle||"Property Report"}</div>
-            <div style={{ fontSize:10.5,color:"#777" }}>{reportType} Â· {today}</div>
+            <div style={{ fontSize:10.5,color:"#777" }}>{reportType} · {today}</div>
           </div>
         </div>
       </div>
@@ -482,7 +482,7 @@ export function ReportPages({ title, reportType, reportDate, reportTime, accentC
           {/* Continuation header */}
           <div style={{ padding:"14px 36px 10px",borderBottom:`2px solid ${accentColor}`,display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0,height:HEADER_H,boxSizing:"border-box" }}>
             <div style={{ fontWeight:700,fontSize:13,color:"#333" }}>{title}</div>
-            <div style={{ fontSize:10.5,color:"#999" }}>{reportType} Â· {today}</div>
+            <div style={{ fontSize:10.5,color:"#999" }}>{reportType} · {today}</div>
           </div>
           {/* Blocks */}
           <div style={{ flex:1,paddingTop:4 }}>
@@ -911,7 +911,7 @@ export function AiWriterUpgradeModal({ onUpgrade, onClose, isAdmin, settings, us
                   <div style={{ padding:"12px 16px",background:"var(--surface2)",borderRadius:10,border:"1px solid var(--border)",marginBottom:14,display:"flex",alignItems:"center",justifyContent:"space-between" }}>
                     <div>
                       <div style={{ fontWeight:700,fontSize:13.5 }}>✦ Intelligence II / ⬡ Command III</div>
-                      <div style={{ fontSize:11.5,color:"var(--text2)" }}>Admin seat Â· +${PRICING.monthly.pro.user}/user/mo</div>
+                      <div style={{ fontSize:11.5,color:"var(--text2)" }}>Admin seat · +${PRICING.monthly.pro.user}/user/mo</div>
                     </div>
                     <div style={{ textAlign:"right" }}>
                       <div style={{ fontSize:22,fontWeight:900,color:"#a855f7" }}>${PRICING.monthly.pro.admin}<span style={{ fontSize:12,fontWeight:400,color:"var(--text2)" }}>/mo</span></div>
@@ -967,7 +967,7 @@ export function AiWriterUpgradeModal({ onUpgrade, onClose, isAdmin, settings, us
                 </div>
               </div>
               <div style={{ fontSize:11.5,color:"var(--text3)",marginBottom:14,lineHeight:1.6 }}>
-                From <strong>{p.cycleEnd.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</strong> onwards: <strong>${p.toTotal}/mo</strong> Â· AI Write unlocks immediately for all team members.
+                From <strong>{p.cycleEnd.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</strong> onwards: <strong>${p.toTotal}/mo</strong> · AI Write unlocks immediately for all team members.
               </div>
               <div style={{ display:"flex",gap:8 }}>
                 <button className="btn btn-secondary btn-sm" style={{ flex:1 }} onClick={()=>setConfirming(false)}>← Back</button>
@@ -1471,12 +1471,12 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
                     }
                     <div>
                       <div style={{ fontWeight:700,fontSize:15,color:"#111" }}>{settings?.companyName||"Your Company"}</div>
-                      <div style={{ fontSize:10.5,color:"#777" }}>{settings?.phone}{settings?.email?` Â· ${settings.email}`:""}</div>
+                      <div style={{ fontSize:10.5,color:"#777" }}>{settings?.phone}{settings?.email?` · ${settings.email}`:""}</div>
                     </div>
                   </div>
                   <div style={{ textAlign:"right" }}>
                     <div style={{ fontWeight:700,fontSize:14,color:"#111" }}>{settings?.reportHeaderTitle||"Property Report"}</div>
-                    <div style={{ fontSize:10.5,color:"#777" }}>{reportType} Â· {reportDate ? formatDate(reportDate, settings) : formatDate(new Date().toISOString().slice(0,10), settings)}</div>
+                    <div style={{ fontSize:10.5,color:"#777" }}>{reportType} · {reportDate ? formatDate(reportDate, settings) : formatDate(new Date().toISOString().slice(0,10), settings)}</div>
                     {settings?.reportHeaderNote && <div style={{ fontSize:9.5,color:"#aaa",marginTop:2 }}>{settings.reportHeaderNote}</div>}
                   </div>
                 </div>
@@ -1727,7 +1727,7 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
                                   </div>
                                 )}
                                 <div className="rp-photo-meta">
-                                  {showRooms && ph.room && <span>📍 {ph.room}{ph.floor ? ` Â· ${ph.floor}` : ""}</span>}
+                                  {showRooms && ph.room && <span>📍 {ph.room}{ph.floor ? ` · ${ph.floor}` : ""}</span>}
                                   {showGps && ph.gps && <span>🌐 {ph.gps.lat}, {ph.gps.lng}</span>}
                                 </div>
                               </div>
@@ -1844,7 +1844,7 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
                                   </div>
                                 )}
                                 <div className="rp-photo-meta">
-                                  {showRooms && block.photos[0].room && <span>📍 {block.photos[0].room}{block.photos[0].floor ? ` Â· ${block.photos[0].floor}` : ""}</span>}
+                                  {showRooms && block.photos[0].room && <span>📍 {block.photos[0].room}{block.photos[0].floor ? ` · ${block.photos[0].floor}` : ""}</span>}
                                   {showGps && block.photos[0].gps && <span>🌐 {block.photos[0].gps.lat}</span>}
                                   {showTimestamp && block.photos[0].date && <span>🕐 {block.photos[0].date}{block.photos[0].time ? ` ${block.photos[0].time}` : ""}</span>}
                                 </div>
@@ -1940,7 +1940,7 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
                           onChange={e=>updateBlock(block.id,{baPairId:e.target.value||null})}
                           onClick={e=>e.stopPropagation()}>
                           <option value="">— Choose a Before &amp; After pair —</option>
-                          {baPairs.map(p=><option key={p.id} value={p.id}>{p.name}{p.room?` Â· ${p.room}`:""}</option>)}
+                          {baPairs.map(p=><option key={p.id} value={p.id}>{p.name}{p.room?` · ${p.room}`:""}</option>)}
                         </select>
                       </div>
                       {pair && bPhoto && aPhoto ? (
@@ -2159,7 +2159,7 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
                                       {/* Delete col */}
                                       {colWidths.length > 1 && (
                                         <button onClick={()=>deleteCol(ci)} title="Delete column"
-                                          style={{padding:"1px 3px",border:"none",borderRadius:3,background:"transparent",cursor:"pointer",color:"#e85a3a",fontSize:12,lineHeight:1}}>Ã</button>
+                                          style={{padding:"1px 3px",border:"none",borderRadius:3,background:"transparent",cursor:"pointer",color:"#e85a3a",fontSize:12,lineHeight:1}}>×</button>
                                       )}
                                     </div>
                                   </th>
@@ -2220,7 +2220,7 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
                                     <td style={{padding:"0 2px",border:"1px solid var(--border)",background:"var(--surface2)",textAlign:"center",verticalAlign:"middle",width:24}}>
                                       {rows.length > 1 && (
                                         <button onClick={()=>deleteRow(ri)} title="Delete row"
-                                          style={{border:"none",background:"transparent",cursor:"pointer",color:"#e85a3a",fontSize:14,lineHeight:1,padding:"0 2px"}}>Ã</button>
+                                          style={{border:"none",background:"transparent",cursor:"pointer",color:"#e85a3a",fontSize:14,lineHeight:1,padding:"0 2px"}}>×</button>
                                       )}
                                     </td>
                                   )}
@@ -2364,7 +2364,7 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
               <div className="rp-footer" style={{ borderTopColor:accentColor }}>
                 <div style={{ display:"flex",alignItems:"center",gap:8 }}>
                   <span style={{ fontSize:10,color:"#888" }}>{formatDate(reportDate || new Date().toISOString().slice(0,10), settings)}</span>
-                  {reportTime && <span style={{ fontSize:10,color:"#aaa" }}>Â· {formatTime(reportTime, settings)}</span>}
+                  {reportTime && <span style={{ fontSize:10,color:"#aaa" }}>· {formatTime(reportTime, settings)}</span>}
                 </div>
                 <span style={{ color:accentColor,fontWeight:600 }}>{settings?.reportFooterCenter || "Confidential"}</span>
                 <div style={{ textAlign:"right" }}>
@@ -2463,7 +2463,7 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
           {/* Preview top bar */}
           <div style={{ height:52,background:"#0d1017",borderBottom:"1px solid #2a2f3e",display:"flex",alignItems:"center",padding:"0 16px",gap:10,flexShrink:0,flexWrap:"wrap" }}>
             <div style={{ fontWeight:700,fontSize:14,color:"white",flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>Print Preview — {title}</div>
-            <div style={{ fontSize:11,color:"#888",background:"#1a1e28",padding:"3px 10px",borderRadius:20,border:"1px solid #2a2f3e",flexShrink:0 }}>8.5″ Ã 11″</div>
+            <div style={{ fontSize:11,color:"#888",background:"#1a1e28",padding:"3px 10px",borderRadius:20,border:"1px solid #2a2f3e",flexShrink:0 }}>8.5″ × 11″</div>
             <button className="btn btn-secondary btn-sm" onClick={()=>_doPrint()} style={{ flexShrink:0 }} disabled={!canExportReports}><Icon d={ic.download} size={13} /> Export PDF</button>
             <button className="btn btn-secondary btn-sm btn-icon" title="Print" onClick={()=>_doPrint()} style={{ flexShrink:0 }} disabled={!canExportReports}><Icon d={ic.printer} size={13} /></button>
             <button className="btn btn-ghost btn-sm" style={{ color:"white",flexShrink:0 }} onClick={()=>setPreviewOpen(false)}>
@@ -2513,7 +2513,7 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
                           style={{ borderRadius:8,overflow:"hidden",cursor:"pointer",border:`2px solid ${isSel?"var(--accent)":"var(--border)"}`,position:"relative",transition:"border-color .15s" }}>
                           {ph.dataUrl ? <img src={ph.dataUrl} style={{ width:"100%",aspectRatio:"4/3",objectFit:"cover",display:"block" }} /> : <div style={{ aspectRatio:"4/3",background:"var(--surface2)",display:"flex",alignItems:"center",justifyContent:"center" }}><Icon d={ic.image} size={24} stroke="var(--text3)" /></div>}
                           {isSel && <div style={{ position:"absolute",top:5,right:5,width:20,height:20,borderRadius:"50%",background:"var(--accent)",display:"flex",alignItems:"center",justifyContent:"center" }}><Icon d={ic.check} size={11} stroke="white" strokeWidth={3} /></div>}
-                          <div style={{ padding:"5px 7px",fontSize:10,color:"var(--text2)",background:"var(--surface)",borderTop:"1px solid var(--border)" }}>{ph.room} Â· {ph.name?.slice(0,22)}</div>
+                          <div style={{ padding:"5px 7px",fontSize:10,color:"var(--text2)",background:"var(--surface)",borderTop:"1px solid var(--border)" }}>{ph.room} · {ph.name?.slice(0,22)}</div>
                         </div>
                       );
                     })}

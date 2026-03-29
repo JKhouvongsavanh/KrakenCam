@@ -4,6 +4,7 @@ import { Icon, ic } from "../utils/icons.jsx";
 import { formatDate , NOTIFICATION_PREF_ITEMS, normaliseStatuses
 } from "../utils/helpers.js";
 import { PLAN_NAMES } from "../utils/constants.js";
+import { KRAKENCAM_LOGO } from "../utils/logo.js";
 const REPORT_EMAIL_FEATURE_VISIBLE = false; // feature flag – email reports hidden until ready
 
 export function AddItemInput({ label, onAdd }) {

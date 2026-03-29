@@ -241,6 +241,15 @@ const DEFAULT_COLUMNS = [
   { id:"done",        label:"Done",         color:"#3dba7e" },
 ];
 
+// ── Task skeleton ────────────────────────────────────────────────────────────
+const EMPTY_TASK = {
+  id:"", title:"", description:"", priority:"medium", status:"todo",
+  assigneeIds:[], projectId:"", dueDate:"", tags:[], checklist:[],
+  createdBy:"admin", createdAt:"", comments:[],
+  repeatEnabled: false, repeatType:"days", repeatValue:1, repeatDay:1, repeatWeekday:1,
+  attachments:[],
+};
+
 // ── Plan display names ───────────────────────────────────────────────────────
 const PLAN_NAMES = { base: "Capture I", pro: "Intelligence II", command: "Command III" };
 
@@ -265,7 +274,7 @@ export {
   canAccessFeature, setRolePermissionLevel,
   EMPTY_USER, EMPTY_CERT,
   DEFAULT_CLIENT_PORTAL, DEFAULT_ROOMS,
-  PLAN_NAMES,
+  EMPTY_TASK, PLAN_NAMES,
   TEMPLATES, DEFAULT_CL_TEMPLATES, DEFAULT_COLUMNS,
   FIELD_TYPES,
   getWeekWindowStart, getNextResetDate,
