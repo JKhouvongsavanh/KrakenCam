@@ -6763,7 +6763,6 @@ function ClientPortalTab({ project, settings = {}, onUpdateProject }) {
     ["<","/scr","ipt>"].join(""),
   ];
   return D.join("\n");
-}
 
 // ── Before & After Slider ────────────────────────────────────────────────────
 function BAPairSlider({ bPhoto, aPhoto }) {
