@@ -2140,5 +2140,3 @@ export function TasksPage({ projects, teamUsers, settings, tasks, onTasksChange,
     </div>
   );
 }
-
-function TemplatesPage({ projects, onUseTemplate, templates: templatesProp, onTemplatesChange }) {
