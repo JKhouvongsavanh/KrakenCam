@@ -3,11 +3,11 @@ import { supabase } from "../lib/supabase";
 import { Icon, ic } from "../utils/icons.jsx";
 import { formatDate , NOTIFICATION_PREF_ITEMS, normaliseStatuses
 } from "../utils/helpers.js";
-const REPORT_EMAIL_FEATURE_VISIBLE = false; // feature flag – email reports hidden until ready
+const REPORT_EMAIL_FEATURE_VISIBLE = false; // feature flag â email reports hidden until ready
 
 export function AddItemInput({ label, onAdd }) {
   const [val, setVal] = useState("");
-  const placeholder = `Add new ${label.toLowerCase().replace(/ options$/,"").replace(/ types$/,"").replace(/ type$/,"")} option…`;
+  const placeholder = `Add new ${label.toLowerCase().replace(/ options$/,"").replace(/ types$/,"").replace(/ type$/,"")} optionâ¦`;
   const commit = () => { if (val.trim()) { onAdd(val); setVal(""); } };
   return (
     <div style={{ display:"flex",gap:8 }}>
@@ -80,7 +80,7 @@ export function StatusListEditor({ items: rawItems, onChange }) {
                 <Icon d="M6 9l6 6 6-6" size={11}/>
               </button>
             </div>
-            {/* Colour dot — locked for system statuses */}
+            {/* Colour dot â locked for system statuses */}
             <div style={{ position:"relative",flexShrink:0 }}>
               <div style={{ width:14,height:14,borderRadius:"50%",background:TAG_CLS_COLORS[s.cls]||"#6b7280",
                 cursor:isSystem?"default":"pointer",border:"2px solid var(--border)",
@@ -93,7 +93,7 @@ export function StatusListEditor({ items: rawItems, onChange }) {
                   updateItem(idx, { cls: next });
                 }} />
             </div>
-            {/* Label — locked for system statuses */}
+            {/* Label â locked for system statuses */}
             {isSystem
               ? <span style={{ flex:1,fontSize:13,color:"var(--text)",display:"flex",alignItems:"center",gap:6 }}>
                   {s.label}
@@ -105,7 +105,7 @@ export function StatusListEditor({ items: rawItems, onChange }) {
             }
             {/* Preview badge */}
             <span className={`tag tag-${s.cls}`} style={{ flexShrink:0,fontSize:11 }}>{s.label}</span>
-            {/* Remove — hidden for system statuses */}
+            {/* Remove â hidden for system statuses */}
             {isSystem
               ? <div style={{ width:28,height:28,flexShrink:0 }} /> 
               : <button className="btn btn-ghost btn-sm btn-icon" style={{ width:28,height:28,color:"#e85a3a",flexShrink:0 }}
@@ -119,7 +119,7 @@ export function StatusListEditor({ items: rawItems, onChange }) {
       </div>
       {/* Add new status */}
       <div style={{ display:"flex",gap:8,alignItems:"center" }}>
-        <input className="form-input" style={{ flex:1 }} placeholder="New status label…"
+        <input className="form-input" style={{ flex:1 }} placeholder="New status labelâ¦"
           value={newLabel} onChange={e=>setNewLabel(e.target.value)}
           onKeyDown={e=>{ if(e.key==="Enter") addItem(); }} />
         <div style={{ display:"flex",gap:4,flexShrink:0 }}>
@@ -165,7 +165,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
     setExporting(true);
     setExportDone(false);
     try {
-      // Bundle all account data — only this org's data (already in local state, RLS-enforced on load)
+      // Bundle all account data â only this org's data (already in local state, RLS-enforced on load)
       const exportPayload = {
         exported_at: new Date().toISOString(),
         account: {
@@ -361,7 +361,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
         ))}
       </div>
 
-      {/* ── COMPANY ── */}
+      {/* ââ COMPANY ââ */}
       {tab === "company" && (
         <div className="fade-in">
           {/* Logo upload */}
@@ -379,7 +379,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                 <div>
                   <div style={{ fontWeight:600,fontSize:13.5,marginBottom:6 }}>Company Logo</div>
                   <div style={{ fontSize:12.5,color:"var(--text2)",marginBottom:12,lineHeight:1.6 }}>
-                    Appears in the nav sidebar and on all generated reports.<br />Recommended: PNG with transparent background, min 200×200px.
+                    Appears in the nav sidebar and on all generated reports.<br />Recommended: PNG with transparent background, min 200Ã200px.
                   </div>
                   <div style={{ display:"flex",gap:8 }}>
                     <button className="btn btn-secondary btn-sm" onClick={() => logoRef.current?.click()}>
@@ -426,7 +426,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
         </div>
       )}
 
-      {/* ── APPEARANCE ── */}
+      {/* ââ APPEARANCE ââ */}
       {tab === "appearance" && (
         <div className="fade-in">
           {/* Mode */}
@@ -435,9 +435,9 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
             <div className="card-body">
               <div style={{ display:"flex",gap:12 }}>
                 {[
-                  { id:"dark",  label:"Dark",  desc:"Dark backgrounds, easy on the eyes in low light.", icon:"🌙" },
-                  { id:"light", label:"Light", desc:"Clean white UI, great for bright environments.",   icon:"☀️" },
-                  { id:"system",label:"System",desc:"Follows your device's OS preference automatically.",icon:"💻", mobileHidden:true },
+                  { id:"dark",  label:"Dark",  desc:"Dark backgrounds, easy on the eyes in low light.", icon:"ð" },
+                  { id:"light", label:"Light", desc:"Clean white UI, great for bright environments.",   icon:"âï¸" },
+                  { id:"system",label:"System",desc:"Follows your device's OS preference automatically.",icon:"ð»", mobileHidden:true },
                 ].filter(m => !(window.innerWidth <= 768 && m.mobileHidden)).map(m => (
                   <div key={m.id} onClick={() => { set("mode", m.id); applyMode(m.id); }}
                     style={{ flex:1,border:`2px solid ${form.mode===m.id?"var(--accent)":"var(--border)"}`,borderRadius:"var(--radius)",padding:"16px 14px",cursor:"pointer",background:form.mode===m.id?"var(--accent-glow)":"var(--surface2)",transition:"all .15s" }}>
@@ -506,12 +506,12 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
             </div>
           </div>
 
-          {/* Camera Roll — mobile only */}
+          {/* Camera Roll â mobile only */}
           {false && null}
         </div>
       )}
 
-      {/* ── ACCOUNT ── */}
+      {/* ââ ACCOUNT ââ */}
       {tab === "account" && (
         <div className="fade-in">
           {/* Profile */}
@@ -601,18 +601,18 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                       background: r.ok ? "#3dba7e22" : "var(--surface2)",
                       color: r.ok ? "#3dba7e" : "var(--text3)",
                       border: `1px solid ${r.ok ? "#3dba7e44" : "var(--border)"}` }}>
-                      {r.ok ? "✓" : "✗"} {r.label}
+                      {r.ok ? "â" : "â"} {r.label}
                     </span>
                   ))}
                 </div>
               )}
               {pwError   && <div style={{ fontSize:12.5,color:"#c0392b",marginBottom:10,padding:"8px 12px",background:"#c0392b15",borderRadius:"var(--radius-sm)",border:"1px solid #c0392b44" }}>{pwError}</div>}
-              {pwSuccess && <div style={{ fontSize:12.5,color:"#3dba7e",marginBottom:10,padding:"8px 12px",background:"#3dba7e15",borderRadius:"var(--radius-sm)",border:"1px solid #3dba7e44" }}>✓ Password updated successfully.</div>}
+              {pwSuccess && <div style={{ fontSize:12.5,color:"#3dba7e",marginBottom:10,padding:"8px 12px",background:"#3dba7e15",borderRadius:"var(--radius-sm)",border:"1px solid #3dba7e44" }}>â Password updated successfully.</div>}
               <button className="btn btn-secondary btn-sm" onClick={handleUpdatePassword}><Icon d={ic.check} size={13} /> Update Password</button>
             </div>
           </div>
 
-          {/* Danger zone — admin only, desktop only */}
+          {/* Danger zone â admin only, desktop only */}
           {form.userRole === "admin" && !isMobile && (
             <div style={{ marginTop:32,paddingTop:24,borderTop:"1px solid var(--border)",display:"flex",justifyContent:"flex-end",gap:10,alignItems:"center" }}>
               {/* Export Data */}
@@ -658,13 +658,13 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                     <li>GPS coordinates and timestamps</li>
                   </ul>
                   <div style={{ marginTop:10,fontSize:12,color:"var(--text3)" }}>
-                    ⚠️ Photos are included as base64 — the file may be large depending on how many you have.
+                    â ï¸ Photos are included as base64 â the file may be large depending on how many you have.
                   </div>
                 </div>
 
                 {exportDone && (
                   <div style={{ background:"rgba(61,186,126,.1)",border:"1px solid rgba(61,186,126,.3)",borderRadius:"var(--radius-sm)",padding:"10px 14px",marginBottom:16,fontSize:13,color:"#3dba7e",fontWeight:600 }}>
-                    ✓ Export downloaded successfully!
+                    â Export downloaded successfully!
                   </div>
                 )}
 
@@ -676,7 +676,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                     onClick={handleExportData}
                     style={{ display:"flex",alignItems:"center",gap:6 }}>
                     <Icon d={ic.download} size={13} />
-                    {exporting ? "Preparing export…" : "Download My Data"}
+                    {exporting ? "Preparing exportâ¦" : "Download My Data"}
                   </button>
                 </div>
               </div>
@@ -714,7 +714,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                   </label>
                   <input
                     className="form-input"
-                    placeholder="Type DELETE here…"
+                    placeholder="Type DELETE hereâ¦"
                     value={deleteConfirmText}
                     onChange={e => setDeleteConfirmText(e.target.value)}
                     style={{ borderColor: deleteConfirmText === "DELETE" ? "#c0392b" : undefined }}
@@ -738,7 +738,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
         </div>
       )}
 
-      {/* ── REPORT DEFAULTS ── */}
+      {/* ââ REPORT DEFAULTS ââ */}
       {tab === "reports" && (
         <div className="fade-in">
           {/* Header */}
@@ -756,7 +756,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                       }
                       <div>
                         <div style={{ fontWeight:700,fontSize:14,color:"#111" }}>{form.companyName || "Your Company"}</div>
-                        <div style={{ fontSize:11,color:"#666" }}>{form.phone} · {form.email}</div>
+                        <div style={{ fontSize:11,color:"#666" }}>{form.phone} Â· {form.email}</div>
                       </div>
                     </div>
                     <div style={{ textAlign:"right",fontSize:11,color:"#666",lineHeight:1.8 }}>
@@ -768,7 +768,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                 </div>
               </div>
               <div className="form-group"><label className="form-label">Header Title (e.g. "Property Inspection Report")</label><input className="form-input" value={form.reportHeaderTitle} onChange={e => set("reportHeaderTitle", e.target.value)} placeholder="Property Inspection Report" /></div>
-              <div className="form-group"><label className="form-label">Header Tagline / Note (optional)</label><input className="form-input" value={form.reportHeaderNote} onChange={e => set("reportHeaderNote", e.target.value)} placeholder="Licensed & Insured · Serving the Greater Denver Area" /></div>
+              <div className="form-group"><label className="form-label">Header Tagline / Note (optional)</label><input className="form-input" value={form.reportHeaderNote} onChange={e => set("reportHeaderNote", e.target.value)} placeholder="Licensed & Insured Â· Serving the Greater Denver Area" /></div>
             </div>
           </div>
 
@@ -781,9 +781,9 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                 <div style={{ fontSize:11,color:"var(--text3)",fontWeight:600,textTransform:"uppercase",letterSpacing:".06em",marginBottom:10 }}>Footer Preview</div>
                 <div style={{ background:"white",borderRadius:8,padding:"12px 20px",color:"#222",borderTop:`2px solid ${form.accent}` }}>
                   <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:10.5,color:"#666" }}>
-                    <span>{form.reportFooterLeft || form.companyName || "Your Company"} · {form.phone}</span>
+                    <span>{form.reportFooterLeft || form.companyName || "Your Company"} Â· {form.phone}</span>
                     <span style={{ color:form.accent,fontWeight:600 }}>{form.reportFooterCenter || "Confidential"}</span>
-                    <span>Page 1 of 1 · {formatDate(new Date().toISOString().slice(0,10), settings)}</span>
+                    <span>Page 1 of 1 Â· {formatDate(new Date().toISOString().slice(0,10), settings)}</span>
                   </div>
                   {form.reportFooterDisclaimer && <div style={{ marginTop:8,fontSize:9.5,color:"#aaa",lineHeight:1.5 }}>{form.reportFooterDisclaimer}</div>}
                 </div>
@@ -815,14 +815,14 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
               <div className="form-row">
                 <div className="form-group"><label className="form-label">Include GPS Coordinates</label>
                   <select className="form-input form-select" value={form.reportShowGps} onChange={e => set("reportShowGps", e.target.value)}>
-                    <option value="yes">Yes — show on each photo</option>
+                    <option value="yes">Yes â show on each photo</option>
                     <option value="summary">Summary page only</option>
                     <option value="no">No</option>
                   </select>
                 </div>
                 <div className="form-group"><label className="form-label">Include Timestamps</label>
                   <select className="form-input form-select" value={form.reportShowTimestamp} onChange={e => set("reportShowTimestamp", e.target.value)}>
-                    <option value="yes">Yes — on each photo</option>
+                    <option value="yes">Yes â on each photo</option>
                     <option value="no">No</option>
                   </select>
                 </div>
@@ -849,7 +849,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
               </div>
               <div className="form-group">
                 <label className="form-label">Subject Line</label>
-                <input className="form-input" value={form.emailSubject||""} onChange={e=>set("emailSubject",e.target.value)} placeholder="Report from {{company}} — {{project}}" />
+                <input className="form-input" value={form.emailSubject||""} onChange={e=>set("emailSubject",e.target.value)} placeholder="Report from {{company}} â {{project}}" />
               </div>
               <div className="form-group">
                 <label className="form-label">Email Body</label>
@@ -887,13 +887,13 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                         <div style={{ fontSize:12,color:"#555" }}>{form.emailSignatureCompany||form.companyName}</div>
                       )}
                       <div style={{ marginTop:6,display:"flex",flexDirection:"column",gap:2 }}>
-                        {(form.emailSignaturePhone||form.phone) && <div style={{ fontSize:11.5,color:"#666" }}>📞 {form.emailSignaturePhone||form.phone}</div>}
-                        {(form.emailSignatureEmail||form.email) && <div style={{ fontSize:11.5,color:"#666" }}>✉ {form.emailSignatureEmail||form.email}</div>}
+                        {(form.emailSignaturePhone||form.phone) && <div style={{ fontSize:11.5,color:"#666" }}>ð {form.emailSignaturePhone||form.phone}</div>}
+                        {(form.emailSignatureEmail||form.email) && <div style={{ fontSize:11.5,color:"#666" }}>â {form.emailSignatureEmail||form.email}</div>}
                         {form.website && <div style={{ fontSize:11.5,color:form.accent }}>{form.website}</div>}
                       </div>
                     </div>
                   </div>
-                  {/* Social icons preview — small clickable circles */}
+                  {/* Social icons preview â small clickable circles */}
                   {form.sigSocialsEnabled && (() => {
                     const SOCIALS = [
                       { key:"fb",  en:form.sigFacebookEnabled,  url:form.sigFacebookUrl,  icon:"M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z",                                                      color:"#1877f2", label:"Facebook"  },
@@ -914,12 +914,12 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                       </div>
                     );
                   })()}
-                  {/* Review button — clickable link */}
+                  {/* Review button â clickable link */}
                   {form.sigReviewEnabled && form.sigReviewUrl && (
                     <div style={{ marginTop:10,paddingTop:10,borderTop:"1px solid #eee" }}>
                       <a href={form.sigReviewUrl} target="_blank" rel="noopener noreferrer"
                         style={{ display:"inline-flex",alignItems:"center",gap:6,padding:"7px 16px",borderRadius:6,background:"#f59e0b",color:"white",fontSize:12.5,fontWeight:700,textDecoration:"none",cursor:"pointer" }}>
-                        ⭐ {form.sigReviewLabel||"Leave us a Review"}
+                        â­ {form.sigReviewLabel||"Leave us a Review"}
                       </a>
                     </div>
                   )}
@@ -961,10 +961,10 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                 </div>
               </div>
               <div className="form-group">
-                <label className="form-label">Custom HTML <span style={{ fontWeight:400,color:"var(--text3)" }}>(optional — added below signature)</span></label>
+                <label className="form-label">Custom HTML <span style={{ fontWeight:400,color:"var(--text3)" }}>(optional â added below signature)</span></label>
                 <textarea className="form-input form-textarea" style={{ minHeight:72,fontSize:12,fontFamily:"monospace" }}
                   value={form.emailSignatureCustomHtml||""} onChange={e=>set("emailSignatureCustomHtml",e.target.value)}
-                  placeholder={'<p style="color:#999">Licensed & Insured · CO License #12345</p>'} />
+                  placeholder={'<p style="color:#999">Licensed & Insured Â· CO License #12345</p>'} />
               </div>
             </div>
           </div>
@@ -1029,7 +1029,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
               <div className="form-row">
                 <div className="form-group">
                   <label className="form-label">Button Label</label>
-                  <input className="form-input" value={form.sigReviewLabel||""} onChange={e=>set("sigReviewLabel",e.target.value)} placeholder="Leave us a Review ⭐" />
+                  <input className="form-input" value={form.sigReviewLabel||""} onChange={e=>set("sigReviewLabel",e.target.value)} placeholder="Leave us a Review â­" />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Review Link URL</label>
@@ -1041,7 +1041,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                   <span style={{ fontSize:12,color:"var(--text3)" }}>Preview:</span>
                   <a href={form.sigReviewUrl} target="_blank" rel="noopener noreferrer"
                     style={{ display:"inline-flex",alignItems:"center",gap:6,padding:"7px 16px",borderRadius:6,background:"#f59e0b",color:"white",fontSize:12.5,fontWeight:700,textDecoration:"none",cursor:"pointer" }}>
-                    ⭐ {form.sigReviewLabel||"Leave us a Review"}
+                    â­ {form.sigReviewLabel||"Leave us a Review"}
                   </a>
                 </div>
               )}
@@ -1050,7 +1050,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
         </div>
       )}
 
-      {/* ── PREFS (Settings) ── */}
+      {/* ââ PREFS (Settings) ââ */}
       {tab === "prefs" && (
         <div className="fade-in">
           {/* Notifications */}
@@ -1077,10 +1077,10 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
 
           {/* Camera */}
           <div className="card" style={{ marginBottom:20 }}>
-            <div className="card-header"><span style={{ fontWeight:700 }}>📷 Camera</span></div>
+            <div className="card-header"><span style={{ fontWeight:700 }}>ð· Camera</span></div>
             <div className="card-body" style={{ display:"flex",flexDirection:"column",gap:0 }}>
 
-              {/* Save to Camera Roll — mobile only */}
+              {/* Save to Camera Roll â mobile only */}
               {isMobile && (
                 <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,cursor:"pointer",paddingBottom:14,marginBottom:14,borderBottom:"1px solid var(--border)" }}
                   onClick={() => set("saveToCameraRoll", !form.saveToCameraRoll)}>
@@ -1100,16 +1100,16 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                 <div style={{ fontSize:12,color:"var(--text2)",marginBottom:12,lineHeight:1.5 }}>Higher quality produces sharper images but larger file sizes.</div>
                 <div style={{ display:"flex",gap:8 }}>
                   {[
-                    { id:"low",      label:"Low",      desc:"720p · 50% JPEG",   icon:"🔋" },
-                    { id:"moderate", label:"Moderate", desc:"1080p · 85% JPEG",  icon:"⚡" },
-                    { id:"high",     label:"High",     desc:"4K · 97% JPEG",     icon:"💎" },
+                    { id:"low",      label:"Low",      desc:"720p Â· 50% JPEG",   icon:"ð" },
+                    { id:"moderate", label:"Moderate", desc:"1080p Â· 85% JPEG",  icon:"â¡" },
+                    { id:"high",     label:"High",     desc:"4K Â· 97% JPEG",     icon:"ð" },
                   ].map(q => (
                     <div key={q.id} onClick={() => set("photoQuality", q.id)}
                       style={{ flex:1,border:`2px solid ${form.photoQuality===q.id?"var(--accent)":"var(--border)"}`,borderRadius:"var(--radius)",padding:"12px 10px",cursor:"pointer",background:form.photoQuality===q.id?"var(--accent-glow)":"var(--surface2)",transition:"all .15s",textAlign:"center" }}>
                       <div style={{ fontSize:20,marginBottom:6 }}>{q.icon}</div>
                       <div style={{ fontWeight:700,fontSize:13,marginBottom:2,color:form.photoQuality===q.id?"var(--accent)":"var(--text)" }}>{q.label}</div>
                       <div style={{ fontSize:11,color:"var(--text3)" }}>{q.desc}</div>
-                      {form.photoQuality===q.id && <div style={{ marginTop:6,fontSize:11,color:"var(--accent)",fontWeight:600 }}>✓ Active</div>}
+                      {form.photoQuality===q.id && <div style={{ marginTop:6,fontSize:11,color:"var(--accent)",fontWeight:600 }}>â Active</div>}
                     </div>
                   ))}
                 </div>
@@ -1120,16 +1120,16 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                 <div style={{ fontSize:12,color:"var(--text2)",marginBottom:12,lineHeight:1.5 }}>Higher quality produces sharper video but uses more storage and bandwidth.</div>
                 <div style={{ display:"flex",gap:8 }}>
                   {[
-                    { id:"low",      label:"Low",      desc:"1 Mbps",   icon:"🔋" },
-                    { id:"moderate", label:"Moderate", desc:"2.5 Mbps", icon:"⚡" },
-                    { id:"high",     label:"High",     desc:"5 Mbps",   icon:"💎" },
+                    { id:"low",      label:"Low",      desc:"1 Mbps",   icon:"ð" },
+                    { id:"moderate", label:"Moderate", desc:"2.5 Mbps", icon:"â¡" },
+                    { id:"high",     label:"High",     desc:"5 Mbps",   icon:"ð" },
                   ].map(q => (
                     <div key={q.id} onClick={() => set("videoQuality", q.id)}
                       style={{ flex:1,border:`2px solid ${form.videoQuality===q.id?"var(--accent)":"var(--border)"}`,borderRadius:"var(--radius)",padding:"12px 10px",cursor:"pointer",background:form.videoQuality===q.id?"var(--accent-glow)":"var(--surface2)",transition:"all .15s",textAlign:"center" }}>
                       <div style={{ fontSize:20,marginBottom:6 }}>{q.icon}</div>
                       <div style={{ fontWeight:700,fontSize:13,marginBottom:2,color:form.videoQuality===q.id?"var(--accent)":"var(--text)" }}>{q.label}</div>
                       <div style={{ fontSize:11,color:"var(--text3)" }}>{q.desc}</div>
-                      {form.videoQuality===q.id && <div style={{ marginTop:6,fontSize:11,color:"var(--accent)",fontWeight:600 }}>✓ Active</div>}
+                      {form.videoQuality===q.id && <div style={{ marginTop:6,fontSize:11,color:"var(--accent)",fontWeight:600 }}>â Active</div>}
                     </div>
                   ))}
                 </div>
@@ -1160,7 +1160,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                 >
                   <div style={{ textAlign:"left" }}>
                     <div style={{ fontWeight:700,fontSize:13,color:form.saveToCameraRoll ? "var(--accent)" : "var(--text)" }}>
-                      {form.saveToCameraRoll ? "On — save to app and device" : "Off — save to app only"}
+                      {form.saveToCameraRoll ? "On â save to app and device" : "Off â save to app only"}
                     </div>
                     <div style={{ fontSize:11.5,color:"var(--text3)",marginTop:3 }}>
                       Uses the browser/device download flow during capture review.
@@ -1208,15 +1208,15 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                 <label className="form-label" style={{ marginBottom:6,display:"block" }}>Timezone</label>
                 <select className="form-input form-select" value={form.timezone||"America/Denver"} onChange={e => set("timezone", e.target.value)}>
                   {[
-                    ["Pacific/Honolulu",   "Hawaii (UTC−10)"],
-                    ["America/Anchorage",  "Alaska (UTC−9)"],
-                    ["America/Los_Angeles","Pacific Time (UTC−8)"],
-                    ["America/Denver",     "Mountain Time (UTC−7)"],
-                    ["America/Chicago",    "Central Time (UTC−6)"],
-                    ["America/New_York",   "Eastern Time (UTC−5)"],
-                    ["America/Halifax",    "Atlantic Time (UTC−4)"],
-                    ["America/St_Johns",   "Newfoundland (UTC−3:30)"],
-                    ["America/Sao_Paulo",  "Brasília (UTC−3)"],
+                    ["Pacific/Honolulu",   "Hawaii (UTCâ10)"],
+                    ["America/Anchorage",  "Alaska (UTCâ9)"],
+                    ["America/Los_Angeles","Pacific Time (UTCâ8)"],
+                    ["America/Denver",     "Mountain Time (UTCâ7)"],
+                    ["America/Chicago",    "Central Time (UTCâ6)"],
+                    ["America/New_York",   "Eastern Time (UTCâ5)"],
+                    ["America/Halifax",    "Atlantic Time (UTCâ4)"],
+                    ["America/St_Johns",   "Newfoundland (UTCâ3:30)"],
+                    ["America/Sao_Paulo",  "BrasÃ­lia (UTCâ3)"],
                     ["UTC",                "UTC (UTC+0)"],
                     ["Europe/London",      "London (UTC+0/+1)"],
                     ["Europe/Paris",       "Central European (UTC+1/+2)"],
@@ -1234,7 +1234,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                   ].map(([val,label]) => <option key={val} value={val}>{label}</option>)}
                 </select>
                 <div style={{ fontSize:11.5,color:"var(--text3)",marginTop:5 }}>
-                  Current time: {new Date().toLocaleTimeString("en-US", { timeZone: form.timezone||"America/Denver", hour:"2-digit", minute:"2-digit", hour12: form.timeFormat!=="24hr" })} — {form.timezone||"America/Denver"}
+                  Current time: {new Date().toLocaleTimeString("en-US", { timeZone: form.timezone||"America/Denver", hour:"2-digit", minute:"2-digit", hour12: form.timeFormat!=="24hr" })} â {form.timezone||"America/Denver"}
                 </div>
               </div>
 
@@ -1269,7 +1269,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                       style={{ flex:1,border:`2px solid ${form.timeFormat===t.id?"var(--accent)":"var(--border)"}`,borderRadius:"var(--radius-sm)",padding:"12px 16px",cursor:"pointer",background:form.timeFormat===t.id?"var(--accent-glow)":"var(--surface2)",transition:"all .15s",textAlign:"center" }}>
                       <div style={{ fontWeight:700,fontSize:13.5,color:form.timeFormat===t.id?"var(--accent)":"var(--text)",marginBottom:3 }}>{t.label}</div>
                       <div style={{ fontSize:12,color:"var(--text3)" }}>{t.example}</div>
-                      {form.timeFormat===t.id && <div style={{ fontSize:11,color:"var(--accent)",fontWeight:600,marginTop:4 }}>✓ Active</div>}
+                      {form.timeFormat===t.id && <div style={{ fontSize:11,color:"var(--accent)",fontWeight:600,marginTop:4 }}>â Active</div>}
                     </div>
                   ))}
                 </div>
@@ -1280,15 +1280,15 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                 <label className="form-label" style={{ marginBottom:8,display:"block" }}>Measurement Units</label>
                 <div style={{ display:"flex",gap:8 }}>
                   {[
-                    { id:"imperial", label:"Imperial", example:"ft, in, lbs, °F", icon:"🇺🇸" },
-                    { id:"metric",   label:"Metric",   example:"m, cm, kg, °C",   icon:"🌍" },
+                    { id:"imperial", label:"Imperial", example:"ft, in, lbs, Â°F", icon:"ðºð¸" },
+                    { id:"metric",   label:"Metric",   example:"m, cm, kg, Â°C",   icon:"ð" },
                   ].map(u => (
                     <div key={u.id} onClick={() => set("units", u.id)}
                       style={{ flex:1,border:`2px solid ${form.units===u.id?"var(--accent)":"var(--border)"}`,borderRadius:"var(--radius-sm)",padding:"12px 16px",cursor:"pointer",background:form.units===u.id?"var(--accent-glow)":"var(--surface2)",transition:"all .15s",textAlign:"center" }}>
                       <div style={{ fontSize:22,marginBottom:5 }}>{u.icon}</div>
                       <div style={{ fontWeight:700,fontSize:13.5,color:form.units===u.id?"var(--accent)":"var(--text)",marginBottom:3 }}>{u.label}</div>
                       <div style={{ fontSize:12,color:"var(--text3)" }}>{u.example}</div>
-                      {form.units===u.id && <div style={{ fontSize:11,color:"var(--accent)",fontWeight:600,marginTop:4 }}>✓ Active</div>}
+                      {form.units===u.id && <div style={{ fontSize:11,color:"var(--accent)",fontWeight:600,marginTop:4 }}>â Active</div>}
                     </div>
                   ))}
                 </div>
@@ -1302,7 +1302,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                     { id:"recent",   label:"Most Recent",          desc:"Last modified or updated first" },
                     { id:"newest",   label:"Newest to Oldest",     desc:"By creation date, newest first" },
                     { id:"oldest",   label:"Oldest to Newest",     desc:"By creation date, oldest first" },
-                    { id:"alpha",    label:"Name A → Z",           desc:"Alphabetical by project name"   },
+                    { id:"alpha",    label:"Name A â Z",           desc:"Alphabetical by project name"   },
                   ].map(s => (
                     <div key={s.id} onClick={() => set("projectSort", s.id)}
                       style={{ display:"flex",alignItems:"center",justifyContent:"space-between",padding:"11px 14px",border:`2px solid ${form.projectSort===s.id?"var(--accent)":"var(--border)"}`,borderRadius:"var(--radius-sm)",cursor:"pointer",background:form.projectSort===s.id?"var(--accent-glow)":"var(--surface2)",transition:"all .15s" }}>
@@ -1352,13 +1352,13 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
                   </a>
                 </div>
                 <div style={{ fontSize:11.5,color:"var(--text3)" }}>
-                  📧 support@krakencam.com &nbsp;·&nbsp; info@krakencam.com
+                  ð§ support@krakencam.com &nbsp;Â·&nbsp; info@krakencam.com
                 </div>
               </div>
 
               <div style={{ borderTop:"1px solid var(--border)",paddingTop:14,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8 }}>
                 <div style={{ fontSize:11.5,color:"var(--text3)" }}>
-                  © {new Date().getFullYear()} KrakenCam Inc. All rights reserved.
+                  Â© {new Date().getFullYear()} KrakenCam Inc. All rights reserved.
                 </div>
                 <div style={{ display:"flex",gap:12 }}>
                   <a href="https://www.krakencam.com/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ fontSize:11.5,color:"var(--text3)",textDecoration:"underline" }}>Privacy Policy</a>
@@ -1370,7 +1370,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
         </div>
       )}
 
-      {/* ── PROJECT SETTINGS ── */}
+      {/* ââ PROJECT SETTINGS ââ */}
       {tab === "projects" && (
         <div className="fade-in">
           {[
@@ -1391,7 +1391,7 @@ export function SettingsPage({ settings, onSave, onDeleteAccount, projects = [],
               key: "causeOfLossOptions",
               label: "Cause of Loss / Issue",
               desc: "Options shown in the Cause of Loss dropdown.",
-              defaults: ["Water — Pipe Burst","Water — Flooding","Water — Sewage Backup","Water — Roof Leak","Fire — Structure","Fire — Smoke/Soot","Wind / Storm Damage","Mold / Microbial","Impact / Collision","Vandalism / Break-In","Earthquake","Hail","Electrical","Other"],
+              defaults: ["Water â Pipe Burst","Water â Flooding","Water â Sewage Backup","Water â Roof Leak","Fire â Structure","Fire â Smoke/Soot","Wind / Storm Damage","Mold / Microbial","Impact / Collision","Vandalism / Break-In","Earthquake","Hail","Electrical","Other"],
             },
             {
               key: "coverageTypeOptions",
