@@ -8,6 +8,8 @@ const CAL_USER_COLORS = [
   "#2b7fe8","#a855f7","#3dba7e","#e85a3a","#e8c53a","#3ab8e8","#f0954e","#8b7cf8",
   "#e8703a","#1a9e6e","#d946ef","#06b6d4","#84cc16","#f43f5e","#6366f1","#14b8a6",
 ];
+const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const WEEKDAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
 const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
 const isSameDay = (a, b) => a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
