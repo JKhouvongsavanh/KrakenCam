@@ -1008,9 +1008,9 @@ function parseAiOutputToBlocks(rawText) {
 
 function AiOneClickModal({ project, settings, onGenerate, onClose, onUsageIncrement }) {
   const REPORT_TYPES = [
-    { id:"findings",   label:"Findings Report",    krakens:2, desc:"3–6 paragraphs on identified issues, deficiencies, risks, and recommended actions." },
-    { id:"progress",   label:"Progress Report",    krakens:2, desc:"3–6 paragraphs: work completed, current conditions, concerns, and next steps." },
-    { id:"completion", label:"Completion Report",  krakens:4, desc:"6–12 paragraph professional close-out: scope, actions, final condition, recommendations, conclusion." },
+    { id:"findings",   label:"Findings Report",    krakens:2, desc:"6–10 thorough paragraphs on identified issues, deficiencies, risks, affected areas, and recommended actions." },
+    { id:"progress",   label:"Progress Report",    krakens:2, desc:"6–10 thorough paragraphs: work completed, current conditions, ongoing concerns, timelines, and next steps." },
+    { id:"completion", label:"Completion Report",  krakens:4, desc:"10–18 paragraph professional close-out: scope, actions, progression, final condition, recommendations, and conclusion." },
     { id:"custom",     label:"Custom Report",      krakens:6, desc:"Choose your sections and describe exactly what you need." },
   ];
   const CUSTOM_SECTIONS = ["Executive Summary","Scope of Work","Findings & Deficiencies","Cause of Loss","Moisture Readings","Equipment Used","Work Completed","Site Conditions","Photo Documentation","Safety Observations","Timeline","Recommendations","Next Steps","Sign-Off","Conclusion"];
@@ -1028,9 +1028,9 @@ function AiOneClickModal({ project, settings, onGenerate, onClose, onUsageIncrem
   const remaining = Math.max(0, limit - used);
   const canAfford = k => remaining >= k;
   const PROMPTS = {
-    findings:   "Write a Findings Report for this project. Produce 3-6 professional paragraphs identifying key issues, deficiencies, and risks. Highlight affected areas and recommended actions. Plain text, no markdown or bullets.",
-    progress:   "Write a Progress Report for this active project. Produce 3-6 professional paragraphs covering: work completed, current site conditions, ongoing concerns, and next steps. Suitable for clients, adjusters, and property managers. Plain text, no markdown.",
-    completion: "Write a Completion Report for this finished project. Produce 6-12 professional paragraphs covering scope of work, actions taken, project progression, final site condition, recommendations, and conclusion. Format with each major section title on its own line followed by its paragraph. Professional language suitable for clients, insurers, and records.",
+    findings:   "Write a thorough, comprehensive Findings Report for this project. Produce 6-10 professional paragraphs identifying key issues, deficiencies, and risks in detail. For each issue, describe the affected area, the nature and extent of the problem, potential causes, and specific recommended actions or remediation steps. Be thorough and specific — include observations about structural elements, moisture, damage patterns, safety concerns, and any secondary or ancillary findings. Conclude with an overall risk summary and prioritized action plan. Plain text, no markdown or bullets.",
+    progress:   "Write a thorough, comprehensive Progress Report for this active project. Produce 6-10 professional paragraphs covering: a detailed account of all work completed to date, current site conditions with specific observations, equipment and materials utilized, any challenges encountered and how they were addressed, ongoing concerns or open items, projected timeline and milestones, coordination notes with relevant parties (adjusters, property managers, subcontractors), and clear next steps. Be specific and detailed — suitable for clients, adjusters, and property managers who need a full picture of the project status. Plain text, no markdown.",
+    completion: "Write a thorough, comprehensive Completion Report for this finished project. Produce 10-18 professional paragraphs covering: an executive summary of the project, the full scope of work performed, a detailed account of all actions taken and methods used, project progression from start to finish, any challenges encountered and how they were resolved, final site condition with specific observations, equipment and materials used, moisture readings or test results if applicable, any remaining recommendations or follow-up actions, warranty or guarantee information if relevant, and a professional conclusion. Format with each major section title on its own line followed by its paragraph(s). Professional language suitable for clients, insurers, and permanent project records.",
     custom:     null,
   };
   const buildPrompt = () => {
@@ -1409,8 +1409,8 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
             {["draft","review","sent","final"].map(s=><option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
           </select>
           <button className="btn btn-secondary btn-sm" onClick={()=>setPreviewOpen(true)}><Icon d={ic.eye} size={13} /> Preview</button>
-          <button className="btn btn-sm" onClick={() => aiEnabled ? setShowAiOneClick(true) : setShowAiUpgrade(true)}
-            title="AI 1-Click Report Generator"
+          <button className="btn btn-sm" onClick={() => settings?.plan === "command" ? setShowAiOneClick(true) : setShowAiUpgrade(true)}
+            title="AI 1-Click Report Generator — Command III feature"
             style={{ background:"linear-gradient(135deg,#7c3aed,#a855f7)",color:"white",border:"none",display:"flex",alignItems:"center",gap:5,padding:"5px 12px",borderRadius:7,fontWeight:700,fontSize:13,cursor:"pointer" }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
             1 Click

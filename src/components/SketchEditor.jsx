@@ -20,6 +20,8 @@ const SKETCH_TOOLS = [
   { id:"eraser",    icon:"M20 20H7L3 16l10-10 7 7-2.5 2.5",            label:"Eraser"    },
 ];
 
+const STROKE_COLORS = ["#000000","#e86c3a","#4a90d9","#3dba7e","#e8c53a","#e85a3a","#8b7cf8","#ffffff"];
+
 export function SketchEditor({ sketch, rooms, reports, project, settings, onSave, onClose }) {
   const { useState: us, useRef: ur, useEffect: ue, useCallback: uc } = React;
   const canvasRef    = ur(null);

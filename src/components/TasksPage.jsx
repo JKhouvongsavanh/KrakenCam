@@ -14,7 +14,7 @@ function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNot
   const isNew = !task?.id;
   const [form, setForm] = useState(isNew
     ? { ...EMPTY_TASK, id:uid(), createdAt:today() }
-    : { ...task, checklist: task.checklist||[], comments: task.comments||[], tags: task.tags||[], assigneeIds: task.assigneeIds||[], attachments: task.attachments||[], repeatEnabled: task.repeatEnabled||false, repeatType: task.repeatType||"days", repeatValue: task.repeatValue||1, repeatDay: task.repeatDay||1, repeatWeekday: task.repeatWeekday||1 }
+    : { ...task, checklist: task.checklist||[], comments: task.comments||[], tags: task.tags||[], assigneeIds: task.assigneeIds||[], attachments: task.attachments||[] }
   );
   const [tab, setTab]               = useState("details");
   const [newCheckItem, setNewCheckItem] = useState("");
@@ -238,72 +238,6 @@ function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNot
                 </div>
               </div>
 
-              {/* Repeat */}
-              <div className="form-group">
-                <label className="form-label" style={{ display:"flex",alignItems:"center",gap:8 }}>
-                  Repeat
-                  <div onClick={()=>set("repeatEnabled",!form.repeatEnabled)}
-                    style={{ width:36,height:20,borderRadius:10,background:form.repeatEnabled?"var(--accent)":"var(--border)",position:"relative",cursor:"pointer",transition:"background .2s",flexShrink:0 }}>
-                    <div style={{ position:"absolute",top:2,left:form.repeatEnabled?18:2,width:16,height:16,borderRadius:"50%",background:"white",boxShadow:"0 1px 3px rgba(0,0,0,.3)",transition:"left .2s" }} />
-                  </div>
-                </label>
-                {form.repeatEnabled && (
-                  <div style={{ display:"flex",flexWrap:"wrap",gap:8,marginTop:8,padding:"12px 14px",background:"var(--surface2)",borderRadius:"var(--radius-sm)",border:"1px solid var(--border)" }}>
-                    {/* Repeat type */}
-                    <div style={{ display:"flex",gap:6,flexWrap:"wrap" }}>
-                      {[
-                        { id:"days",    label:"Every X days"   },
-                        { id:"weeks",   label:"Every X weeks"  },
-                        { id:"months",  label:"Every X months" },
-                        { id:"monthday",label:"Same day of month" },
-                        { id:"weekday", label:"Same day of week" },
-                      ].map(opt=>(
-                        <button key={opt.id} onClick={()=>set("repeatType",opt.id)}
-                          className="btn btn-sm"
-                          style={{ fontSize:11,padding:"3px 10px",
-                            background:form.repeatType===opt.id?"var(--accent)":"var(--surface3)",
-                            color:form.repeatType===opt.id?"white":"var(--text2)",
-                            border:`1px solid ${form.repeatType===opt.id?"var(--accent)":"var(--border)"}` }}>
-                          {opt.label}
-                        </button>
-                      ))}
-                    </div>
-                    {/* Value inputs */}
-                    {(form.repeatType==="days"||form.repeatType==="weeks"||form.repeatType==="months") && (
-                      <div style={{ display:"flex",alignItems:"center",gap:8,marginTop:4 }}>
-                        <span style={{ fontSize:12,color:"var(--text2)" }}>Every</span>
-                        <input type="number" min="1" max="365" className="form-input" value={form.repeatValue}
-                          onChange={e=>set("repeatValue",Math.max(1,parseInt(e.target.value)||1))}
-                          style={{ width:64,textAlign:"center",padding:"4px 8px" }} />
-                        <span style={{ fontSize:12,color:"var(--text2)" }}>{form.repeatType}</span>
-                      </div>
-                    )}
-                    {form.repeatType==="monthday" && (
-                      <div style={{ display:"flex",alignItems:"center",gap:8,marginTop:4 }}>
-                        <span style={{ fontSize:12,color:"var(--text2)" }}>On day</span>
-                        <input type="number" min="1" max="31" className="form-input" value={form.repeatDay}
-                          onChange={e=>set("repeatDay",Math.min(31,Math.max(1,parseInt(e.target.value)||1)))}
-                          style={{ width:64,textAlign:"center",padding:"4px 8px" }} />
-                        <span style={{ fontSize:12,color:"var(--text2)" }}>of each month</span>
-                      </div>
-                    )}
-                    {form.repeatType==="weekday" && (
-                      <div style={{ display:"flex",gap:6,marginTop:4,flexWrap:"wrap" }}>
-                        {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map((d,i)=>(
-                          <button key={d} onClick={()=>set("repeatWeekday",i)}
-                            className="btn btn-sm"
-                            style={{ fontSize:11,padding:"3px 10px",minWidth:40,
-                              background:form.repeatWeekday===i?"var(--accent)":"var(--surface3)",
-                              color:form.repeatWeekday===i?"white":"var(--text2)",
-                              border:`1px solid ${form.repeatWeekday===i?"var(--accent)":"var(--border)"}` }}>
-                            {d}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
             </div>
           )}
 

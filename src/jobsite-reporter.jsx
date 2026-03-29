@@ -2208,9 +2208,16 @@ useEffect(() => {
                 if (!editingPhoto || !activeProject) return;
                 const proj = projects.find(p => p.id === activeProject.id);
                 if (!proj) return;
+
+                // Step 1: Immediately persist base64 so edits are visible right away
+                // (stripPhotos will drop it on DB save, but it shows in UI instantly)
+                const immediatePhotos = proj.photos.map(p =>
+                  p.id === editingPhoto.id ? { ...p, dataUrl } : p
+                );
+                updateProject({ ...proj, photos: immediatePhotos });
+
+                // Step 2: Upload to Supabase Storage in the background
                 const orgId = authProfile?.organization_id;
-                let finalUrl = dataUrl;
-                // Upload edited canvas to Supabase Storage (same raw-fetch approach as camera save)
                 if (orgId && proj.id && dataUrl?.startsWith("data:")) {
                   try {
                     const arr  = dataUrl.split(",");
@@ -2223,14 +2230,20 @@ useEffect(() => {
                     const file = new File([new Blob([u8arr], { type: mime })], `${editingPhoto.id}_edited.${ext}`, { type: mime });
                     const path = `${orgId}/${proj.id}/${editingPhoto.id}_edited.${ext}`;
                     const supaUrl = import.meta.env.VITE_SUPABASE_URL;
+                    // Use PUT for upsert — more reliable than POST with x-upsert
                     const uploadHeaders = await getAuthHeaders({ "Content-Type": mime, "x-upsert": "true" });
                     const res = await fetch(`${supaUrl}/storage/v1/object/project-photos/${path}`, {
-                      method: "POST",
+                      method: "PUT",
                       headers: uploadHeaders,
                       body: file,
                     });
                     if (res.ok) {
-                      finalUrl = `${supaUrl}/storage/v1/object/public/project-photos/${path}`;
+                      // Step 3: Replace base64 with cache-busted Storage URL so it persists across reloads
+                      const storageUrl = `${supaUrl}/storage/v1/object/public/project-photos/${path}?t=${Date.now()}`;
+                      const persistedPhotos = immediatePhotos.map(p =>
+                        p.id === editingPhoto.id ? { ...p, dataUrl: storageUrl } : p
+                      );
+                      updateProject({ ...proj, photos: persistedPhotos });
                     } else {
                       const errText = await res.text().catch(() => res.status);
                       console.warn("[KrakenCam] Edited photo upload error:", errText);
@@ -2239,10 +2252,6 @@ useEffect(() => {
                     console.warn("[KrakenCam] Edited photo upload failed:", err.message || err);
                   }
                 }
-                const updatedPhotos = proj.photos.map(p =>
-                  p.id === editingPhoto.id ? { ...p, dataUrl: finalUrl } : p
-                );
-                updateProject({ ...proj, photos: updatedPhotos });
               }}
             />
           )}
