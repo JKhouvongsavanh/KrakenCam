@@ -81,37 +81,37 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
   const COLORS_PROJECT = ["#4a90d9","#3dba7e","#8b7cf8","#e85a3a","#e8703a","#e8c53a","#3ab8e8","#f0954e"];
   const PROJECT_TYPES = settings?.projectTypes?.length ? settings.projectTypes : ["Renovation","Insurance Claim","Inspection","Repair","New Construction","Mitigation","Remediation","Demolition","Consultation","Quote Request","Other"];
   const PROPERTY_TYPES = ["Single Family Home","Multi-Family Unit","Apartment","Commercial Building","Warehouse","Other"];
-  const CAUSE_OF_LOSS = settings?.causeOfLossOptions?.length ? settings.causeOfLossOptions : ["Water Ã¢ÂÂ Pipe Burst","Water Ã¢ÂÂ Flooding","Water Ã¢ÂÂ Sewage Backup","Water Ã¢ÂÂ Roof Leak","Fire Ã¢ÂÂ Structure","Fire Ã¢ÂÂ Smoke/Soot","Wind / Storm Damage","Mold / Microbial","Impact / Collision","Vandalism / Break-In","Earthquake","Hail","Electrical","Other"];
+  const CAUSE_OF_LOSS = settings?.causeOfLossOptions?.length ? settings.causeOfLossOptions : ["Water — Pipe Burst","Water — Flooding","Water — Sewage Backup","Water — Roof Leak","Fire — Structure","Fire — Smoke/Soot","Wind / Storm Damage","Mold / Microbial","Impact / Collision","Vandalism / Break-In","Earthquake","Hail","Electrical","Other"];
   const PPE_OPTIONS = ["Hard Hat","Safety Glasses / Goggles","Work Boots","Respirator","Tyvek Suit","Gloves","High Viz","Hearing Protection"];
   const togglePPE = item => set("ppeItems", form.ppeItems.includes(item) ? form.ppeItems.filter(x => x !== item) : [...form.ppeItems, item]);
   const TIMELINE_STAGES = [
-    { id:"lead",        label:"Lead",           icon:"Ã°ÂÂÂ" },
-    { id:"assessment",  label:"Assessment",     icon:"Ã°ÂÂÂ" },
-    { id:"approved",    label:"Approved",       icon:"Ã¢ÂÂ" },
-    { id:"planning",    label:"Planning",       icon:"Ã°ÂÂÂÃ¯Â¸Â" },
-    { id:"in_progress", label:"In Progress",    icon:"Ã°ÂÂÂ¨" },
-    { id:"final_walk",  label:"Final Walk",     icon:"Ã°ÂÂÂ¶" },
-    { id:"completion_phase", label:"Completion Phase", icon:"Ã°ÂÂ§Â©" },
-    { id:"invoiced",    label:"Invoiced",       icon:"Ã°ÂÂ§Â¾" },
-    { id:"completed",   label:"Completed",      icon:"Ã°ÂÂÂ" },
+    { id:"lead",        label:"Lead",           icon:"📋" },
+    { id:"assessment",  label:"Assessment",     icon:"🔍" },
+    { id:"approved",    label:"Approved",       icon:"✅" },
+    { id:"planning",    label:"Planning",       icon:"🗂️" },
+    { id:"in_progress", label:"In Progress",    icon:"🔨" },
+    { id:"final_walk",  label:"Final Walk",     icon:"🚶" },
+    { id:"completion_phase", label:"Completion Phase", icon:"🧩" },
+    { id:"invoiced",    label:"Invoiced",       icon:"🧾" },
+    { id:"completed",   label:"Completed",      icon:"🏁" },
   ];
 
   const [geocodeState, setGeocodeState] = useState(
     project?.lat && project?.lng ? "done" : "idle"
   ); // "idle" | "loading" | "done" | "error"
 
-  // Geocode via Nominatim Ã¢ÂÂ called on save if coords are missing/stale
+  // Geocode via Nominatim — called on save if coords are missing/stale
   const geocodeAddress = async (f) => {
     const parts = [f.address, f.city, f.state, f.zip].filter(Boolean);
     if (parts.length === 0) return { lat: "", lng: "", zip: "" };
     setGeocodeState("loading");
     try {
-      // Ã¢ÂÂÃ¢ÂÂ Proxy via Supabase Edge Function Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+      // ── Proxy via Supabase Edge Function ─────────────────────────────────
       // Browsers cannot set the User-Agent header required by Nominatim, so
       // we proxy through our own edge function which sets it server-side.
       // Replace KRAKENCAM_SUPABASE_URL with your project ref.
       const GEOCODE_URL = "https://nszoateefidwhhsyexjd.supabase.co/functions/v1/geocode";
-      // Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+      // ─────────────────────────────────────────────────────────────────────
       const params = new URLSearchParams();
       if (f.address) params.set("address", f.address);
       if (f.city)    params.set("city",    f.city);
@@ -165,7 +165,7 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
     });
   };
 
-  // Coordinates come from photo GPS or manual override Ã¢ÂÂ no auto-geocoding
+  // Coordinates come from photo GPS or manual override — no auto-geocoding
 
   const addRoom = () => {
     const n = newRoom.trim();
@@ -221,14 +221,14 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
               <div className="form-group">
                 <label className="form-label">Property Type</label>
                 <select className="form-input form-select" value={form.propertyType} onChange={e => set("propertyType", e.target.value)}>
-                  <option value="">Ã¢ÂÂ Select Ã¢ÂÂ</option>
+                  <option value="">— Select —</option>
                   {PROPERTY_TYPES.map(t => <option key={t}>{t}</option>)}
                 </select>
               </div>
               <div className="form-group">
                 <label className="form-label">Cause of Loss / Issue</label>
                 <select className="form-input form-select" value={form.causeOfLoss} onChange={e => set("causeOfLoss", e.target.value)}>
-                  <option value="">Ã¢ÂÂ Select Ã¢ÂÂ</option>
+                  <option value="">— Select —</option>
                   {CAUSE_OF_LOSS.map(c => <option key={c}>{c}</option>)}
                 </select>
               </div>
@@ -293,16 +293,16 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
               <Icon d={ic.mapPin} size={15} stroke={form.manualGps?"var(--accent)":form.lat&&form.lng?"#3dba7e":"var(--text3)"} />
               {form.manualGps
                 ? <span style={{ color:"var(--accent)",fontWeight:600,flex:1 }}>
-                    Ã°ÂÂÂ Manual GPS: {parseFloat(form.lat||0).toFixed(6)}, {parseFloat(form.lng||0).toFixed(6)}
+                    📍 Manual GPS: {parseFloat(form.lat||0).toFixed(6)}, {parseFloat(form.lng||0).toFixed(6)}
                     <span style={{ fontSize:10.5,fontWeight:400,color:"var(--text3)",marginLeft:6 }}>overriding photo GPS</span>
                   </span>
                 : form.lat && form.lng
                 ? <span style={{ color:"#3dba7e",fontWeight:600 }}>
-                    Ã°ÂÂÂ Located: {parseFloat(form.lat).toFixed(4)}, {parseFloat(form.lng).toFixed(4)}
+                    📍 Located: {parseFloat(form.lat).toFixed(4)}, {parseFloat(form.lng).toFixed(4)}
                     <span style={{ fontSize:10.5,fontWeight:400,color:"var(--text3)",marginLeft:6 }}>from photo GPS</span>
                   </span>
                 : <span style={{ color:"var(--text3)" }}>
-                    Ã°ÂÂÂ· Map pin will be set automatically from your first on-site photo's GPS
+                    📷 Map pin will be set automatically from your first on-site photo's GPS
                   </span>
               }
             </div>
@@ -345,7 +345,7 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
                   </div>
                   {form.lat && form.lng && !isNaN(parseFloat(form.lat)) && !isNaN(parseFloat(form.lng)) && (
                     <div style={{ marginTop:8,fontSize:11,color:"#3dba7e",fontWeight:600 }}>
-                      Ã¢ÂÂ Valid coordinates Ã¢ÂÂ will show on map
+                      ✓ Valid coordinates — will show on map
                     </div>
                   )}
                 </>
@@ -368,14 +368,14 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
               <div className="form-group">
                 <label className="form-label">Relationship to Property</label>
                 <select className="form-input form-select" value={form.clientRelationship} onChange={e => set("clientRelationship", e.target.value)}>
-                  <option value="">Ã¢ÂÂ Select Ã¢ÂÂ</option>
+                  <option value="">— Select —</option>
                   {["Owner","Tenant","Property Manager","Manager","Office Admin","Other"].map(o => <option key={o}>{o}</option>)}
                 </select>
               </div>
               <div className="form-group">
                 <label className="form-label">Building Occupancy Status</label>
                 <select className="form-input form-select" value={form.occupancyStatus} onChange={e => set("occupancyStatus", e.target.value)}>
-                  <option value="">Ã¢ÂÂ Select Ã¢ÂÂ</option>
+                  <option value="">— Select —</option>
                   {["Occupied","Unoccupied","Vacant","Partially Occupied","Condemned","Restricted","Seasonal Occupancy"].map(o => <option key={o}>{o}</option>)}
                 </select>
               </div>
@@ -403,7 +403,7 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
 
             <div className="form-group">
               <label className="form-label">Access Limitations / Restricted Areas</label>
-              <input className="form-input" placeholder="e.g. Basement locked, roof access restrictedÃ¢ÂÂ¦" value={form.accessLimitations} onChange={e => set("accessLimitations", e.target.value)} />
+              <input className="form-input" placeholder="e.g. Basement locked, roof access restricted…" value={form.accessLimitations} onChange={e => set("accessLimitations", e.target.value)} />
             </div>
 
             <div className="form-row">
@@ -442,28 +442,28 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
                   return (
                     <div key={item} onClick={() => togglePPE(item)}
                       style={{ padding:"6px 14px", borderRadius:20, border:`1.5px solid ${active ? "var(--accent)" : "var(--border)"}`, background: active ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:12.5, fontWeight:600, color: active ? "var(--accent)" : "var(--text2)", transition:"all .15s", userSelect:"none" }}>
-                      {active ? "Ã¢ÂÂ " : ""}{item}
+                      {active ? "✓ " : ""}{item}
                     </div>
                   );
                 })}
                 {/* Other option */}
                 <div onClick={() => togglePPE("Other")}
                   style={{ padding:"6px 14px", borderRadius:20, border:`1.5px solid ${form.ppeItems.includes("Other") ? "var(--accent)" : "var(--border)"}`, background: form.ppeItems.includes("Other") ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:12.5, fontWeight:600, color: form.ppeItems.includes("Other") ? "var(--accent)" : "var(--text2)", transition:"all .15s", userSelect:"none" }}>
-                  {form.ppeItems.includes("Other") ? "Ã¢ÂÂ " : ""}Other
+                  {form.ppeItems.includes("Other") ? "✓ " : ""}Other
                 </div>
               </div>
               {form.ppeItems.includes("Other") && (
-                <input className="form-input" style={{ marginTop:10 }} placeholder="Describe other PPE requiredÃ¢ÂÂ¦" value={form.ppeOtherText} onChange={e => set("ppeOtherText", e.target.value)} />
+                <input className="form-input" style={{ marginTop:10 }} placeholder="Describe other PPE required…" value={form.ppeOtherText} onChange={e => set("ppeOtherText", e.target.value)} />
               )}
             </div>
           </div>
 
-          {/* Insurance Ã¢ÂÂ collapsible */}
+          {/* Insurance — collapsible */}
           <div className="form-section">
             <div className="form-section-title" style={{ cursor:"pointer", userSelect:"none" }} onClick={() => set("insuranceEnabled", !form.insuranceEnabled)}>
               <Icon d={ic.briefcase} size={15} stroke="var(--accent)" /> Insurance Information
               <span style={{ marginLeft:"auto", fontSize:12, color:"var(--text3)", fontWeight:400, background:"var(--surface3)", padding:"2px 10px", borderRadius:10 }}>
-                {form.insuranceEnabled ? "Ã¢ÂÂ² Hide" : "Ã¢ÂÂ¼ Add"}
+                {form.insuranceEnabled ? "▲ Hide" : "▼ Add"}
               </span>
             </div>
             {form.insuranceEnabled && (
@@ -479,7 +479,7 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
                 <div className="form-group">
                   <label className="form-label">Coverage Type</label>
                   <select className="form-input form-select" value={form.coverageType} onChange={e => set("coverageType", e.target.value)}>
-                    <option value="">Ã¢ÂÂ Select Ã¢ÂÂ</option>
+                    <option value="">— Select —</option>
                     {(settings?.coverageTypeOptions?.length ? settings.coverageTypeOptions : ["Dwelling","Contents","Liability","ALE (Additional Living Expenses)","Commercial Property","Business Interruption","Flood","Other"]).map(c => <option key={c}>{c}</option>)}
                   </select>
                 </div>
@@ -503,7 +503,7 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
             {assignableUsers.length === 0 ? (
               <div style={{ padding:"14px 16px",background:"var(--surface2)",border:"1px dashed var(--border)",borderRadius:"var(--radius-sm)",fontSize:13,color:"var(--text2)",display:"flex",alignItems:"center",gap:10 }}>
                 <Icon d={ic.users} size={16} stroke="var(--text3)" />
-                <span>No managers or users in your account yet. Add team members in <strong style={{ color:"var(--accent)" }}>Account Ã¢ÂÂ Team Members</strong> first.</span>
+                <span>No managers or users in your account yet. Add team members in <strong style={{ color:"var(--accent)" }}>Account → Team Members</strong> first.</span>
               </div>
             ) : (
               <div style={{ display:"flex",flexDirection:"column",gap:6 }}>
@@ -543,14 +543,14 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
             <div style={{ display:"flex",flexWrap:"wrap",gap:7,marginBottom:12 }}>
               {customRooms.map(r => (
                 <div key={r} style={{ display:"flex",alignItems:"center",gap:8,background:"var(--surface2)",border:"1px solid var(--border)",borderRadius:20,padding:"4px 10px 4px 8px",fontSize:0 }}>
-                  <span>{ROOM_ICONS[r]||"Ã°ÂÂÂ¦"}</span>
+                  <span>{ROOM_ICONS[r]||"📦"}</span>
                   <RoomIconBadge name={r} size={14} box={28} /><span style={{ fontSize:13 }}>{r}</span>
-                  <span style={{ color:"var(--text3)",cursor:"pointer",marginLeft:2,fontSize:12,lineHeight:1 }} onClick={() => removeRoom(r)}>ÃÂ</span>
+                  <span style={{ color:"var(--text3)",cursor:"pointer",marginLeft:2,fontSize:12,lineHeight:1 }} onClick={() => removeRoom(r)}>×</span>
                 </div>
               ))}
             </div>
             <div style={{ display:"flex",gap:8 }}>
-              <input className="form-input" style={{ flex:1 }} placeholder="Add custom room (e.g. Sunroom)Ã¢ÂÂ¦" value={newRoom} onChange={e => setNewRoom(e.target.value)} onKeyDown={e => e.key==="Enter"&&addRoom()} />
+              <input className="form-input" style={{ flex:1 }} placeholder="Add custom room (e.g. Sunroom)…" value={newRoom} onChange={e => setNewRoom(e.target.value)} onKeyDown={e => e.key==="Enter"&&addRoom()} />
               <button className="btn btn-secondary" onClick={addRoom}><Icon d={ic.plus} size={15} /></button>
             </div>
             <div style={{ display:"flex",flexWrap:"wrap",gap:6,marginTop:10 }}>
@@ -564,7 +564,7 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
           {/* Notes */}
           <div className="form-group">
             <label className="form-label">Notes</label>
-            <textarea className="form-input form-textarea" placeholder="Any notes about this projectÃ¢ÂÂ¦" value={form.notes} onChange={e => set("notes", e.target.value)} />
+            <textarea className="form-input form-textarea" placeholder="Any notes about this project…" value={form.notes} onChange={e => set("notes", e.target.value)} />
           </div>
 
           {/* Project Timeline */}
@@ -610,12 +610,12 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
             {form.timelineStage && (
               <div style={{ display:"grid", gap:10 }}>
                 <input className="form-input" style={{ fontSize:12.5 }}
-                  placeholder={`Internal note for "${TIMELINE_STAGES.find(s=>s.id===form.timelineStage)?.label}"Ã¢ÂÂ¦`}
+                  placeholder={`Internal note for "${TIMELINE_STAGES.find(s=>s.id===form.timelineStage)?.label}"…`}
                   value={form.timelineNotes?.[form.timelineStage] || ""}
                   onChange={e => set("timelineNotes", { ...form.timelineNotes, [form.timelineStage]: e.target.value })}
                 />
                 <input className="form-input" style={{ fontSize:12.5 }}
-                  placeholder={`Client portal note for "${TIMELINE_STAGES.find(s=>s.id===form.timelineStage)?.label}"Ã¢ÂÂ¦`}
+                  placeholder={`Client portal note for "${TIMELINE_STAGES.find(s=>s.id===form.timelineStage)?.label}"…`}
                   value={form.timelineClientNotes?.[form.timelineStage] || ""}
                   onChange={e => set("timelineClientNotes", { ...form.timelineClientNotes, [form.timelineStage]: e.target.value })}
                 />
@@ -628,7 +628,7 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
           <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={!form.title.trim() || geocodeState==="loading"}>
             {geocodeState==="loading"
-              ? <><span style={{ display:"inline-block",width:12,height:12,border:"2px solid rgba(255,255,255,.3)",borderTopColor:"white",borderRadius:"50%",animation:"spin .7s linear infinite" }} /> LocatingÃ¢ÂÂ¦</>
+              ? <><span style={{ display:"inline-block",width:12,height:12,border:"2px solid rgba(255,255,255,.3)",borderTopColor:"white",borderRadius:"50%",animation:"spin .7s linear infinite" }} /> Locating…</>
               : <><Icon d={ic.check} size={14} /> {isEdit ? "Save Changes" : "Create Jobsite"}</>
             }
           </button>
@@ -638,7 +638,7 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
   );
 }
 
-// Ã¢ÂÂÃ¢ÂÂ Projects List (Home) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ── Projects List (Home) ───────────────────────────────────────────────────────
 export function ProjectsList({ projects, teamUsers = [], settings = {}, onSelect, onNew, onEdit, onDelete }) {
   const [showDeleteId, setShowDeleteId] = useState(null);
   const [filterStatus, setFilterStatus] = useState("all");
@@ -663,7 +663,7 @@ export function ProjectsList({ projects, teamUsers = [], settings = {}, onSelect
       if (sort === "alpha")  return a.title.localeCompare(b.title);
       if (sort === "oldest") return new Date(a.createdAt||0) - new Date(b.createdAt||0);
       if (sort === "newest") return new Date(b.createdAt||0) - new Date(a.createdAt||0);
-      // "recent" Ã¢ÂÂ by updatedAt falling back to createdAt
+      // "recent" — by updatedAt falling back to createdAt
       return new Date(b.updatedAt||b.createdAt||0) - new Date(a.updatedAt||a.createdAt||0);
     });
 
@@ -689,7 +689,7 @@ export function ProjectsList({ projects, teamUsers = [], settings = {}, onSelect
 
       {/* Toolbar */}
       <div style={{ display:"flex",flexDirection:"column",gap:10,marginBottom:20 }}>
-        <input className="form-input" style={{ width:"100%",padding:"8px 14px",boxSizing:"border-box" }} placeholder="Search jobsites, addresses, clientsÃ¢ÂÂ¦" value={search} onChange={e => setSearch(e.target.value)} />
+        <input className="form-input" style={{ width:"100%",padding:"8px 14px",boxSizing:"border-box" }} placeholder="Search jobsites, addresses, clients…" value={search} onChange={e => setSearch(e.target.value)} />
         <div style={{ display:"flex",alignItems:"center",gap:8,flexWrap:"wrap" }}>
           <div style={{ display:"flex",gap:6,overflowX:"auto",WebkitOverflowScrolling:"touch",scrollbarWidth:"none",msOverflowStyle:"none",width:"100%",paddingBottom:2 }}>
             {[["all","All"],... ((normaliseStatuses(settings.projectStatuses)||[{id:"active",label:"Active"},{id:"onhold",label:"On Hold"},{id:"completed",label:"Completed"},{id:"archived",label:"Archived"}]).map(s=>[s.id,s.label]))].map(([k,l]) => (
@@ -806,13 +806,13 @@ export function ProjectsList({ projects, teamUsers = [], settings = {}, onSelect
   );
 }
 
-// Ã¢ÂÂÃ¢ÂÂ Checklist System Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ── Checklist System ──────────────────────────────────────────────────────────
 
 const FIELD_TYPES = [
-  { id:"checkbox",       label:"Single Checkbox",    icon:"Ã¢ÂÂ" },
-  { id:"multi_checkbox", label:"Multi Checkbox",     icon:"Ã¢ÂÂÃ¢ÂÂ" },
-  { id:"dropdown",       label:"Dropdown",           icon:"Ã¢ÂÂ¾" },
-  { id:"text",           label:"Text Answer",        icon:"Ã¢ÂÂ" },
+  { id:"checkbox",       label:"Single Checkbox",    icon:"☑" },
+  { id:"multi_checkbox", label:"Multi Checkbox",     icon:"☑☑" },
+  { id:"dropdown",       label:"Dropdown",           icon:"▾" },
+  { id:"text",           label:"Text Answer",        icon:"✏" },
   { id:"yesno",          label:"Yes / No",           icon:"Y/N" },
   { id:"number",         label:"Number",             icon:"#" },
 ];

@@ -16,7 +16,7 @@ import { useAuth } from "./AuthProvider.jsx";
 const billingDaySuffix = (dateStr) => {
   const d = new Date(dateStr || "2025-03-11").getDate();
   const v = d % 100;
-  // 11th, 12th, 13th are exceptions ÃÂ¢ÃÂÃÂ always "th"
+  // 11th, 12th, 13th are exceptions â always "th"
   if (v >= 11 && v <= 13) return d + "th";
   const s = { 1:"st", 2:"nd", 3:"rd" };
   return d + (s[d % 10] || "th");
@@ -71,7 +71,7 @@ const calcProration = (settings, users, fromPlan, toPlan) => {
   return { unusedCredit, newCharge, netCharge, daysLeft: info.daysLeft, daysTotal: info.daysTotal, cycleEnd: info.cycleEnd, fromTotal, toTotal };
 };
 
-// ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ ACCOUNT PAGE ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
+// ââ ACCOUNT PAGE âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const PRICING = {
   monthly: {
     base:    { admin: 39, user: 29 },
@@ -88,7 +88,7 @@ const PLAN_NAMES = { base: "Capture I", pro: "Intelligence II", command: "Comman
 
 // Returns the start of the current week's generation window (Saturday 23:59 reset)
 // Returns ISO date string of next Saturday 23:59 reset
-// Returns "expired" | "expiring-soon" (ÃÂ¢ÃÂÃÂ¤30d) | "expiring-warning" (ÃÂ¢ÃÂÃÂ¤90d) | "valid" | "no-expiry"
+// Returns "expired" | "expiring-soon" (â¤30d) | "expiring-warning" (â¤90d) | "valid" | "no-expiry"
 
 const CERT_STATUS_META = {
   "expired":          { label:"Expired",       bg:"#e85a3a22", color:"#e85a3a", border:"#e85a3a55" },
@@ -154,7 +154,7 @@ export function UserModal({ user, projects, settings = {}, currentUserRole = "ad
     <div className="modal-overlay" onClick={e => e.target===e.currentTarget && onClose()}>
       <div className="modal modal-lg fade-in" style={{ maxWidth:640 }}>
         <div className="modal-header">
-          <div className="modal-title">{isNew ? "Add New User" : `Edit ÃÂ¢ÃÂÃÂ ${user.firstName} ${user.lastName}`}</div>
+          <div className="modal-title">{isNew ? "Add New User" : `Edit â ${user.firstName} ${user.lastName}`}</div>
           <button className="btn btn-ghost btn-icon" style={{ width:44,height:44 }} onClick={onClose}><Icon d={ic.close} size={22} /></button>
         </div>
 
@@ -171,7 +171,7 @@ export function UserModal({ user, projects, settings = {}, currentUserRole = "ad
 
         <div className="modal-body" style={{ maxHeight:480,overflowY:"auto" }}>
 
-          {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ INFO ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+          {/* ââ INFO ââ */}
           {tab==="info" && (
             <div>
               <div className="form-row">
@@ -180,7 +180,7 @@ export function UserModal({ user, projects, settings = {}, currentUserRole = "ad
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Email Address * <span style={{ fontSize:11,color:"var(--text3)",fontWeight:400 }}>ÃÂ¢ÃÂÃÂ also updates login email</span></label>
+                  <label className="form-label">Email Address * <span style={{ fontSize:11,color:"var(--text3)",fontWeight:400 }}>â also updates login email</span></label>
                   <input className="form-input" type="email" value={form.email} onChange={e=>set("email",e.target.value)} placeholder="jane@company.com" />
                 </div>
                 <div className="form-group"><label className="form-label">Mobile Phone</label><input className="form-input" value={form.mobile} onChange={e=>set("mobile",e.target.value)} placeholder="+1 (555) 000-0000" /></div>
@@ -216,11 +216,11 @@ export function UserModal({ user, projects, settings = {}, currentUserRole = "ad
                 <div className="form-group"><label className="form-label">State / Province</label><input className="form-input" value={form.state} onChange={e=>set("state",e.target.value)} /></div>
                 <div className="form-group"><label className="form-label">Zip / Postal Code</label><input className="form-input" value={form.zip} onChange={e=>set("zip",e.target.value)} /></div>
               </div>
-              <div className="form-group"><label className="form-label">Notes</label><textarea className="form-input form-textarea" value={form.notes} onChange={e=>set("notes",e.target.value)} placeholder="Internal notes about this userÃÂ¢ÃÂÃÂ¦" style={{ minHeight:68 }} /></div>
+              <div className="form-group"><label className="form-label">Notes</label><textarea className="form-input form-textarea" value={form.notes} onChange={e=>set("notes",e.target.value)} placeholder="Internal notes about this userâ¦" style={{ minHeight:68 }} /></div>
             </div>
           )}
 
-          {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ ACCESS ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+          {/* ââ ACCESS ââ */}
           {tab==="access" && (
             <div>
               <div style={{ marginBottom:18 }}>
@@ -271,7 +271,7 @@ export function UserModal({ user, projects, settings = {}, currentUserRole = "ad
             </div>
           )}
 
-          {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ PROJECTS ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+          {/* ââ PROJECTS ââ */}
           {tab==="projects" && (
             <div>
               <div style={{ fontSize:12.5,color:"var(--text2)",marginBottom:14,lineHeight:1.6 }}>
@@ -282,7 +282,7 @@ export function UserModal({ user, projects, settings = {}, currentUserRole = "ad
                     <Icon d={ic.shield} size={16} stroke="var(--accent)" /><span>This role has access to <strong style={{ color:"var(--text)" }}>all projects</strong> automatically.</span>
                   </div>
                 : projects.length === 0
-                  ? <div style={{ padding:16,color:"var(--text3)",fontSize:13 }}>No projects yet ÃÂ¢ÃÂÃÂ create a jobsite first.</div>
+                  ? <div style={{ padding:16,color:"var(--text3)",fontSize:13 }}>No projects yet â create a jobsite first.</div>
                   : <div style={{ display:"flex",flexDirection:"column",gap:6 }}>
                       {projects.map(p=>{
                         const sel = form.assignedProjects.includes(p.id);
@@ -303,7 +303,7 @@ export function UserModal({ user, projects, settings = {}, currentUserRole = "ad
             </div>
           )}
 
-          {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ CERTIFICATIONS ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+          {/* ââ CERTIFICATIONS ââ */}
           {tab==="certs" && (() => {
             const certs = form.certifications || [];
             const saveCert = (cert) => {
@@ -327,7 +327,7 @@ export function UserModal({ user, projects, settings = {}, currentUserRole = "ad
                           ? `${certs.filter(c=>getCertStatus(c.dateExpires)==="expired").length} certification(s) expired`
                           : `${certs.filter(c=>["expiring-soon","expiring-warning"].includes(getCertStatus(c.dateExpires))).length} certification(s) expiring soon`}
                       </strong>
-                      {" ÃÂ¢ÃÂÃÂ update or renew before the expiry date"}
+                      {" â update or renew before the expiry date"}
                     </span>
                   </div>
                 )}
@@ -372,7 +372,7 @@ export function UserModal({ user, projects, settings = {}, currentUserRole = "ad
                               </span>
                             </div>
                             <div style={{ fontSize:12,color:"var(--text2)",marginBottom:3 }}>
-                              {cert.certifyingBody && <span style={{ marginRight:10 }}>ÃÂ°ÃÂÃÂÃÂ¢ {cert.certifyingBody}</span>}
+                              {cert.certifyingBody && <span style={{ marginRight:10 }}>ð¢ {cert.certifyingBody}</span>}
                               {cert.dateCertified && <span style={{ marginRight:10 }}>Issued: {new Date(cert.dateCertified+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>}
                             </div>
                             {cert.dateExpires && (
@@ -380,7 +380,7 @@ export function UserModal({ user, projects, settings = {}, currentUserRole = "ad
                                 {status==="expired"
                                   ? `Expired ${Math.abs(daysLeft)} day${Math.abs(daysLeft)!==1?"s":""} ago`
                                   : status==="expiring-soon"
-                                    ? `Expires in ${daysLeft} day${daysLeft!==1?"s":""} ÃÂ¢ÃÂÃÂ renew now`
+                                    ? `Expires in ${daysLeft} day${daysLeft!==1?"s":""} â renew now`
                                     : status==="expiring-warning"
                                       ? `Expires in ${daysLeft} days`
                                       : `Expires: ${new Date(cert.dateExpires+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`}
@@ -410,7 +410,7 @@ export function UserModal({ user, projects, settings = {}, currentUserRole = "ad
                   </button>
                 )}
 
-                {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Cert edit/add form ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+                {/* ââ Cert edit/add form ââ */}
                 {editingCert && (
                   <div style={{ background:"var(--surface2)",borderRadius:12,border:"1px solid var(--border)",overflow:"hidden" }}>
                     <div style={{ padding:"13px 16px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",justifyContent:"space-between",background:"var(--surface)" }}>
@@ -511,9 +511,9 @@ export function UserModal({ user, projects, settings = {}, currentUserRole = "ad
                           <div style={{ padding:"8px 12px",borderRadius:8,background:sm.bg,border:`1px solid ${sm.border}`,marginBottom:12,fontSize:12,color:sm.color,fontWeight:600,display:"flex",alignItems:"center",gap:7 }}>
                             <span style={{ width:7,height:7,borderRadius:"50%",background:sm.color,display:"inline-block",flexShrink:0 }} />
                             {st==="expired" ? `Expired ${Math.abs(days)} days ago`
-                              : st==="expiring-soon" ? `Expires in ${days} days ÃÂ¢ÃÂÃÂ will trigger urgent notification`
-                              : st==="expiring-warning" ? `Expires in ${days} days ÃÂ¢ÃÂÃÂ will trigger 90-day warning`
-                              : `Valid ÃÂÃÂ· expires ${new Date(editingCert.dateExpires+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`}
+                              : st==="expiring-soon" ? `Expires in ${days} days â will trigger urgent notification`
+                              : st==="expiring-warning" ? `Expires in ${days} days â will trigger 90-day warning`
+                              : `Valid Â· expires ${new Date(editingCert.dateExpires+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`}
                           </div>
                         );
                       })()}
@@ -574,7 +574,7 @@ export function UserModal({ user, projects, settings = {}, currentUserRole = "ad
                             background: r.ok ? "#3dba7e22" : "var(--surface2)",
                             color: r.ok ? "#3dba7e" : "var(--text3)",
                             border: `1px solid ${r.ok ? "#3dba7e44" : "var(--border)"}` }}>
-                            {r.ok ? "ÃÂ¢ÃÂÃÂ" : "ÃÂ¢ÃÂÃÂ"} {r.label}
+                            {r.ok ? "â" : "â"} {r.label}
                           </span>
                         ))}
                       </div>
@@ -734,7 +734,7 @@ export function UpdateCardModal({ current, onSave, onClose }) {
             <div style={{ position:"absolute",bottom:-30,right:30,width:80,height:80,borderRadius:"50%",background:"rgba(255,255,255,.04)" }}/>
             <div style={{ fontSize:11,letterSpacing:".12em",opacity:.7,marginBottom:10,fontWeight:600 }}>PAYMENT METHOD</div>
             <div style={{ fontSize:15,fontWeight:700,letterSpacing:".18em",marginBottom:14,fontFamily:"monospace" }}>
-              {num ? num.padEnd(19,"ÃÂÃÂ·").slice(0,19) : "ÃÂ¢ÃÂÃÂ¢ÃÂ¢ÃÂÃÂ¢ÃÂ¢ÃÂÃÂ¢ÃÂ¢ÃÂÃÂ¢ ÃÂ¢ÃÂÃÂ¢ÃÂ¢ÃÂÃÂ¢ÃÂ¢ÃÂÃÂ¢ÃÂ¢ÃÂÃÂ¢ ÃÂ¢ÃÂÃÂ¢ÃÂ¢ÃÂÃÂ¢ÃÂ¢ÃÂÃÂ¢ÃÂ¢ÃÂÃÂ¢ ÃÂ¢ÃÂÃÂ¢ÃÂ¢ÃÂÃÂ¢ÃÂ¢ÃÂÃÂ¢ÃÂ¢ÃÂÃÂ¢"}
+              {num ? num.padEnd(19,"Â·").slice(0,19) : "â¢â¢â¢â¢ â¢â¢â¢â¢ â¢â¢â¢â¢ â¢â¢â¢â¢"}
             </div>
             <div style={{ display:"flex",justifyContent:"space-between",alignItems:"flex-end" }}>
               <div>
@@ -767,7 +767,7 @@ export function UpdateCardModal({ current, onSave, onClose }) {
             </div>
             <div>
               <div className="form-label">CVC</div>
-              <input className="form-input" placeholder="ÃÂ¢ÃÂÃÂ¢ÃÂ¢ÃÂÃÂ¢ÃÂ¢ÃÂÃÂ¢" value={cvc} type="password"
+              <input className="form-input" placeholder="â¢â¢â¢" value={cvc} type="password"
                 onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))}
                 style={{ borderColor:errors.cvc?"#e85a3a":"" }}/>
               {errors.cvc && <div style={{ fontSize:11.5,color:"#e85a3a",marginTop:4 }}>{errors.cvc}</div>}
@@ -798,7 +798,7 @@ export function UpdateCardModal({ current, onSave, onClose }) {
   );
 }
 
-// ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ InviteUserButton ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
+// ââ InviteUserButton ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 export function InviteUserButton({ canEdit }) {
   const { session } = useAuth();
   const [open, setOpen] = React.useState(false);
@@ -844,7 +844,7 @@ export function InviteUserButton({ canEdit }) {
         disabled={!canEdit}
         title="Invite a user to join your organization"
       >
-        ÃÂ¢ÃÂÃÂÃÂ¯ÃÂ¸ÃÂ Invite
+        âï¸ Invite
       </button>
     );
   }
@@ -926,7 +926,7 @@ export function InviteUserButton({ canEdit }) {
               opacity: sending ? 0.7 : 1,
             }}
           >
-            {sending ? "SendingÃÂ¢ÃÂÃÂ¦" : "Send Invite"}
+            {sending ? "Sendingâ¦" : "Send Invite"}
           </button>
         </div>
       </div>
@@ -970,7 +970,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
   const canViewPerms = hasPermissionLevel(currentUserPerms, "settings", "view");
   const canEditPerms = currentUserRole === "admin" || (permissionPolicies.allowManagerPermissionEditing && currentUserRole === "manager" && hasPermissionLevel(currentUserPerms, "settings", "edit"));
 
-  // AI generation tracking ÃÂ¢ÃÂÃÂ reset if window has expired
+  // AI generation tracking â reset if window has expired
   const aiLimit       = PLAN_AI_LIMITS[currentPlan] || 0;
   const hasAI         = aiLimit > 0;
   const windowStart   = settings?.aiGenerationsWindowStart ? new Date(settings.aiGenerationsWindowStart) : null;
@@ -998,7 +998,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
         onNotify({
           id: uid(),
           author: "Certification Alert",
-          authorInitials: "ÃÂ¢ÃÂÃÂ ",
+          authorInitials: "â ",
           authorColor: meta.color,
           action: status==="expired" ? "certification expired" : "certification expiring",
           context: cert.name,
@@ -1025,7 +1025,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
     // Persist to Supabase profiles table
     if (normalizedUser.email) {
       if (!exists) {
-        // Brand-new user ÃÂ¢ÃÂÃÂ insert a pending profile (no auth account yet)
+        // Brand-new user â insert a pending profile (no auth account yet)
         const orgId = acctAuthProfile?.organization_id;
         if (orgId) {
           createTeamMember(normalizedUser, orgId).catch(err =>
@@ -1033,7 +1033,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
           );
         }
       } else {
-        // Existing user ÃÂ¢ÃÂÃÂ update their profile (pass previous email so auth email can be updated if changed)
+        // Existing user â update their profile (pass previous email so auth email can be updated if changed)
         const previousEmail = exists.email || null;
         updateTeamMember(normalizedUser, previousEmail).catch(err =>
           console.warn("[KrakenCam] Failed to save team member:", err.message || err)
@@ -1041,7 +1041,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
       }
     }
 
-    // Sync user.assignedProjects ÃÂ¢ÃÂÃÂ each project's assignedUserIds
+    // Sync user.assignedProjects â each project's assignedUserIds
     if (onProjectsChange) {
       onProjectsChange(prev => prev.map(proj => {
         const userWantsThisProject = (normalizedUser.assignedProjects||[]).includes(proj.id);
@@ -1074,7 +1074,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
           action: isNewUser ? "added you to jobsite" : "assigned you to jobsite",
           context: proj.title,
           preview: userName
-            ? `${userName} ÃÂ¢ÃÂÃÂ assigned to: ${proj.title}`
+            ? `${userName} â assigned to: ${proj.title}`
             : `You've been assigned to "${proj.title}"`,
           date: today(),
           read: false,
@@ -1104,7 +1104,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
           authorColor: "var(--accent)",
           action: "updated team member",
           context: userName || normalizedUser.email || "User Account",
-          preview: `Role: ${normalizedUser.role || "user"}${normalizedUser.status ? ` ÃÂ¢ÃÂÃÂ¢ Status: ${normalizedUser.status}` : ""}`,
+          preview: `Role: ${normalizedUser.role || "user"}${normalizedUser.status ? ` â¢ Status: ${normalizedUser.status}` : ""}`,
           date: today(),
           read: false,
           type: "team",
@@ -1213,7 +1213,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
           ))}
         </div>
 
-        {/* AI Generation Krakens usage box ÃÂ¢ÃÂÃÂ shown for admins/managers on AI-enabled plans */}
+        {/* AI Generation Krakens usage box â shown for admins/managers on AI-enabled plans */}
         {hasAI && (
           <div style={{ marginTop:12,background:"var(--surface)",border:`1px solid ${aiRemaining===0?"#e85a3a44":isCommand?"#2b7fe844":isPro?"#a855f744":"#3dba7e44"}`,borderRadius:"var(--radius)",padding:"14px 18px",display:"flex",alignItems:"center",gap:16 }}>
             {/* Icon */}
@@ -1224,10 +1224,10 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
             <div style={{ flex:1,minWidth:0 }}>
               <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:5 }}>
                 <div style={{ fontWeight:700,fontSize:13,color:"var(--text)" }}>
-                  AI Generation Krakens ÃÂ¢ÃÂÃÂ {PLAN_NAMES[currentPlan]}
+                  AI Generation Krakens â {PLAN_NAMES[currentPlan]}
                 </div>
                 <div style={{ fontSize:12,fontWeight:800,color:aiRemaining===0?"#e85a3a":isCommand?"#2b7fe8":isPro?"#a855f7":"#3dba7e" }}>
-                  {aiRemaining === 0 ? "ÃÂ¢ÃÂÃÂ  Limit reached" : `${aiRemaining} remaining`}
+                  {aiRemaining === 0 ? "â  Limit reached" : `${aiRemaining} remaining`}
                   <span style={{ fontWeight:400,color:"var(--text3)",fontSize:11 }}> / {aiLimit} this week</span>
                 </div>
               </div>
@@ -1239,7 +1239,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
               </div>
               <div style={{ fontSize:11,color:"var(--text3)",marginTop:4,display:"flex",justifyContent:"space-between" }}>
                 <span>{aiUsed} used this week</span>
-                <span>Resets Saturday 11:59 PM ÃÂÃÂ· {nextReset.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</span>
+                <span>Resets Saturday 11:59 PM Â· {nextReset.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</span>
               </div>
             </div>
           </div>
@@ -1262,18 +1262,18 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
         ))}
       </div>}
 
-      {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ TEAM MEMBERS ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+      {/* ââ TEAM MEMBERS ââ */}
       {tab==="team" && (
         <div className="fade-in">
           <div style={{ display:"flex",gap:10,marginBottom:18,alignItems:"center" }}>
-            <input className="form-input" style={{ flex:1,maxWidth:320 }} placeholder="Search usersÃÂ¢ÃÂÃÂ¦" value={searchQ} onChange={e=>setSearchQ(e.target.value)} />
+            <input className="form-input" style={{ flex:1,maxWidth:320 }} placeholder="Search usersâ¦" value={searchQ} onChange={e=>setSearchQ(e.target.value)} />
             <button className="btn btn-primary btn-sm" onClick={()=>canEditTeam && setAddingUser(true)} disabled={!canEditTeam}>
               <Icon d={ic.userPlus} size={14} /> Add User <span style={{ opacity:.7,fontSize:11 }}>+${userSeat}/mo</span>
             </button>
             <InviteUserButton canEdit={canEditTeam} />
           </div>
 
-          {/* Admin row ÃÂ¢ÃÂÃÂ clickable self-edit */}
+          {/* Admin row â clickable self-edit */}
           {(() => {
             const accentColor = ROLE_META.admin.color;
             const adminInitials = `${settings.userFirstName?.[0]||"A"}${settings.userLastName?.[0]||""}`.toUpperCase();
@@ -1363,16 +1363,16 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                     <div style={{ fontWeight:700, fontSize:14, display:"flex", alignItems:"center", gap:8 }}>
                       {settings.userFirstName} {settings.userLastName}
                       <span style={{ fontSize:11, color:"var(--text3)", fontWeight:400 }}>(you)</span>
-                      {certAlertCount > 0 && <span style={{ fontSize:10, fontWeight:800, padding:"1px 6px", borderRadius:8, background:"#e85a3a22", color:"#e85a3a", border:"1px solid #e85a3a44" }}>ÃÂ¢ÃÂÃÂ  {certAlertCount} cert{certAlertCount!==1?"s":""}</span>}
+                      {certAlertCount > 0 && <span style={{ fontSize:10, fontWeight:800, padding:"1px 6px", borderRadius:8, background:"#e85a3a22", color:"#e85a3a", border:"1px solid #e85a3a44" }}>â  {certAlertCount} cert{certAlertCount!==1?"s":""}</span>}
                     </div>
-                    <div style={{ fontSize:12, color:"var(--text2)" }}>{settings.userEmail} ÃÂÃÂ· {settings.userTitle||"Administrator"}</div>
+                    <div style={{ fontSize:12, color:"var(--text2)" }}>{settings.userEmail} Â· {settings.userTitle||"Administrator"}</div>
                   </div>
                   <RoleBadge role={settings.userRole || "admin"} />
                   <StatusDot status="active" />
-                  <span style={{ fontSize:12, color:"var(--text3)", marginLeft:4 }}>{viewingAdmin ? "ÃÂ¢ÃÂÃÂ²" : "ÃÂ¢ÃÂÃÂ¼"}</span>
+                  <span style={{ fontSize:12, color:"var(--text3)", marginLeft:4 }}>{viewingAdmin ? "â²" : "â¼"}</span>
                 </div>
 
-                {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Expanded self-edit panel ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+                {/* ââ Expanded self-edit panel ââ */}
                 {viewingAdmin && adminForm && (
                   <div style={{ borderTop:"1px solid var(--border)", display:"flex", flexWrap:"wrap" }}>
 
@@ -1483,7 +1483,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                         {/* Alert banner */}
                         {adminForm.certifications.some(c=>["expired","expiring-soon"].includes(getCertStatus(c.dateExpires))) && (
                           <div style={{ padding:"8px 12px", background:"#e85a3a18", border:"1px solid #e85a3a44", borderRadius:7, fontSize:12, color:"#e85a3a", marginBottom:12 }}>
-                            ÃÂ¢ÃÂÃÂ  One or more certifications need attention.
+                            â  One or more certifications need attention.
                           </div>
                         )}
 
@@ -1630,7 +1630,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                                 <span style={{ width:9, height:9, borderRadius:"50%", background:p.color, display:"inline-block", flexShrink:0 }} />
                                 <span style={{ fontSize:12.5, fontWeight:600, flex:1 }}>{p.title}</span>
                                 <button style={{ background:"none", border:"none", cursor:"pointer", padding:"2px 6px", borderRadius:4, color:"var(--text3)", fontSize:16, lineHeight:1 }}
-                                  onClick={()=>setAF("assignedProjects",(adminForm.assignedProjects||[]).filter(id=>id!==p.id))}>ÃÂÃÂ</button>
+                                  onClick={()=>setAF("assignedProjects",(adminForm.assignedProjects||[]).filter(id=>id!==p.id))}>Ã</button>
                               </div>
                             ))}
                           </div>
@@ -1638,7 +1638,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                         {/* Unassigned picker */}
                         {(() => {
                           const unassigned = projects.filter(p=>!(adminForm.assignedProjects||[]).includes(p.id));
-                          if (unassigned.length === 0) return <div style={{ fontSize:12, color:"var(--text3)", fontStyle:"italic" }}>{projects.length===0 ? "No projects yet." : "All jobsites tagged ÃÂ¢ÃÂÃÂ"}</div>;
+                          if (unassigned.length === 0) return <div style={{ fontSize:12, color:"var(--text3)", fontStyle:"italic" }}>{projects.length===0 ? "No projects yet." : "All jobsites tagged â"}</div>;
                           return (
                             <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
                               {unassigned.map(p=>(
@@ -1695,7 +1695,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
             return (
               <div key={u.id} style={{ background:"var(--surface)",border:`1px solid ${isViewing ? "var(--accent)" : "var(--border)"}`,borderRadius:"var(--radius)",marginBottom:8,opacity:u.status==="inactive"?0.7:1,transition:"border-color .15s,box-shadow .15s",boxShadow:isViewing?"0 0 0 3px var(--accent-glow)":"none",overflow:"hidden" }}>
 
-                {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Clickable summary row ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+                {/* ââ Clickable summary row ââ */}
                 <div style={{ display:"flex",alignItems:"center",gap:14,padding:"13px 16px",cursor:"pointer" }}
                   onClick={()=>setViewingUser(isViewing ? null : u.id)}>
                   <div style={{ width:40,height:40,borderRadius:"50%",background:meta.color,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:14,color:"white",flexShrink:0 }}>
@@ -1709,7 +1709,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                       {u.status==="pending" && <span style={{ fontSize:10,fontWeight:700,padding:"1px 7px",borderRadius:8,background:"rgba(232,197,58,.12)",color:"#b8950a",border:"1px solid rgba(232,197,58,.3)" }}>Pending Invite</span>}
                     </div>
                     <div style={{ fontSize:12,color:"var(--text2)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>
-                      {u.email}{u.title ? ` ÃÂÃÂ· ${u.title}` : ""}{u.department ? ` ÃÂÃÂ· ${u.department}` : ""}
+                      {u.email}{u.title ? ` Â· ${u.title}` : ""}{u.department ? ` Â· ${u.department}` : ""}
                     </div>
                   </div>
                   <div style={{ display:"flex",alignItems:"center",gap:10,flexShrink:0 }}>
@@ -1719,19 +1719,19 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                   </div>
                 </div>
 
-                {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Expanded profile panel ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+                {/* ââ Expanded profile panel ââ */}
                 {isViewing && (() => {
                   const statusColor = u.status==="active" ? "#3dba7e" : u.status==="pending" ? "#e8c53a" : "#e85a3a";
                   const statusLabel = u.status==="active" ? "Active" : u.status==="pending" ? "Pending Invite" : "Deactivated";
                   return (
                     <div style={{ borderTop:"1px solid var(--border)" }}>
 
-                      {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Accent bar ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+                      {/* ââ Accent bar ââ */}
                       <div style={{ height:3,background:`linear-gradient(90deg,${meta.color},${meta.color}55,transparent)` }} />
 
                       <div style={{ display:"flex",gap:0 }}>
 
-                        {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ LEFT: profile sidebar ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+                        {/* ââ LEFT: profile sidebar ââ */}
                         <div style={{ width:200,flexShrink:0,padding:"20px 16px 20px 20px",borderRight:"1px solid var(--border)",background:"var(--surface)",display:"flex",flexDirection:"column",gap:16 }}>
 
                           {/* Avatar */}
@@ -1797,7 +1797,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                           </div>
                         </div>
 
-                        {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ RIGHT: detail sections ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+                        {/* ââ RIGHT: detail sections ââ */}
                         <div style={{ flex:1,minWidth:0,background:"var(--surface2)" }}>
 
                           {/* Contact */}
@@ -1900,7 +1900,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                                           title="Remove from project"
                                           onClick={e=>{ e.stopPropagation();
                                             saveUser({...u, assignedProjects:(u.assignedProjects||[]).filter(id=>id!==p.id)});
-                                          }}>ÃÂÃÂ</button>
+                                          }}>Ã</button>
                                       </div>
                                     ))}
                                   </div>
@@ -1911,7 +1911,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                                   if (unassigned.length === 0 && assignedProjs.length === 0)
                                     return <div style={{ fontSize:12,color:"var(--text3)",fontStyle:"italic" }}>No projects in the system yet.</div>;
                                   if (unassigned.length === 0)
-                                    return <div style={{ fontSize:12,color:"var(--text3)",fontStyle:"italic" }}>All jobsites assigned ÃÂ¢ÃÂÃÂ</div>;
+                                    return <div style={{ fontSize:12,color:"var(--text3)",fontStyle:"italic" }}>All jobsites assigned â</div>;
                                   return (
                                     <div>
                                       <div style={{ fontSize:11,color:"var(--text3)",fontWeight:600,marginBottom:7 }}>
@@ -1940,13 +1940,13 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                             )}
                           </div>
 
-                          {/* Notes ÃÂ¢ÃÂÃÂ editable inline for all users */}
+                          {/* Notes â editable inline for all users */}
                           <div style={{ padding:"0 20px 18px" }}>
                             <div style={{ fontSize:10,fontWeight:800,textTransform:"uppercase",letterSpacing:".08em",color:"var(--text3)",marginBottom:8,display:"flex",alignItems:"center",gap:7 }}>
                               <Icon d={ic.text} size={11} stroke="var(--text3)" /> Notes
                             </div>
                             <textarea className="form-input" rows={3} style={{ resize:"vertical",width:"100%",boxSizing:"border-box" }}
-                              placeholder="Internal notes about this team memberÃÂ¢ÃÂÃÂ¦"
+                              placeholder="Internal notes about this team memberâ¦"
                               defaultValue={u.notes||""}
                               onBlur={e=>{ if(e.target.value !== (u.notes||"")) saveUser({...u, notes:e.target.value}); }}
                             />
@@ -1966,11 +1966,11 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
         </div>
       )}
 
-      {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ BILLING ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+      {/* ââ BILLING ââ */}
       {tab==="billing" && (
         <div className="fade-in">
 
-          {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Billing cycle toggle ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+          {/* ââ Billing cycle toggle ââ */}
           <div style={{ display:"flex",alignItems:"center",justifyContent:"center",marginBottom:20 }}>
             <div style={{ display:"inline-flex",alignItems:"center",gap:0,background:"var(--surface2)",borderRadius:40,border:"1px solid var(--border)",padding:3 }}>
               <button onClick={()=>onSettingsChange({...settings,billingCycle:"monthly"})}
@@ -1994,7 +1994,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
             </div>
           </div>
 
-          {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Current Plan card ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+          {/* ââ Current Plan card ââ */}
           <div className="card" style={{ marginBottom:16 }}>
             <div className="card-header" style={{ display:"flex",alignItems:"center",justifyContent:"space-between" }}>
               <span style={{ fontWeight:700 }}>Current Plan</span>
@@ -2002,7 +2002,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                 background: isCommand ? "linear-gradient(135deg,#2b7fe822,#1a5fc822)" : isPro ? "linear-gradient(135deg,#7c3aed22,#a855f722)" : "var(--surface2)",
                 color: isCommand ? "#2b7fe8" : isPro ? "#a855f7" : "var(--text3)",
                 border: `1px solid ${isCommand ? "#2b7fe850" : isPro ? "#a855f750" : "var(--border)"}` }}>
-                {isCommand ? "ÃÂ¢ÃÂ¬ÃÂ¡ Command III" : isPro ? "ÃÂ¢ÃÂÃÂ¦ Intelligence II" : "Capture I"} ÃÂÃÂ· {cycle==="annual" ? "Annual" : "Monthly"}
+                {isCommand ? "â¬¡ Command III" : isPro ? "â¦ Intelligence II" : "Capture I"} Â· {cycle==="annual" ? "Annual" : "Monthly"}
               </span>
             </div>
             <div className="card-body">
@@ -2017,7 +2017,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                     <span style={{ fontSize:11,color:"var(--text2)" }}>/mo</span>
                   </div>
                   {cycle==="annual" && <div style={{ fontSize:10,color:"#3dba7e",fontWeight:700,marginBottom:2 }}>Save ${(PRICING.monthly.base.admin-PRICING.annual.base.admin)*12}/yr</div>}
-                  <div style={{ fontSize:11.5,color:"var(--text2)",fontWeight:500,marginBottom:10 }}>admin ÃÂÃÂ· +${PRICING[cycle].base.user}/user/mo</div>
+                  <div style={{ fontSize:11.5,color:"var(--text2)",fontWeight:500,marginBottom:10 }}>admin Â· +${PRICING[cycle].base.user}/user/mo</div>
                   <div style={{ display:"flex",flexDirection:"column",gap:4,marginBottom:10 }}>
                     {["All core features","Unlimited projects","Video capture (1.5 mins)","Team Chat (4 groups)","Calendar (up to 10 users)","AI Report Writer","5 AI Generation Krakens/week"].map(f=>(
                       <div key={f} style={{ display:"flex",alignItems:"center",gap:5,fontSize:11,color:"var(--text2)" }}><Icon d={ic.check} size={10} stroke="#3dba7e" /> {f}</div>
@@ -2032,13 +2032,13 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                 {/* Intelligence II */}
                 <div style={{ padding:16,background:currentPlan==="pro"?"linear-gradient(135deg,#7c3aed0d,#a855f70d)":"var(--surface2)",borderRadius:"var(--radius)",border:currentPlan==="pro"?"2px solid #a855f7":"1px solid var(--border)",position:"relative" }}>
                   {currentPlan==="pro" && <div style={{ position:"absolute",top:-10,left:16,fontSize:10,fontWeight:800,padding:"2px 10px",borderRadius:10,background:"linear-gradient(135deg,#7c3aed,#a855f7)",color:"white",textTransform:"uppercase",letterSpacing:".06em" }}>Current</div>}
-                  <div style={{ fontSize:12,fontWeight:700,color:"#a855f7",marginBottom:6 }}>ÃÂ¢ÃÂÃÂ¦ Intelligence II</div>
+                  <div style={{ fontSize:12,fontWeight:700,color:"#a855f7",marginBottom:6 }}>â¦ Intelligence II</div>
                   <div style={{ display:"flex",alignItems:"baseline",gap:4,marginBottom:2 }}>
                     <span style={{ fontSize:24,fontWeight:900,color:"var(--text)",lineHeight:1 }}>${PRICING[cycle].pro.admin}</span>
                     <span style={{ fontSize:11,color:"var(--text2)" }}>/mo</span>
                   </div>
                   {cycle==="annual" && <div style={{ fontSize:10,color:"#3dba7e",fontWeight:700,marginBottom:2 }}>Save ${(PRICING.monthly.pro.admin-PRICING.annual.pro.admin)*12}/yr</div>}
-                  <div style={{ fontSize:11.5,color:"#a855f7",fontWeight:500,marginBottom:10 }}>admin ÃÂÃÂ· +${PRICING[cycle].pro.user}/user/mo</div>
+                  <div style={{ fontSize:11.5,color:"#a855f7",fontWeight:500,marginBottom:10 }}>admin Â· +${PRICING[cycle].pro.user}/user/mo</div>
                   <div style={{ display:"flex",flexDirection:"column",gap:4,marginBottom:10 }}>
                     {["Everything in Capture I","Before & After comparison","Video capture (6 mins)","Team Chat (15 groups)","Calendar (up to 25 users)","AI Report Writer","75 AI Generation Krakens/week"].map(f=>(
                       <div key={f} style={{ display:"flex",alignItems:"center",gap:5,fontSize:11,color:"#a855f7" }}><Icon d={ic.check} size={10} stroke="#a855f7" /> {f}</div>
@@ -2058,13 +2058,13 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                 {/* Command III */}
                 <div style={{ padding:16,background:currentPlan==="command"?"linear-gradient(135deg,#2b7fe80d,#1a5fc80d)":"var(--surface2)",borderRadius:"var(--radius)",border:currentPlan==="command"?"2px solid #2b7fe8":"1px solid var(--border)",position:"relative" }}>
                   {currentPlan==="command" && <div style={{ position:"absolute",top:-10,left:16,fontSize:10,fontWeight:800,padding:"2px 10px",borderRadius:10,background:"linear-gradient(135deg,#2b7fe8,#1a5fc8)",color:"white",textTransform:"uppercase",letterSpacing:".06em" }}>Current</div>}
-                  <div style={{ fontSize:12,fontWeight:700,color:"#2b7fe8",marginBottom:6 }}>ÃÂ¢ÃÂ¬ÃÂ¡ Command III</div>
+                  <div style={{ fontSize:12,fontWeight:700,color:"#2b7fe8",marginBottom:6 }}>â¬¡ Command III</div>
                   <div style={{ display:"flex",alignItems:"baseline",gap:4,marginBottom:2 }}>
                     <span style={{ fontSize:24,fontWeight:900,color:"var(--text)",lineHeight:1 }}>${PRICING[cycle].command.admin}</span>
                     <span style={{ fontSize:11,color:"var(--text2)" }}>/mo</span>
                   </div>
                   {cycle==="annual" && <div style={{ fontSize:10,color:"#3dba7e",fontWeight:700,marginBottom:2 }}>Save ${(PRICING.monthly.command.admin-PRICING.annual.command.admin)*12}/yr</div>}
-                  <div style={{ fontSize:11.5,color:"#2b7fe8",fontWeight:500,marginBottom:10 }}>admin ÃÂÃÂ· +${PRICING[cycle].command.user}/user/mo</div>
+                  <div style={{ fontSize:11.5,color:"#2b7fe8",fontWeight:500,marginBottom:10 }}>admin Â· +${PRICING[cycle].command.user}/user/mo</div>
                   <div style={{ display:"flex",flexDirection:"column",gap:4,marginBottom:10 }}>
                     {["Everything in Intelligence II","Video capture (12 mins)","Team Chat (50 groups)","Calendar (unlimited users)","1,000 AI Generation Krakens/week","Client Portal (desktop only)"].map(f=>(
                       <div key={f} style={{ display:"flex",alignItems:"center",gap:5,fontSize:11,color:"#2b7fe8" }}><Icon d={ic.check} size={10} stroke="#2b7fe8" /> {f}</div>
@@ -2086,10 +2086,10 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                   <div style={{ fontWeight:700,fontSize:15,marginBottom:2 }}>{cycle==="annual" ? "Annual Total" : "Monthly Total"}</div>
                   <div style={{ fontSize:12.5,color:"var(--text2)" }}>
                     {cycle==="annual"
-                      ? `$${monthlyTotal*12}/yr ÃÂÃÂ· renews on the ${billingDaySuffix(settings?.signupDate)} each year`
+                      ? `$${monthlyTotal*12}/yr Â· renews on the ${billingDaySuffix(settings?.signupDate)} each year`
                       : `Renews on the ${billingDaySuffix(settings?.signupDate)} each month`
                     }
-                    {" ÃÂÃÂ· "}{PLAN_NAMES[currentPlan]}
+                    {" Â· "}{PLAN_NAMES[currentPlan]}
                   </div>
                 </div>
                 <div style={{ textAlign:"right" }}>
@@ -2100,7 +2100,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
             </div>
           </div>
 
-          {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Pricing Breakdown ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+          {/* ââ Pricing Breakdown ââ */}
           <div className="card" style={{ marginBottom:16 }}>
             <div className="card-header"><span style={{ fontWeight:700 }}>Pricing Breakdown</span></div>
             <div className="card-body">
@@ -2111,7 +2111,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                 <div className="price-row" style={{ display:"grid",gridTemplateColumns:"1fr 110px 110px",padding:"10px 14px",borderBottom:"1px solid var(--border)",alignItems:"center",fontSize:13,gap:8 }}>
                   <span style={{ display:"flex",alignItems:"center",gap:6 }}>
                     {isPro && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>}
-                    {PLAN_NAMES[currentPlan]} ÃÂ¢ÃÂÃÂ Admin seat
+                    {PLAN_NAMES[currentPlan]} â Admin seat
                   </span>
                   <span style={{ color:"var(--text2)" }}>${adminSeat}/mo</span>
                   <span style={{ textAlign:"right",fontWeight:600 }}>${adminSeat}.00</span>
@@ -2120,13 +2120,13 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                   <div key={u.id} className="price-row" style={{ display:"grid",gridTemplateColumns:"1fr 110px 110px",padding:"10px 14px",borderBottom:"1px solid var(--border)",alignItems:"center",fontSize:13,opacity:u.status==="inactive"?0.5:1,gap:8 }}>
                     <span style={{ display:"flex",alignItems:"center",gap:8,minWidth:0 }}>
                       <span style={{ width:7,height:7,borderRadius:"50%",background:ROLE_META[u.role]?.color||"#888",display:"inline-block",flexShrink:0 }} />
-                      <span style={{ overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{u.firstName} {u.lastName} <span style={{ color:"var(--text3)",fontSize:11 }}>({ROLE_META[u.role]?.label}){u.status==="inactive"?" ÃÂÃÂ· Deactivated":""}</span></span>
+                      <span style={{ overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{u.firstName} {u.lastName} <span style={{ color:"var(--text3)",fontSize:11 }}>({ROLE_META[u.role]?.label}){u.status==="inactive"?" Â· Deactivated":""}</span></span>
                     </span>
                     <span style={{ color:"var(--text2)" }}>${userSeat}/mo</span>
                     <span style={{ textAlign:"right",fontWeight:600 }}>{u.status==="inactive"?"$0.00":`$${userSeat}.00`}</span>
                   </div>
                 ))}
-                {/* Proration line ÃÂ¢ÃÂÃÂ shown when plan changed mid-cycle this billing period */}
+                {/* Proration line â shown when plan changed mid-cycle this billing period */}
                 {settings?.planChangeDate && (() => {
                   const changeDate = new Date(settings.planChangeDate);
                   const info = getBillingCycleInfo(settings?.signupDate, cycle);
@@ -2137,9 +2137,9 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                   return (
                     <div className="price-row" style={{ display:"grid",gridTemplateColumns:"1fr 110px 110px",padding:"10px 14px",borderBottom:"1px solid var(--border)",alignItems:"center",fontSize:12,gap:8,background:"linear-gradient(90deg,#3dba7e08,transparent)" }}>
                       <span style={{ color:"var(--text2)",fontStyle:"italic" }}>
-                        Mid-cycle adjustment ({changeDate.toLocaleDateString("en-US",{month:"short",day:"numeric"})}) ÃÂÃÂ· {p.daysLeft} days prorated
+                        Mid-cycle adjustment ({changeDate.toLocaleDateString("en-US",{month:"short",day:"numeric"})}) Â· {p.daysLeft} days prorated
                       </span>
-                      <span style={{ color:"var(--text2)" }}>ÃÂ¢ÃÂÃÂ</span>
+                      <span style={{ color:"var(--text2)" }}>â</span>
                       <span style={{ textAlign:"right",fontWeight:600,color: p.netCharge > 0 ? "var(--accent)" : "#3dba7e" }}>
                         {p.netCharge > 0 ? `+$${p.netCharge}` : `-$${Math.abs(p.netCharge)}`}
                       </span>
@@ -2151,14 +2151,14 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                 </div>
                 {cycle==="annual" && (
                   <div className="price-row" style={{ display:"grid",gridTemplateColumns:"1fr 110px 110px",padding:"11px 14px",alignItems:"center",fontSize:13,fontWeight:700,background:"linear-gradient(90deg,#3dba7e0d,transparent)",gap:8 }}>
-                    <span style={{ color:"#3dba7e" }}>Annual charge (ÃÂÃÂ12)</span><span></span><span style={{ textAlign:"right",color:"#3dba7e",fontWeight:800 }}>${monthlyTotal*12}/yr</span>
+                    <span style={{ color:"#3dba7e" }}>Annual charge (Ã12)</span><span></span><span style={{ textAlign:"right",color:"#3dba7e",fontWeight:800 }}>${monthlyTotal*12}/yr</span>
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Payment Method ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+          {/* ââ Payment Method ââ */}
           <div className="card">
             <div className="card-header"><span style={{ fontWeight:700 }}>Payment Method</span></div>
             <div className="card-body">
@@ -2166,15 +2166,15 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                 <Icon d={ic.creditCard} size={22} stroke="var(--accent)" />
                 <div style={{ flex:1 }}>
                   <div style={{ fontWeight:600,fontSize:13.5 }}>{cardInfo.brand} ending in {cardInfo.last4}</div>
-                  <div style={{ fontSize:12,color:"var(--text2)" }}>Expires {cardInfo.displayExpiry} ÃÂÃÂ· Auto-renews {cycle==="annual"?"annually":"monthly"} on the {billingDaySuffix(settings?.signupDate)}</div>
+                  <div style={{ fontSize:12,color:"var(--text2)" }}>Expires {cardInfo.displayExpiry} Â· Auto-renews {cycle==="annual"?"annually":"monthly"} on the {billingDaySuffix(settings?.signupDate)}</div>
                 </div>
                 <button className="btn btn-secondary btn-sm" onClick={()=>setShowCardModal(true)}>Update Card</button>
               </div>
-              <button className="btn btn-ghost btn-sm" style={{ color:"var(--text2)",fontSize:12 }} onClick={()=>setShowBillingHistory(true)}>View billing history ÃÂ¢ÃÂÃÂ</button>
+              <button className="btn btn-ghost btn-sm" style={{ color:"var(--text2)",fontSize:12 }} onClick={()=>setShowBillingHistory(true)}>View billing history â</button>
             </div>
           </div>
 
-          {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Pending downgrade banner ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+          {/* ââ Pending downgrade banner ââ */}
           {settings?.pendingPlan && settings.pendingPlan !== currentPlan && (
             <div style={{ display:"flex",alignItems:"center",gap:12,padding:"12px 16px",background:"rgba(232,90,58,.08)",border:"1px solid rgba(232,90,58,.3)",borderRadius:10,marginBottom:16 }}>
               <Icon d={ic.alert} size={16} stroke="#e85a3a" />
@@ -2283,7 +2283,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                       </div>
                       <div style={{ display:"grid",gridTemplateColumns:"1fr auto",padding:"10px 12px",fontWeight:800,fontSize:13 }}>
                         <span>Monthly savings</span>
-                        <span style={{ color:"#3dba7e" }}>ÃÂ¢ÃÂÃÂ${p.fromTotal - p.toTotal}/mo</span>
+                        <span style={{ color:"#3dba7e" }}>â${p.fromTotal - p.toTotal}/mo</span>
                       </div>
                     </div>
                     <div style={{ fontSize:11.5,color:"var(--text3)",marginBottom:14 }}>No refund for the current period. Your data will not be affected.</div>
@@ -2319,7 +2319,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
         </div>
       )}
 
-      {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ PERMISSIONS ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+      {/* ââ PERMISSIONS ââ */}
       {tab==="perms" && (
         <div className="fade-in">
           <div style={{ fontSize:12.5,color:"var(--text2)",marginBottom:18,lineHeight:1.7,padding:"12px 16px",background:"var(--surface2)",borderRadius:"var(--radius)",border:"1px solid var(--border)" }}>
@@ -2417,7 +2417,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
         </div>
       )}
 
-      {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ MODALS ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+      {/* ââ MODALS ââ */}
       {(addingUser || editingUser) && (
         <UserModal
           user={editingUser||null}

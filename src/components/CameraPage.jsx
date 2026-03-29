@@ -29,7 +29,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
   const [reviewImg,   setReviewImg]   = useState(null);
   const [session,     setSession]     = useState([]);
   const [gps,         setGps]         = useState(null);
-  const [gpsLabel,    setGpsLabel]    = useState("LocatingÃ¢ÂÂ¦");
+  const [gpsLabel,    setGpsLabel]    = useState("Locating…");
   const [selRoom,     setSelRoom]     = useState(defaultRoom || (project?.rooms?.[0]?.name) || "General");
   const [photoName,   setPhotoName]   = useState("");
   const [roomMenuOpen,setRoomMenuOpen]= useState(false);
@@ -117,7 +117,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
           const onReady = () => { vid.removeEventListener("canplay", onReady); resolve(); };
           vid.addEventListener("canplay", onReady);
           vid.play().catch(() => {});
-          // Safety timeout Ã¢ÂÂ show stream after 2s even if canplay never fires
+          // Safety timeout — show stream after 2s even if canplay never fires
           setTimeout(resolve, 2000);
         });
       }
@@ -160,7 +160,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
     setFlashMode(m => m === "off" ? "on" : "off");
   }, []);
 
-  // Ã¢ÂÂÃ¢ÂÂ Photo capture Ã¢ÂÂÃ¢ÂÂ
+  // ── Photo capture ──
   const doSnap = useCallback(async () => {
     const video = videoRef.current, canvas = canvasRef.current;
     if (!video || !canvas) return;
@@ -180,18 +180,18 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
       ctx.fillStyle = "rgba(0,0,0,0.52)";
       ctx.fillRect(10, cvs.height - 58, 480, 46);
       ctx.fillStyle = "white"; ctx.font = "bold 13px sans-serif";
-      ctx.fillText(`${project?.title || "Jobsite"} Ã¢ÂÂ ${selRoom}  Ã¢ÂÂ¢  ${new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} ${new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:(settings?.timeFormat!=="24hr")})}`, 18, cvs.height - 37);
+      ctx.fillText(`${project?.title || "Jobsite"} — ${selRoom}  •  ${new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} ${new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:(settings?.timeFormat!=="24hr")})}`, 18, cvs.height - 37);
       ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.font = "12px sans-serif";
       ctx.fillText(gps ? `GPS: ${gps.lat}, ${gps.lng}` : "GPS: unavailable", 18, cvs.height - 17);
     };
 
-    // Ã¢ÂÂÃ¢ÂÂ ImageCapture path (Chrome Android Ã¢ÂÂ supports fillLightMode:'flash') Ã¢ÂÂÃ¢ÂÂ
+    // ── ImageCapture path (Chrome Android — supports fillLightMode:'flash') ──
     const track = streamRef.current?.getVideoTracks()[0];
     if (flashMode === "on" && facing === "environment") {
       if (track && typeof ImageCapture !== "undefined") {
         try {
           const imageCapture = new ImageCapture(track);
-          // Call getPhotoCapabilities first Ã¢ÂÂ this warms up the ImageCapture API
+          // Call getPhotoCapabilities first — this warms up the ImageCapture API
           // and makes fillLightMode:'flash' fire reliably on Chrome Android
           await imageCapture.getPhotoCapabilities().catch(() => {});
           const blob = await imageCapture.takePhoto({ fillLightMode: "flash" });
@@ -220,7 +220,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
       }
     }
 
-    // Ã¢ÂÂÃ¢ÂÂ Canvas path (no flash / fallback) Ã¢ÂÂÃ¢ÂÂ
+    // ── Canvas path (no flash / fallback) ──
     const vw = video.videoWidth || 1280, vh = video.videoHeight || 720;
     const scale = Math.min(maxRes / vw, maxRes / vh, 1);
     const sw = Math.round(vw * scale);
@@ -234,7 +234,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
     tmpCtx.drawImage(video, 0, 0, sw, sh);
     tmpCtx.setTransform(1, 0, 0, 1, 0, 0);
 
-    // Use the video element's rendered bounding rect Ã¢ÂÂ most reliable signal on
+    // Use the video element's rendered bounding rect — most reliable signal on
     // Android/iOS when the page itself is portrait-locked. If the video element
     // is rendering wider than tall, the user is holding the phone landscape even
     // though all orientation APIs return 0 and the stream is still portrait pixels.
@@ -270,13 +270,13 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
   };
 
   const acceptPhoto = () => {
-    const name = photoName.trim() || `${selRoom} Ã¢ÂÂ ${new Date().toLocaleTimeString()}`;
+    const name = photoName.trim() || `${selRoom} — ${new Date().toLocaleTimeString()}`;
     if (shouldSaveToDevice && reviewImg) triggerDeviceDownload(reviewImg, `KrakenCam_${name.replace(/[^a-z0-9]/gi,"_")}.jpg`);
     setSession(prev => [...prev, { id: uid(), dataUrl: reviewImg, room: selRoom, name, date: today(), tags: ["live capture"], gps }]);
     setReviewImg(null); setPhotoName("");
   };
 
-  // Ã¢ÂÂÃ¢ÂÂ Video recording Ã¢ÂÂÃ¢ÂÂ
+  // ── Video recording ──
   const startRecording = () => {
     if (!streamRef.current) return;
     chunksRef.current = [];
@@ -317,7 +317,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
 
   const acceptVideo = () => {
     if (!reviewVideo) return;
-    const name = videoName.trim() || `${selRoom} Ã¢ÂÂ Video ${new Date().toLocaleTimeString()}`;
+    const name = videoName.trim() || `${selRoom} — Video ${new Date().toLocaleTimeString()}`;
     if (shouldSaveToDevice) triggerDeviceDownload(reviewVideo.url, `KrakenCam_${name.replace(/[^a-z0-9]/gi,"_")}.webm`);
     // Create a fresh persistent object URL for the session item (do NOT revoke the review URL
     // until after the session item has its own URL, otherwise playback breaks)
@@ -361,7 +361,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
   const fmtTime = s => `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
   const recPct  = (recSeconds / MAX_REC) * 100;
 
-  // Desktop without a camera Ã¢ÂÂ show friendly message instead of dark screen
+  // Desktop without a camera — show friendly message instead of dark screen
   if (!navigator.mediaDevices?.getUserMedia) return (
     <div className="cam-page"><div className="cam-error">
       <div className="cam-error-icon"><Icon d={ic.camera} size={32} stroke="var(--accent)" /></div>
@@ -380,16 +380,16 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
       <div style={{ fontSize:13,color:"var(--text2)",lineHeight:1.7,textAlign:"left",background:"var(--surface2)",border:"1px solid var(--border)",borderRadius:10,padding:"14px 16px",width:"100%",maxWidth:360 }}>
         <div style={{ fontWeight:700,marginBottom:8,color:"var(--text)",fontSize:12.5 }}>To fix this:</div>
         <div style={{ marginBottom:6 }}>
-          <strong style={{ color:"var(--text)" }}>Brave:</strong> Click the Ã°ÂÂ¦Â Shields icon Ã¢ÂÂ turn off <em>Device recognition blocking</em>, or click Ã°ÂÂÂ Ã¢ÂÂ Site settings Ã¢ÂÂ Camera Ã¢ÂÂ <strong>Allow</strong>
+          <strong style={{ color:"var(--text)" }}>Brave:</strong> Click the 🦁 Shields icon → turn off <em>Device recognition blocking</em>, or click 🔒 → Site settings → Camera → <strong>Allow</strong>
         </div>
         <div style={{ marginBottom:6 }}>
-          <strong style={{ color:"var(--text)" }}>Chrome / Edge:</strong> Click the Ã°ÂÂÂ lock icon in the address bar Ã¢ÂÂ <em>Site settings</em> Ã¢ÂÂ Camera Ã¢ÂÂ <strong>Allow</strong>
+          <strong style={{ color:"var(--text)" }}>Chrome / Edge:</strong> Click the 🔒 lock icon in the address bar → <em>Site settings</em> → Camera → <strong>Allow</strong>
         </div>
         <div style={{ marginBottom:6 }}>
-          <strong style={{ color:"var(--text)" }}>Safari (iOS):</strong> Settings app Ã¢ÂÂ Safari Ã¢ÂÂ Camera Ã¢ÂÂ Allow
+          <strong style={{ color:"var(--text)" }}>Safari (iOS):</strong> Settings app → Safari → Camera → Allow
         </div>
         <div>
-          <strong style={{ color:"var(--text)" }}>Firefox:</strong> Click the Ã°ÂÂÂ lock icon Ã¢ÂÂ Camera permission Ã¢ÂÂ <strong>Allow</strong>
+          <strong style={{ color:"var(--text)" }}>Firefox:</strong> Click the 🔒 lock icon → Camera permission → <strong>Allow</strong>
         </div>
         <div style={{ marginTop:10,paddingTop:10,borderTop:"1px solid var(--border)",fontSize:11.5,color:"var(--text3)" }}>
           After changing permissions, refresh the page and try again.
@@ -419,7 +419,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
     <div className="cam-page">
       <canvas ref={canvasRef} style={{ display:"none" }} />
 
-      {/* Ã¢ÂÂÃ¢ÂÂ Photo review overlay Ã¢ÂÂÃ¢ÂÂ */}
+      {/* ── Photo review overlay ── */}
       {reviewImg && (
         <div className="review-overlay">
           <img src={reviewImg} alt="preview" />
@@ -427,7 +427,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
             <div style={{ display:"flex",gap:12,marginBottom:12,alignItems:"flex-end" }}>
               <div style={{ flex:1 }}>
                 <div className="form-label">Photo Name</div>
-                <input className="form-input" placeholder={`${selRoom} photoÃ¢ÂÂ¦`} value={photoName} onChange={e => setPhotoName(e.target.value)} autoFocus />
+                <input className="form-input" placeholder={`${selRoom} photo…`} value={photoName} onChange={e => setPhotoName(e.target.value)} autoFocus />
               </div>
               <div style={{ minWidth:150 }}>
                 <div className="form-label">Room</div>
@@ -445,7 +445,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
         </div>
       )}
 
-      {/* Ã¢ÂÂÃ¢ÂÂ Video review overlay Ã¢ÂÂÃ¢ÂÂ */}
+      {/* ── Video review overlay ── */}
       {recState === "review" && reviewVideo && (
         <div className="review-overlay">
           <video src={reviewVideo.url} controls autoPlay loop style={{ width:"100%",height:"100%",objectFit:"contain",background:"#000" }} />
@@ -453,7 +453,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
             <div style={{ display:"flex",gap:12,marginBottom:12,alignItems:"flex-end" }}>
               <div style={{ flex:1 }}>
                 <div className="form-label">Video Name</div>
-                <input className="form-input" placeholder={`${selRoom} videoÃ¢ÂÂ¦`} value={videoName} onChange={e => setVideoName(e.target.value)} autoFocus />
+                <input className="form-input" placeholder={`${selRoom} video…`} value={videoName} onChange={e => setVideoName(e.target.value)} autoFocus />
               </div>
               <div style={{ minWidth:150 }}>
                 <div className="form-label">Room</div>
@@ -463,7 +463,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
               </div>
             </div>
             <div style={{ fontSize:12,color:"rgba(255,255,255,.6)",marginBottom:10 }}>
-              Ã°ÂÂÂ¬ Duration: {fmtTime(recSeconds)} ÃÂ· {gps ? `GPS: ${gps.lat}, ${gps.lng}` : "No GPS"}
+              🎬 Duration: {fmtTime(recSeconds)} · {gps ? `GPS: ${gps.lat}, ${gps.lng}` : "No GPS"}
             </div>
             <div style={{ display:"flex",gap:10 }}>
               <button className="btn btn-secondary" style={{ flex:1 }} onClick={discardVideo}>Discard</button>
@@ -502,7 +502,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
               </div>
               <div>
                 <div className="form-label">Notes</div>
-                <textarea className="form-input form-textarea" value={batchNotes} onChange={e => setBatchNotes(e.target.value)} placeholder="Notes to apply to all captured itemsÃ¢ÂÂ¦" style={{ minHeight:88 }} />
+                <textarea className="form-input form-textarea" value={batchNotes} onChange={e => setBatchNotes(e.target.value)} placeholder="Notes to apply to all captured items…" style={{ minHeight:88 }} />
               </div>
             </div>
             <div style={{ display:"flex",justifyContent:"space-between",gap:10,flexWrap:"wrap",fontSize:11.5,color:"rgba(255,255,255,.68)",marginBottom:14 }}>
@@ -520,11 +520,11 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
       )}
 
       <div className="cam-view">
-        {/* Spinner overlay Ã¢ÂÂ shown while starting, sits above the video */}
+        {/* Spinner overlay — shown while starting, sits above the video */}
         {camState === "starting" && (
           <div style={{ position:"absolute",inset:0,zIndex:5,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:12,background:"#000",color:"var(--text2)",fontSize:14 }}>
             <div style={{ width:46,height:46,borderRadius:"50%",border:"3px solid var(--accent)",borderTopColor:"transparent",animation:"spin .8s linear infinite" }} />
-            <span>Starting cameraÃ¢ÂÂ¦</span>
+            <span>Starting camera…</span>
           </div>
         )}
         {/* Video is ALWAYS mounted so videoRef.current is valid when srcObject is assigned */}
@@ -545,16 +545,16 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
         <div className="cam-guide"><div className="cam-guide-box"><span /></div></div>
         {countdown !== null && <div className="cam-countdown"><div className="cam-countdown-num">{countdown}</div></div>}
 
-        {/* Rotation lock tip Ã¢ÂÂ shows once on mobile, auto-dismisses after 5s */}
+        {/* Rotation lock tip — shows once on mobile, auto-dismisses after 5s */}
         {showRotateTip && camState === "live" && (
           <div style={{ position:"absolute",bottom:100,left:"50%",transform:"translateX(-50%)",zIndex:30,
             background:"rgba(0,0,0,0.78)",borderRadius:14,padding:"10px 18px",
             display:"flex",alignItems:"center",gap:10,whiteSpace:"nowrap",
             boxShadow:"0 4px 24px rgba(0,0,0,0.4)",backdropFilter:"blur(6px)" }}>
-            <span style={{ fontSize:20 }}>Ã°ÂÂÂ</span>
+            <span style={{ fontSize:20 }}>🔄</span>
             <span style={{ fontSize:13,color:"white",fontWeight:500 }}>Turn off rotation lock for landscape photos</span>
             <button onClick={() => { setShowRotateTip(false); localStorage.setItem("kc_rotate_tip_seen","1"); }}
-              style={{ background:"none",border:"none",color:"rgba(255,255,255,0.6)",fontSize:18,cursor:"pointer",padding:"0 0 0 4px",lineHeight:1 }}>ÃÂ</button>
+              style={{ background:"none",border:"none",color:"rgba(255,255,255,0.6)",fontSize:18,cursor:"pointer",padding:"0 0 0 4px",lineHeight:1 }}>×</button>
 
           </div>
         )}
@@ -583,7 +583,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
             {project && <div className="pill"><Icon d={ic.briefcase} size={11} />{project.title}</div>}
             <div className="pill"><Icon d={ic.mapPin} size={11} stroke={gps ? "#3dba7e" : "#8b9ab8"} />{gpsLabel}</div>
             <div className="pill" style={{ cursor:"pointer" }} onClick={() => setRoomMenuOpen(o => !o)}>
-              <RoomIcon name={selRoom} size={12} stroke="white" /> {selRoom} Ã¢ÂÂ¾
+              <RoomIcon name={selRoom} size={12} stroke="white" /> {selRoom} ▾
             </div>
           </div>
         </div>
@@ -609,7 +609,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
                 <div key={i} style={{ position:"relative",flexShrink:0 }}>
                   {s.isVideo
                     ? <div className="cam-thumb" style={{ background:"#111",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:3 }}>
-                        <span style={{ fontSize:18 }}>Ã°ÂÂÂ¬</span>
+                        <span style={{ fontSize:18 }}>🎬</span>
                         <span style={{ fontSize:9,color:"rgba(255,255,255,.7)" }}>{fmtTime(s.duration||0)}</span>
                       </div>
                     : <img className="cam-thumb" src={s.dataUrl} alt={s.name} title={s.name} />
@@ -619,15 +619,15 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
             </div>
             <div style={{ fontSize:11,color:"rgba(255,255,255,.55)" }}>
               {session.filter(s=>!s.isVideo).length} photo{session.filter(s=>!s.isVideo).length!==1?"s":""}
-              {session.filter(s=>s.isVideo).length > 0 && ` ÃÂ· ${session.filter(s=>s.isVideo).length} video${session.filter(s=>s.isVideo).length!==1?"s":""}`} captured
+              {session.filter(s=>s.isVideo).length > 0 && ` · ${session.filter(s=>s.isVideo).length} video${session.filter(s=>s.isVideo).length!==1?"s":""}`} captured
             </div>
           </div>
         )}
 
-        {/* Mode toggle Ã¢ÂÂ Photo / Video */}
+        {/* Mode toggle — Photo / Video */}
         <div style={{ display:"flex",justifyContent:"center",marginBottom:14 }}>
           <div style={{ display:"flex",background:"rgba(0,0,0,.5)",borderRadius:20,padding:3,border:"1px solid rgba(255,255,255,.15)" }}>
-            {[{v:"photo",label:"Ã°ÂÂÂ· Photo"},{v:"video",label:"Ã°ÂÂÂ¬ Video"}].map(({v,label})=>(
+            {[{v:"photo",label:"📷 Photo"},{v:"video",label:"🎬 Video"}].map(({v,label})=>(
               <button key={v} disabled={recState==="recording"}
                 onClick={()=>{ if(recState!=="recording") setMode(v); }}
                 style={{ padding:"6px 18px",borderRadius:16,fontSize:12.5,fontWeight:700,border:"none",cursor:recState==="recording"?"not-allowed":"pointer",background:mode===v?"white":"transparent",color:mode===v?"#111":"rgba(255,255,255,.7)",transition:"all .15s" }}>
@@ -637,7 +637,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
           </div>
         </div>
 
-        {/* Save session button Ã¢ÂÂ own row so it's never clipped on mobile */}
+        {/* Save session button — own row so it's never clipped on mobile */}
         {session.length > 0 && (
           <div style={{ display:"flex",justifyContent:"center",gap:10,marginBottom:10,flexWrap:"wrap" }}>
             <button className="btn btn-secondary" style={{ minWidth:180,justifyContent:"center" }} onClick={() => setShowApplyAll(true)}>
@@ -683,7 +683,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
               {facing === "environment" && mode === "photo" && (
                 <div
                   className="cam-icon-btn"
-                  title={flashMode === "on" ? "Flash on Ã¢ÂÂ tap to turn off" : "Flash off Ã¢ÂÂ tap to turn on"}
+                  title={flashMode === "on" ? "Flash on — tap to turn off" : "Flash off — tap to turn on"}
                   onClick={toggleTorch}
                   style={flashMode === "on"
                     ? { color:"#ffe066", borderColor:"rgba(255,224,102,.6)", background:"rgba(255,200,0,.25)" }
@@ -696,7 +696,7 @@ export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) 
             </div>
             {mode === "photo" && (
               <div style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:3 }}>
-                <span style={{ fontSize:10,color:"rgba(255,255,255,.6)",fontWeight:600 }}>{zoom.toFixed(1)}ÃÂ</span>
+                <span style={{ fontSize:10,color:"rgba(255,255,255,.6)",fontWeight:600 }}>{zoom.toFixed(1)}×</span>
                 <input type="range" className="zoom-slider" min="1" max="5" step="0.1" value={zoom} onChange={e => setZoom(+e.target.value)} />
               </div>
             )}
@@ -1084,9 +1084,9 @@ export function ImageEditor({ photo, onClose, onSave }) {
 
   return (
     <div className="editor-wrap fade-in">
-      {/* Ã¢ÂÂÃ¢ÂÂ Toolbar Ã¢ÂÂÃ¢ÂÂ */}
+      {/* ── Toolbar ── */}
       <div className="editor-toolbar">
-        <button className="btn btn-sm btn-ghost" onClick={onClose}>Ã¢ÂÂ Back</button>
+        <button className="btn btn-sm btn-ghost" onClick={onClose}>← Back</button>
         <div className="tool-sep" />
         {tools.map(t => (
           <div key={t.id} className={`tool-btn ${tool===t.id?"active":""}`} title={t.label}
@@ -1096,8 +1096,8 @@ export function ImageEditor({ photo, onClose, onSave }) {
         ))}
         {tool === "crop" && cropRect && Math.abs(cropRect.w) > 4 && Math.abs(cropRect.h) > 4 && (<>
           <div className="tool-sep" />
-          <button className="btn btn-sm btn-primary" style={{ fontSize:11.5, padding:"4px 12px" }} onClick={applyCrop}>Ã¢ÂÂ Apply Crop</button>
-          <button className="btn btn-sm btn-secondary" style={{ fontSize:11.5, padding:"4px 10px" }} onClick={() => setCropRect(null)}>Ã¢ÂÂ Cancel</button>
+          <button className="btn btn-sm btn-primary" style={{ fontSize:11.5, padding:"4px 12px" }} onClick={applyCrop}>✓ Apply Crop</button>
+          <button className="btn btn-sm btn-secondary" style={{ fontSize:11.5, padding:"4px 10px" }} onClick={() => setCropRect(null)}>✕ Cancel</button>
         </>)}
         <div className="tool-sep" />
         <div className="tool-btn editor-undo-desktop" title="Undo" onClick={undo}><Icon d={ic.undo} size={20} /></div>
@@ -1109,13 +1109,13 @@ export function ImageEditor({ photo, onClose, onSave }) {
         </div>
       </div>
 
-      {/* Ã¢ÂÂÃ¢ÂÂ Mobile bottom action bar Ã¢ÂÂÃ¢ÂÂ */}
+      {/* ── Mobile bottom action bar ── */}
       <div className="editor-actions-mobile" style={{ display:"none",flexDirection:"column",gap:0,background:"var(--surface)",borderTop:"1px solid var(--border)",flexShrink:0 }}>
         {tool === "text" && (
           <div style={{ borderBottom:"1px solid var(--border)" }}>
             <button onClick={() => setMobileControlsOpen(v => !v)}
               style={{ width:"100%",background:"none",border:"none",padding:"9px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",color:"var(--text)",fontSize:13,fontWeight:600,cursor:"pointer" }}>
-              <span>Ã¢ÂÂÃ¯Â¸Â Text Editor {activeTextLayer ? <span style={{ fontSize:11,color:"var(--accent)",fontWeight:400 }}>Ã¢ÂÂ {activeTextLayer.fontSize||42}px</span> : ""}</span>
+              <span>✏️ Text Editor {activeTextLayer ? <span style={{ fontSize:11,color:"var(--accent)",fontWeight:400 }}>— {activeTextLayer.fontSize||42}px</span> : ""}</span>
               <div style={{ display:"flex",alignItems:"center",gap:8 }}>
                 <button className="btn btn-sm btn-secondary" style={{ padding:"3px 10px",fontSize:12 }} onClick={e => { e.stopPropagation(); addTextLayer(); setMobileControlsOpen(true); }}><Icon d={ic.plus} size={13} /> Add</button>
                 <Icon d={mobileControlsOpen ? "M18 15l-6-6-6 6" : "M6 9l6 6 6-6"} size={16} stroke="var(--text3)" />
@@ -1151,21 +1151,21 @@ export function ImageEditor({ photo, onClose, onSave }) {
             )}
           </div>
         )}
-        {/* Ã¢ÂÂÃ¢ÂÂ Collapsible brush/color/zoom controls Ã¢ÂÂÃ¢ÂÂ */}
+        {/* ── Collapsible brush/color/zoom controls ── */}
         <div style={{ borderBottom:"1px solid var(--border)" }}>
           <button
             onClick={() => setMobileControlsOpen(v => !v)}
             style={{ width:"100%",background:"none",border:"none",padding:"9px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",color:"var(--text)",fontSize:13,fontWeight:600,cursor:"pointer" }}>
-            <span>Ã°ÂÂÂ¨ Brush &amp; Color &nbsp;<span style={{ fontSize:11,color:"var(--text3)",fontWeight:400 }}>{Math.round(zoom*100)}% zoom</span></span>
+            <span>🎨 Brush &amp; Color &nbsp;<span style={{ fontSize:11,color:"var(--text3)",fontWeight:400 }}>{Math.round(zoom*100)}% zoom</span></span>
             <Icon d={mobileControlsOpen ? "M18 15l-6-6-6 6" : "M6 9l6 6 6-6"} size={16} stroke="var(--text3)" />
           </button>
           {mobileControlsOpen && (
             <div style={{ padding:"0 16px 14px",display:"flex",flexDirection:"column",gap:12 }}>
               {/* Zoom */}
               <div>
-                <div style={{ fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",color:"var(--text3)",marginBottom:6 }}>Zoom Ã¢ÂÂ {Math.round(zoom*100)}%</div>
+                <div style={{ fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",color:"var(--text3)",marginBottom:6 }}>Zoom — {Math.round(zoom*100)}%</div>
                 <div style={{ display:"flex",alignItems:"center",gap:10 }}>
-                  <button className="btn btn-sm btn-secondary" style={{ minWidth:36 }} onClick={() => setZoom(z => Math.max(0.25, +(z-0.25).toFixed(2)))}>Ã¢ÂÂ</button>
+                  <button className="btn btn-sm btn-secondary" style={{ minWidth:36 }} onClick={() => setZoom(z => Math.max(0.25, +(z-0.25).toFixed(2)))}>−</button>
                   <input type="range" min="25" max="300" value={Math.round(zoom*100)} onChange={e => setZoom(+e.target.value/100)} className="size-slider" style={{ flex:1,margin:0 }} />
                   <button className="btn btn-sm btn-secondary" style={{ minWidth:36 }} onClick={() => setZoom(z => Math.min(3, +(z+0.25).toFixed(2)))}>+</button>
                   {(zoom !== 1 || pan.x !== 0 || pan.y !== 0) && <button className="btn btn-sm btn-ghost" style={{ fontSize:11 }} onClick={() => { setZoom(1); setPan({x:0,y:0}); }}>Reset</button>}
@@ -1183,7 +1183,7 @@ export function ImageEditor({ photo, onClose, onSave }) {
                     style={{ width:26,height:26,borderRadius:6,border:"1px solid var(--border)",cursor:"pointer",padding:2,background:"none" }} />
                 </div>
               </div>
-              {/* Background/fill color Ã¢ÂÂ hidden for text tool */}
+              {/* Background/fill color — hidden for text tool */}
               {tool !== "text" && (
                 <div>
                   <div style={{ fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",color:"var(--text3)",marginBottom:6 }}>Background / Fill</div>
@@ -1205,10 +1205,10 @@ export function ImageEditor({ photo, onClose, onSave }) {
               {tool !== "text" && (
                 <div>
                   <div style={{ fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",color:"var(--text3)",marginBottom:6 }}>
-                    {tool === "blur" ? "Blur Strength" : "Brush Size"} Ã¢ÂÂ {size}px
+                    {tool === "blur" ? "Blur Strength" : "Brush Size"} — {size}px
                   </div>
                   <div style={{ display:"flex",alignItems:"center",gap:10 }}>
-                    <button className="btn btn-sm btn-secondary" style={{ minWidth:34 }} onClick={() => setSize(s => Math.max(10, s-5))}>Ã¢ÂÂ</button>
+                    <button className="btn btn-sm btn-secondary" style={{ minWidth:34 }} onClick={() => setSize(s => Math.max(10, s-5))}>−</button>
                     <input type="range" min="10" max="80" value={size} onChange={e => setSize(+e.target.value)} className="size-slider" style={{ flex:1,margin:0 }} />
                     <button className="btn btn-sm btn-secondary" style={{ minWidth:34 }} onClick={() => setSize(s => Math.min(80, s+5))}>+</button>
                   </div>
@@ -1230,7 +1230,7 @@ export function ImageEditor({ photo, onClose, onSave }) {
         </div>
       </div>
 
-      {/* Ã¢ÂÂÃ¢ÂÂ Body Ã¢ÂÂÃ¢ÂÂ */}
+      {/* ── Body ── */}
       <div className="editor-body">
         <div className="canvas-area">
           <div style={{ position:"relative", display:"inline-block", lineHeight:0, transform:`translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin:"top center", transition:"transform .1s", cursor: tool === "hand" ? (panStartRef.current ? "grabbing" : "grab") : undefined }} onMouseMove={e => { moveTextDrag(e); onMove(e); }} onMouseUp={e => { endTextDrag(); onUp(e); }} onMouseLeave={e => { endTextDrag(); onUp(e); }} onTouchMove={e => { moveTextDrag(e); onMove(e); }} onTouchEnd={e => { endTextDrag(); onUp(e); }}>
@@ -1273,7 +1273,7 @@ export function ImageEditor({ photo, onClose, onSave }) {
             );
           })}
 
-          {/* Ã¢ÂÂÃ¢ÂÂ Crop overlay Ã¢ÂÂÃ¢ÂÂ */}
+          {/* ── Crop overlay ── */}
           {tool === "crop" && cropRect && (() => {
             const c = canvasRef.current;
             if (!c) return null;
@@ -1316,7 +1316,7 @@ export function ImageEditor({ photo, onClose, onSave }) {
                     <text x={cx + cw/2} y={cy + ch/2} textAnchor="middle" dominantBaseline="middle"
                       fill="white" fontSize="12" fontFamily="sans-serif"
                       style={{ textShadow:"0 1px 3px rgba(0,0,0,0.8)" }}>
-                      {Math.round(Math.abs(cropRect.w))} ÃÂ {Math.round(Math.abs(cropRect.h))}
+                      {Math.round(Math.abs(cropRect.w))} × {Math.round(Math.abs(cropRect.h))}
                     </text>
                   )}
                 </svg>
@@ -1327,11 +1327,11 @@ export function ImageEditor({ photo, onClose, onSave }) {
           </div>{/* end canvas inner wrapper */}
         </div>
 
-        {/* Ã¢ÂÂÃ¢ÂÂ Sidebar Ã¢ÂÂÃ¢ÂÂ */}
+        {/* ── Sidebar ── */}
         <div className="editor-side">
-          <h4>Zoom Ã¢ÂÂ {Math.round(zoom*100)}%</h4>
+          <h4>Zoom — {Math.round(zoom*100)}%</h4>
           <div style={{ display:"flex",alignItems:"center",gap:6,marginBottom:14 }}>
-            <button className="btn btn-sm btn-secondary" style={{ minWidth:30 }} onClick={() => setZoom(z => Math.max(0.25, +(z-0.25).toFixed(2)))}>Ã¢ÂÂ</button>
+            <button className="btn btn-sm btn-secondary" style={{ minWidth:30 }} onClick={() => setZoom(z => Math.max(0.25, +(z-0.25).toFixed(2)))}>−</button>
             <input type="range" min="25" max="300" value={Math.round(zoom*100)} onChange={e => setZoom(+e.target.value/100)} className="size-slider" style={{ flex:1 }} />
             <button className="btn btn-sm btn-secondary" style={{ minWidth:30 }} onClick={() => setZoom(z => Math.min(3, +(z+0.25).toFixed(2)))}>+</button>
             {(zoom !== 1 || pan.x !== 0 || pan.y !== 0) && <button className="btn btn-sm btn-ghost" style={{ fontSize:11,padding:"2px 6px" }} onClick={() => { setZoom(1); setPan({x:0,y:0}); }}>1:1</button>}
@@ -1431,4 +1431,4 @@ export function ImageEditor({ photo, onClose, onSave }) {
   );
 }
 
-// Ã¢ÂÂÃ¢ÂÂ New / Edit Project Modal Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ── New / Edit Project Modal ───────────────────────────────────────────────────

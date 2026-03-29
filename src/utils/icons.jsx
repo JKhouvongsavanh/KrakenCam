@@ -1,7 +1,7 @@
 import React from "react";
 import { getRoomIcon } from "./helpers.js";
 
-// ââ Icon component ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Icon component ────────────────────────────────────────────────────────────
 const Icon = ({ d, size = 20, stroke = "currentColor", fill = "none", strokeWidth = 1.8 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
     {Array.isArray(d) ? d.map((p, i) => <path key={i} d={p} />) : <path d={d} />}
@@ -86,7 +86,7 @@ const ic = {
   zap:      "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
 };
 
-// ââ Room icon helpers âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Room icon helpers ─────────────────────────────────────────────────────────
 export const ROOM_ICON_BLUE = "#4a90d9";
 
 function RoomIcon({ name = "Other", size = 18, stroke = ROOM_ICON_BLUE, strokeWidth = 1.8 }) {

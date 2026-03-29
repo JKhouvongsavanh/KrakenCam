@@ -8,7 +8,7 @@ import { hasPermissionLevel, getEffectivePermissions, DEFAULT_CL_TEMPLATES, getP
 import { uid, formatDate, formatDateTimeLabel, today, buildEmbedCode, formatDurationLabel , isPortalApprovedItem, filterPortalApprovedItems, withPortalFilteredProject, getPortalItemDateValue, formatPortalRelativeLabel, buildPortalActivity, formatFileSizeLabel, getFileExtension, isPreviewableFile, inferProjectFileKind, normaliseProjectFile, parseTagInput, decodeDataUrlText
 } from "../utils/helpers.js";
 import { getAuthHeaders } from "../lib/supabase.js";
-const REPORT_EMAIL_FEATURE_VISIBLE = false; // feature flag â email reports hidden until ready
+const REPORT_EMAIL_FEATURE_VISIBLE = false; // feature flag – email reports hidden until ready
 
 function LegacyChecklistsTab({ project, onUpdateProject }) {
   const [view,          setView]          = useState("list");   // list | run | build
@@ -46,7 +46,7 @@ function LegacyChecklistsTab({ project, onUpdateProject }) {
     setActive(cl); setView("build");
   };
 
-  // ââ LIST VIEW ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── LIST VIEW ──────────────────────────────────────────────────────────────
   if (view === "list") return (
     <div>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
@@ -83,14 +83,14 @@ function LegacyChecklistsTab({ project, onUpdateProject }) {
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ fontWeight:700, fontSize:14, marginBottom:2 }}>{cl.name}</div>
                     <div style={{ fontSize:12, color:"var(--text2)" }}>
-                      {done}/{total} items Â· {cl.createdAt}
-                      {cl.assignee && <span style={{ marginLeft:8, color:"var(--text3)" }}>Â· {cl.assignee}</span>}
+                      {done}/{total} items · {cl.createdAt}
+                      {cl.assignee && <span style={{ marginLeft:8, color:"var(--text3)" }}>· {cl.assignee}</span>}
                     </div>
                   </div>
                   <span style={{ fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20,
                     background: cl.status==="complete" ? "rgba(61,186,126,.15)" : "rgba(43,127,232,.1)",
                     color: cl.status==="complete" ? "#3dba7e" : "var(--accent)" }}>
-                    {cl.status==="complete" ? "â Complete" : "In Progress"}
+                    {cl.status==="complete" ? "✓ Complete" : "In Progress"}
                   </span>
                   <div style={{ display:"flex", gap:6 }}>
                     <button className="btn btn-sm btn-secondary" onClick={() => { setActive(cl); setView("run"); }}><Icon d={ic.edit} size={12} /> Open</button>
@@ -120,7 +120,7 @@ function LegacyChecklistsTab({ project, onUpdateProject }) {
             </div>
             <div className="modal-body" style={{ paddingBottom:0 }}>
               {/* Search */}
-              <input className="form-input" placeholder="Search templatesâ¦" value={pickerSearch||""} onChange={e=>setPickerSearch(e.target.value)} style={{ marginBottom:10 }} />
+              <input className="form-input" placeholder="Search templates…" value={pickerSearch||""} onChange={e=>setPickerSearch(e.target.value)} style={{ marginBottom:10 }} />
               {/* Category pills */}
               <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:12 }}>
                 {pickerCategories.map(cat => (
@@ -150,7 +150,7 @@ function LegacyChecklistsTab({ project, onUpdateProject }) {
                         <span style={{ fontWeight:700, fontSize:13.5 }}>{t.name}</span>
                         <span style={{ fontSize:10, padding:"1px 6px", borderRadius:10, background:`${catColor}22`, color:catColor, fontWeight:600 }}>{t.category||"General"}</span>
                       </div>
-                      <div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>{t.desc} Â· {t.fields.length} fields</div>
+                      <div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>{t.desc} · {t.fields.length} fields</div>
                       {(t.tags||[]).length > 0 && (
                         <div style={{ display:"flex", gap:4, flexWrap:"wrap", marginTop:4 }}>
                           {(t.tags||[]).map(tag => <span key={tag} style={{ fontSize:10, padding:"1px 6px", borderRadius:8, background:"var(--surface3)", color:"var(--text3)" }}>#{tag}</span>)}
@@ -166,7 +166,7 @@ function LegacyChecklistsTab({ project, onUpdateProject }) {
                   onMouseEnter={e=>e.currentTarget.style.borderColor="var(--accent)"}
                   onMouseLeave={e=>e.currentTarget.style.borderColor="var(--border)"}>
                   <div style={{ flex:1 }}>
-                    <div style={{ fontWeight:700, fontSize:13.5 }}>â Build Custom Checklist</div>
+                    <div style={{ fontWeight:700, fontSize:13.5 }}>➕ Build Custom Checklist</div>
                     <div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>Start from scratch with any field types</div>
                   </div>
                   <Icon d={ic.chevRight} size={14} stroke="var(--text3)" />
@@ -185,7 +185,7 @@ function LegacyChecklistsTab({ project, onUpdateProject }) {
     </div>
   );
 
-  // ââ RUN VIEW (fill out checklist) âââââââââââââââââââââââââââââââââââââââââ
+  // ── RUN VIEW (fill out checklist) ─────────────────────────────────────────
   if (view === "run") return (
     <ChecklistRunner
       checklist={activeChecklist}
@@ -194,7 +194,7 @@ function LegacyChecklistsTab({ project, onUpdateProject }) {
     />
   );
 
-  // ââ BUILD VIEW (design checklist) ââââââââââââââââââââââââââââââââââââââââ
+  // ── BUILD VIEW (design checklist) ────────────────────────────────────────
   if (view === "build") return (
     <ChecklistBuilder
       checklist={activeChecklist}
@@ -204,7 +204,7 @@ function LegacyChecklistsTab({ project, onUpdateProject }) {
   );
 }
 
-// ââ Checklist Runner ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Checklist Runner ──────────────────────────────────────────────────────────
 function LegacyChecklistRunner({ checklist, onSave, onBack }) {
   const [cl, setCl] = useState({ ...checklist, fields: checklist.fields.map(f => ({ ...f })) });
 
@@ -234,7 +234,7 @@ function LegacyChecklistRunner({ checklist, onSave, onBack }) {
         <button className="btn btn-ghost btn-sm" onClick={onBack}><Icon d={ic.arrowLeft} size={14} /> Back</button>
         <div style={{ flex:1, minWidth:150 }}>
           <div style={{ fontWeight:700, fontSize:16 }}>{cl.name}</div>
-          <div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>{complete}/{total} completed Â· {pct}%</div>
+          <div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>{complete}/{total} completed · {pct}%</div>
         </div>
         <div style={{ display:"flex", gap:8, marginLeft:"auto" }}>
           <button className="btn btn-sm btn-secondary" onClick={() => onSave({ ...cl, status:"in_progress" })}>Save Draft</button>
@@ -255,7 +255,7 @@ function LegacyChecklistRunner({ checklist, onSave, onBack }) {
         <div className="card-body" style={{ padding:"12px 16px" }}>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
             <label style={{ fontSize:12, fontWeight:600, color:"var(--text2)", textTransform:"uppercase", letterSpacing:".04em", whiteSpace:"nowrap" }}>Assigned To</label>
-            <input className="form-input" style={{ flex:1 }} placeholder="Inspector nameâ¦" value={cl.assignee} onChange={e => setCl(p=>({...p, assignee:e.target.value}))} />
+            <input className="form-input" style={{ flex:1 }} placeholder="Inspector name…" value={cl.assignee} onChange={e => setCl(p=>({...p, assignee:e.target.value}))} />
           </div>
         </div>
       </div>
@@ -306,7 +306,7 @@ function LegacyChecklistRunner({ checklist, onSave, onBack }) {
                       return (
                         <div key={opt} onClick={()=>toggleMulti(field.id, opt)}
                           style={{ padding:"5px 13px", borderRadius:20, border:`1.5px solid ${sel?"var(--accent)":"var(--border)"}`, background:sel?"var(--accent-glow)":"var(--surface2)", cursor:"pointer", fontSize:12.5, fontWeight:600, color:sel?"var(--accent)":"var(--text2)", transition:"all .15s", userSelect:"none" }}>
-                          {sel?"â ":""}{opt}
+                          {sel?"✓ ":""}{opt}
                         </div>
                       );
                     })}
@@ -316,14 +316,14 @@ function LegacyChecklistRunner({ checklist, onSave, onBack }) {
                 {/* Dropdown */}
                 {field.type==="dropdown" && (
                   <select className="form-input form-select" style={{ marginLeft:32, marginTop:6, width:"calc(100% - 32px)", minWidth:0 }} value={field.value||""} onChange={e=>updateField(field.id, e.target.value)}>
-                    <option value="">â Select â</option>
+                    <option value="">— Select —</option>
                     {(field.options||[]).map(o=><option key={o}>{o}</option>)}
                   </select>
                 )}
 
                 {/* Text */}
                 {field.type==="text" && (
-                  <textarea className="form-input form-textarea" style={{ marginLeft:32, marginTop:6, minHeight:72, fontSize:13, resize:"vertical", width:"calc(100% - 32px)", boxSizing:"border-box" }} placeholder="Enter your answerâ¦" value={field.value||""} onChange={e=>updateField(field.id, e.target.value)} />
+                  <textarea className="form-input form-textarea" style={{ marginLeft:32, marginTop:6, minHeight:72, fontSize:13, resize:"vertical", width:"calc(100% - 32px)", boxSizing:"border-box" }} placeholder="Enter your answer…" value={field.value||""} onChange={e=>updateField(field.id, e.target.value)} />
                 )}
 
                 {/* Number */}
@@ -343,7 +343,7 @@ function LegacyChecklistRunner({ checklist, onSave, onBack }) {
   );
 }
 
-// ââ Checklist Builder ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Checklist Builder ────────────────────────────────────────────────────────
 function LegacyChecklistBuilder({ checklist, onSave, onBack }) {
   const [cl, setCl] = useState({ ...checklist });
   const [addingField, setAddingField] = useState(false);
@@ -380,7 +380,7 @@ function LegacyChecklistBuilder({ checklist, onSave, onBack }) {
     <div>
       <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
         <button className="btn btn-ghost btn-sm" onClick={onBack}><Icon d={ic.arrowLeft} size={14} /> Back</button>
-        <input className="form-input" style={{ flex:1, fontWeight:700, fontSize:15 }} value={cl.name} onChange={e=>setCl(p=>({...p,name:e.target.value}))} placeholder="Checklist nameâ¦" />
+        <input className="form-input" style={{ flex:1, fontWeight:700, fontSize:15 }} value={cl.name} onChange={e=>setCl(p=>({...p,name:e.target.value}))} placeholder="Checklist name…" />
         <button className="btn btn-sm btn-primary" disabled={!cl.name.trim()||cl.fields.length===0}
           onClick={()=>onSave(cl)}><Icon d={ic.check} size={13} /> Save Checklist</button>
       </div>
@@ -391,8 +391,8 @@ function LegacyChecklistBuilder({ checklist, onSave, onBack }) {
           <div key={f.id} className="card" style={{ padding:0 }}>
             <div style={{ display:"flex", alignItems:"center", gap:10, padding:"11px 14px" }}>
               <div style={{ display:"flex", flexDirection:"column", gap:2 }}>
-                <button onClick={()=>moveField(f.id,-1)} disabled={i===0} style={{ background:"none",border:"none",cursor:i===0?"default":"pointer",color:i===0?"var(--border)":"var(--text3)",lineHeight:1,padding:0,fontSize:11 }}>â²</button>
-                <button onClick={()=>moveField(f.id,1)} disabled={i===cl.fields.length-1} style={{ background:"none",border:"none",cursor:i===cl.fields.length-1?"default":"pointer",color:i===cl.fields.length-1?"var(--border)":"var(--text3)",lineHeight:1,padding:0,fontSize:11 }}>â¼</button>
+                <button onClick={()=>moveField(f.id,-1)} disabled={i===0} style={{ background:"none",border:"none",cursor:i===0?"default":"pointer",color:i===0?"var(--border)":"var(--text3)",lineHeight:1,padding:0,fontSize:11 }}>▲</button>
+                <button onClick={()=>moveField(f.id,1)} disabled={i===cl.fields.length-1} style={{ background:"none",border:"none",cursor:i===cl.fields.length-1?"default":"pointer",color:i===cl.fields.length-1?"var(--border)":"var(--text3)",lineHeight:1,padding:0,fontSize:11 }}>▼</button>
               </div>
               <div style={{ width:28, height:28, borderRadius:6, background:"var(--surface2)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, flexShrink:0 }}>
                 {FIELD_TYPES.find(t=>t.id===f.type)?.icon || "?"}
@@ -401,14 +401,14 @@ function LegacyChecklistBuilder({ checklist, onSave, onBack }) {
                 <div style={{ fontSize:13, fontWeight:600 }}>{f.label}{f.required && <span style={{ color:"var(--accent)",marginLeft:4 }}>*</span>}</div>
                 <div style={{ fontSize:11.5, color:"var(--text3)", marginTop:1 }}>
                   {FIELD_TYPES.find(t=>t.id===f.type)?.label}
-                  {f.options?.length > 0 && ` Â· ${f.options.length} options`}
+                  {f.options?.length > 0 && ` · ${f.options.length} options`}
                 </div>
               </div>
               <button className="btn btn-ghost btn-icon btn-sm" onClick={()=>removeField(f.id)}><Icon d={ic.trash} size={13} stroke="#ff6b6b" /></button>
             </div>
           </div>
         ))}
-        {cl.fields.length===0 && <div style={{ textAlign:"center",padding:"24px 0",color:"var(--text3)",fontSize:13 }}>No fields yet â add one below</div>}
+        {cl.fields.length===0 && <div style={{ textAlign:"center",padding:"24px 0",color:"var(--text3)",fontSize:13 }}>No fields yet — add one below</div>}
       </div>
 
       {/* Add field panel */}
@@ -456,7 +456,7 @@ function LegacyChecklistBuilder({ checklist, onSave, onBack }) {
   );
 }
 
-// ââ Template Manager Modal ââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Template Manager Modal ────────────────────────────────────────────────────
 export function ChecklistsTab({ project, onUpdateProject }) {
   const [view, setView] = useState("list");
   const [activeChecklist, setActive] = useState(null);
@@ -597,7 +597,7 @@ export function ChecklistsTab({ project, onUpdateProject }) {
                   <div style={{ width:44, height:44, borderRadius:10, background:`conic-gradient(var(--accent) ${pct*3.6}deg, var(--surface2) 0)`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}><div style={{ width:34, height:34, borderRadius:8, background:"var(--surface)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, color:"var(--accent)" }}>{pct}%</div></div>
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ fontWeight:700, fontSize:14, marginBottom:2 }}>{cl.name}</div>
-                    <div style={{ fontSize:12, color:"var(--text2)" }}>{done}/{total} items Â· {cl.createdAt}{cl.assignee && <span style={{ marginLeft:8, color:"var(--text3)" }}>Â· {cl.assignee}</span>}</div>
+                    <div style={{ fontSize:12, color:"var(--text2)" }}>{done}/{total} items · {cl.createdAt}{cl.assignee && <span style={{ marginLeft:8, color:"var(--text3)" }}>· {cl.assignee}</span>}</div>
                     <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginTop:8 }}>
                       <span className="tag tag-blue">{roomsUsed.length} room{roomsUsed.length!==1?"s":""}</span>
                       <span className="tag tag-orange">{evidence} evidence</span>
@@ -625,13 +625,13 @@ export function ChecklistsTab({ project, onUpdateProject }) {
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                 {templates.map(t => (
                   <div key={t.id} onClick={() => startFromTemplate(t)} style={{ padding:"12px 14px", border:"1px solid var(--border)", borderRadius:"var(--radius-sm)", cursor:"pointer", display:"flex", alignItems:"center", gap:12, background:"var(--surface2)" }}>
-                    <div style={{ width:36, height:36, borderRadius:8, background:"var(--accent-glow)", border:"1px solid var(--accent)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, flexShrink:0 }}>ð</div>
-                    <div style={{ flex:1 }}><div style={{ fontWeight:700, fontSize:13.5 }}>{t.name}</div><div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>{t.desc} Â· {t.fields.length} fields</div></div>
+                    <div style={{ width:36, height:36, borderRadius:8, background:"var(--accent-glow)", border:"1px solid var(--accent)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, flexShrink:0 }}>📋</div>
+                    <div style={{ flex:1 }}><div style={{ fontWeight:700, fontSize:13.5 }}>{t.name}</div><div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>{t.desc} · {t.fields.length} fields</div></div>
                     <Icon d={ic.chevRight} size={14} stroke="var(--text3)" />
                   </div>
                 ))}
                 <div onClick={startBlank} style={{ padding:"12px 14px", border:"2px dashed var(--border)", borderRadius:"var(--radius-sm)", cursor:"pointer", display:"flex", alignItems:"center", gap:12 }}>
-                  <div style={{ width:36, height:36, borderRadius:8, background:"var(--surface2)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, flexShrink:0 }}>â</div>
+                  <div style={{ width:36, height:36, borderRadius:8, background:"var(--surface2)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, flexShrink:0 }}>➕</div>
                   <div style={{ flex:1 }}><div style={{ fontWeight:700, fontSize:13.5 }}>Build Custom Checklist</div><div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>Start from scratch with room routing, evidence, and issues</div></div>
                   <Icon d={ic.chevRight} size={14} stroke="var(--text3)" />
                 </div>
@@ -738,7 +738,7 @@ function ChecklistRunner({ checklist, project, onSave, onBack }) {
     <div>
       <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20, flexWrap:"wrap" }}>
         <button className="btn btn-ghost btn-sm" onClick={onBack}><Icon d={ic.arrowLeft} size={14} /> Back</button>
-        <div style={{ flex:1, minWidth:150 }}><div style={{ fontWeight:700, fontSize:16 }}>{cl.name}</div><div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>{complete}/{total} completed Â· {pct}% Â· {failedCount} failed Â· {openIssues} issues</div></div>
+        <div style={{ flex:1, minWidth:150 }}><div style={{ fontWeight:700, fontSize:16 }}>{cl.name}</div><div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>{complete}/{total} completed · {pct}% · {failedCount} failed · {openIssues} issues</div></div>
         <div style={{ display:"flex", gap:8, marginLeft:"auto", flexWrap:"wrap" }}>
           {isLocked && <button className="btn btn-sm btn-secondary" onClick={() => setCl(prev => ({ ...prev, status:"in_progress", completedAt:null }))}>Reopen Checklist</button>}
           <button className="btn btn-sm btn-secondary" onClick={() => { try { localStorage.removeItem(_draftKey); } catch {} onSave({ ...cl, status:isLocked ? "complete" : "in_progress" }); }}>Save Draft</button>
@@ -760,7 +760,7 @@ function ChecklistRunner({ checklist, project, onSave, onBack }) {
             <div>
               <div style={{ fontSize:14, fontWeight:700 }}>Completion Workflow</div>
               <div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>
-                {completionSettings.requireSignature ? "Signature required" : "Signature optional"} Â· {completionSettings.lockAfterComplete === false ? "Remains editable" : "Locks after complete"}
+                {completionSettings.requireSignature ? "Signature required" : "Signature optional"} · {completionSettings.lockAfterComplete === false ? "Remains editable" : "Locks after complete"}
               </div>
             </div>
             {cl.completedAt && <span className="tag tag-green">Completed {cl.completedAt}</span>}
@@ -837,8 +837,8 @@ function ChecklistRunner({ checklist, project, onSave, onBack }) {
 
                     {field.type==="checkbox" && <div style={{ display:"flex", alignItems:"center", gap:8, marginLeft:32 }}><input type="checkbox" checked={!!field.value} disabled={isLocked} onChange={e=>updateFieldValue(field.id, e.target.checked)} style={{ width:18,height:18,accentColor:"var(--accent)" }} /><span style={{ fontSize:13, color:"var(--text2)" }}>Confirmed</span></div>}
                     {field.type==="yesno" && <div style={{ display:"flex", gap:8, marginLeft:32, flexWrap:"wrap" }}>{["Yes","No","N/A"].map(opt => <div key={opt} onClick={()=>!isLocked&&updateFieldValue(field.id, opt)} style={{ padding:"6px 20px", borderRadius:"var(--radius-sm)", border:`2px solid ${field.value===opt?"var(--accent)":"var(--border)"}`, background:field.value===opt?"var(--accent-glow)":"var(--surface2)", cursor:isLocked?"default":"pointer", fontSize:13, fontWeight:600, color:field.value===opt?"var(--accent)":"var(--text2)", opacity:isLocked?0.7:1 }}>{opt}</div>)}</div>}
-                    {field.type==="multi_checkbox" && <div style={{ display:"flex", flexWrap:"wrap", gap:7, marginLeft:32 }}>{(field.options||[]).map(opt => { const sel = (field.value||[]).includes(opt); return <div key={opt} onClick={()=>!isLocked&&toggleMulti(field.id, opt)} style={{ padding:"5px 13px", borderRadius:20, border:`1.5px solid ${sel?"var(--accent)":"var(--border)"}`, background:sel?"var(--accent-glow)":"var(--surface2)", cursor:isLocked?"default":"pointer", fontSize:12.5, fontWeight:600, color:sel?"var(--accent)":"var(--text2)", opacity:isLocked?0.7:1 }}>{sel?"â ":""}{opt}</div>; })}</div>}
-                    {field.type==="dropdown" && <select className="form-input form-select" disabled={isLocked} style={{ marginLeft:32, width:"calc(100% - 32px)" }} value={field.value||""} onChange={e=>updateFieldValue(field.id, e.target.value)}><option value="">â Select â</option>{(field.options||[]).map(o=><option key={o}>{o}</option>)}</select>}
+                    {field.type==="multi_checkbox" && <div style={{ display:"flex", flexWrap:"wrap", gap:7, marginLeft:32 }}>{(field.options||[]).map(opt => { const sel = (field.value||[]).includes(opt); return <div key={opt} onClick={()=>!isLocked&&toggleMulti(field.id, opt)} style={{ padding:"5px 13px", borderRadius:20, border:`1.5px solid ${sel?"var(--accent)":"var(--border)"}`, background:sel?"var(--accent-glow)":"var(--surface2)", cursor:isLocked?"default":"pointer", fontSize:12.5, fontWeight:600, color:sel?"var(--accent)":"var(--text2)", opacity:isLocked?0.7:1 }}>{sel?"✓ ":""}{opt}</div>; })}</div>}
+                    {field.type==="dropdown" && <select className="form-input form-select" disabled={isLocked} style={{ marginLeft:32, width:"calc(100% - 32px)" }} value={field.value||""} onChange={e=>updateFieldValue(field.id, e.target.value)}><option value="">— Select —</option>{(field.options||[]).map(o=><option key={o}>{o}</option>)}</select>}
                     {field.type==="text" && <textarea className="form-input form-textarea" disabled={isLocked} style={{ marginLeft:32, minHeight:72, width:"calc(100% - 32px)", resize:"vertical" }} placeholder="Enter your answer..." value={field.value||""} onChange={e=>updateFieldValue(field.id, e.target.value)} />}
                     {field.type==="number" && <input type="number" className="form-input" disabled={isLocked} style={{ marginLeft:32, width:"calc(100% - 32px)" }} placeholder="0" value={field.value||""} onChange={e=>updateFieldValue(field.id, e.target.value)} />}
 
@@ -943,16 +943,16 @@ function ChecklistBuilder({ checklist, rooms = [], onSave, onBack }) {
           <div key={f.id} className="card" style={{ padding:0 }}>
             <div style={{ display:"flex", alignItems:"center", gap:10, padding:"11px 14px" }}>
               <div style={{ display:"flex", flexDirection:"column", gap:2 }}>
-                <button onClick={()=>moveField(f.id,-1)} disabled={i===0} style={{ background:"none",border:"none",cursor:i===0?"default":"pointer",color:i===0?"var(--border)":"var(--text3)",lineHeight:1,padding:0,fontSize:11 }}>â²</button>
-                <button onClick={()=>moveField(f.id,1)} disabled={i===(cl.fields||[]).length-1} style={{ background:"none",border:"none",cursor:i===(cl.fields||[]).length-1?"default":"pointer",color:i===(cl.fields||[]).length-1?"var(--border)":"var(--text3)",lineHeight:1,padding:0,fontSize:11 }}>â¼</button>
+                <button onClick={()=>moveField(f.id,-1)} disabled={i===0} style={{ background:"none",border:"none",cursor:i===0?"default":"pointer",color:i===0?"var(--border)":"var(--text3)",lineHeight:1,padding:0,fontSize:11 }}>▲</button>
+                <button onClick={()=>moveField(f.id,1)} disabled={i===(cl.fields||[]).length-1} style={{ background:"none",border:"none",cursor:i===(cl.fields||[]).length-1?"default":"pointer",color:i===(cl.fields||[]).length-1?"var(--border)":"var(--text3)",lineHeight:1,padding:0,fontSize:11 }}>▼</button>
               </div>
               <div style={{ width:28, height:28, borderRadius:6, background:"var(--surface2)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, flexShrink:0 }}>{FIELD_TYPES.find(t=>t.id===f.type)?.icon || "?"}</div>
-              <div style={{ flex:1, minWidth:0 }}><div style={{ fontSize:13, fontWeight:600 }}>{f.label}{f.required && <span style={{ color:"var(--accent)",marginLeft:4 }}>*</span>}</div><div style={{ fontSize:11.5, color:"var(--text3)", marginTop:1 }}>{FIELD_TYPES.find(t=>t.id===f.type)?.label}{f.options?.length > 0 && ` Â· ${f.options.length} options`}{` Â· ${f.room || "General"}`}</div><div style={{ display:"flex", gap:6, flexWrap:"wrap", marginTop:6 }}>{f.requireCommentOnFail && <span className="tag tag-orange">Comment on fail</span>}{f.requireEvidenceOnFail && <span className="tag tag-blue">Evidence on fail</span>}{f.createIssueOnFail !== false && <span className="tag tag-purple">Punchlist on fail</span>}</div></div>
+              <div style={{ flex:1, minWidth:0 }}><div style={{ fontSize:13, fontWeight:600 }}>{f.label}{f.required && <span style={{ color:"var(--accent)",marginLeft:4 }}>*</span>}</div><div style={{ fontSize:11.5, color:"var(--text3)", marginTop:1 }}>{FIELD_TYPES.find(t=>t.id===f.type)?.label}{f.options?.length > 0 && ` · ${f.options.length} options`}{` · ${f.room || "General"}`}</div><div style={{ display:"flex", gap:6, flexWrap:"wrap", marginTop:6 }}>{f.requireCommentOnFail && <span className="tag tag-orange">Comment on fail</span>}{f.requireEvidenceOnFail && <span className="tag tag-blue">Evidence on fail</span>}{f.createIssueOnFail !== false && <span className="tag tag-purple">Punchlist on fail</span>}</div></div>
               <button className="btn btn-ghost btn-icon btn-sm" onClick={()=>removeField(f.id)}><Icon d={ic.trash} size={13} stroke="#ff6b6b" /></button>
             </div>
           </div>
         ))}
-        {(cl.fields||[]).length===0 && <div style={{ textAlign:"center",padding:"24px 0",color:"var(--text3)",fontSize:13 }}>No fields yet â add one below</div>}
+        {(cl.fields||[]).length===0 && <div style={{ textAlign:"center",padding:"24px 0",color:"var(--text3)",fontSize:13 }}>No fields yet — add one below</div>}
       </div>
       {!addingField ? (
         <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center", borderStyle:"dashed" }} onClick={()=>setAddingField(true)}><Icon d={ic.plus} size={14} /> Add Field</button>
@@ -994,10 +994,10 @@ function TemplateManagerModal({ templates, setTemplates, onClose }) {
   const [newTmplName, setNewTmplName] = useState("");
   const [tmplSearch, setTmplSearch] = useState("");
   const [tmplCategory, setTmplCategory] = useState("All");
-  // Local tags string â decoupled from the parsed array so commas work freely
+  // Local tags string — decoupled from the parsed array so commas work freely
   const [tagsInput, setTagsInput] = useState("");
   const [customCatInput, setCustomCatInput] = useState("");
-  // Custom categories â seeded from localStorage cache, then overwritten by Supabase on load
+  // Custom categories — seeded from localStorage cache, then overwritten by Supabase on load
   const [customCats, setCustomCats] = useState(() => {
     try { return JSON.parse(localStorage.getItem("kc_cl_custom_cats") || "[]"); } catch { return []; }
   });
@@ -1128,7 +1128,7 @@ function TemplateManagerModal({ templates, setTemplates, onClose }) {
         </div>
         <div className="modal-body" style={{ maxHeight:"60vh", overflowY:"auto" }}>
           <div className="form-group"><label className="form-label">Template Name</label><input className="form-input" value={editing.name} onChange={e=>setEditing(p=>({...p,name:e.target.value}))} placeholder="e.g. Fire Damage Walkthrough" /></div>
-          <div className="form-group"><label className="form-label">Description</label><input className="form-input" value={editing.desc||""} onChange={e=>setEditing(p=>({...p,desc:e.target.value}))} placeholder="Short descriptionâ¦" /></div>
+          <div className="form-group"><label className="form-label">Description</label><input className="form-input" value={editing.desc||""} onChange={e=>setEditing(p=>({...p,desc:e.target.value}))} placeholder="Short description…" /></div>
           <div style={{ display:"flex", gap:10, marginBottom:6 }}>
             <div className="form-group" style={{ flex:1, marginBottom:0 }}>
               <label className="form-label">Category</label>
@@ -1150,7 +1150,7 @@ function TemplateManagerModal({ templates, setTemplates, onClose }) {
           <div style={{ display:"flex", gap:8, marginBottom:14, alignItems:"center" }}>
             <input className="form-input" style={{ flex:1, fontSize:12 }}
               value={customCatInput} onChange={e=>setCustomCatInput(e.target.value)}
-              placeholder="Add custom categoryâ¦"
+              placeholder="Add custom category…"
               onKeyDown={e=>{ if(e.key==="Enter"){ saveCustomCat(customCatInput); setEditing(p=>({...p,category:customCatInput.trim()})); setCustomCatInput(""); }}}
             />
             <button className="btn btn-secondary btn-sm" disabled={!customCatInput.trim()} onClick={()=>{ saveCustomCat(customCatInput); setEditing(p=>({...p,category:customCatInput.trim()})); setCustomCatInput(""); }}>
@@ -1191,7 +1191,7 @@ function TemplateManagerModal({ templates, setTemplates, onClose }) {
         <div className="modal-body" style={{ paddingBottom:0 }}>
           {/* Search + category filter */}
           <div style={{ display:"flex", gap:8, marginBottom:12, flexWrap:"wrap" }}>
-            <input className="form-input" placeholder="Search templates or tagsâ¦" value={tmplSearch} onChange={e=>setTmplSearch(e.target.value)} style={{ flex:1, minWidth:160 }} />
+            <input className="form-input" placeholder="Search templates or tags…" value={tmplSearch} onChange={e=>setTmplSearch(e.target.value)} style={{ flex:1, minWidth:160 }} />
           </div>
           <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:14 }}>
             {allCategories.map(cat => (
@@ -1216,7 +1216,7 @@ function TemplateManagerModal({ templates, setTemplates, onClose }) {
                       <span style={{ fontWeight:700, fontSize:13 }}>{t.name}</span>
                       <span style={{ fontSize:10, padding:"1px 7px", borderRadius:10, background:`${catColor}22`, color:catColor, fontWeight:600, border:`1px solid ${catColor}44` }}>{t.category||"General"}</span>
                     </div>
-                    <div style={{ fontSize:11.5, color:"var(--text3)", marginTop:2 }}>{t.fields.length} fields Â· {t.desc}</div>
+                    <div style={{ fontSize:11.5, color:"var(--text3)", marginTop:2 }}>{t.fields.length} fields · {t.desc}</div>
                     {(t.tags||[]).length > 0 && (
                       <div style={{ display:"flex", gap:4, flexWrap:"wrap", marginTop:4 }}>
                         {(t.tags||[]).map(tag => (
@@ -1238,7 +1238,7 @@ function TemplateManagerModal({ templates, setTemplates, onClose }) {
         </div>
         {/* Manage categories section */}
         <div style={{ borderTop:"1px solid var(--border)", padding:"12px 20px" }}>
-          <div style={{ fontSize:12, fontWeight:700, color:"var(--text2)", marginBottom:8 }}>ð Manage Categories</div>
+          <div style={{ fontSize:12, fontWeight:700, color:"var(--text2)", marginBottom:8 }}>📂 Manage Categories</div>
           {/* Active categories with remove button */}
           <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:8 }}>
             {allCats.map(cat => {
@@ -1249,7 +1249,7 @@ function TemplateManagerModal({ templates, setTemplates, onClose }) {
                   <button onClick={() => removeCategory(cat)} title={`Remove ${cat}`}
                     style={{ background:"none", border:"none", cursor:"pointer", color, opacity:.7, fontSize:13, lineHeight:1, padding:"0 1px", display:"flex", alignItems:"center" }}
                     onMouseEnter={e=>e.currentTarget.style.opacity=1}
-                    onMouseLeave={e=>e.currentTarget.style.opacity=0.7}>Ã</button>
+                    onMouseLeave={e=>e.currentTarget.style.opacity=0.7}>×</button>
                 </div>
               );
             })}
@@ -1270,7 +1270,7 @@ function TemplateManagerModal({ templates, setTemplates, onClose }) {
           <div style={{ display:"flex", gap:8 }}>
             <input className="form-input" style={{ flex:1, fontSize:12, height:32 }}
               value={customCatInput} onChange={e=>setCustomCatInput(e.target.value)}
-              placeholder="Add new categoryâ¦"
+              placeholder="Add new category…"
               onKeyDown={e=>{ if(e.key==="Enter" && customCatInput.trim()){ saveCustomCat(customCatInput); setCustomCatInput(""); }}}
             />
             <button className="btn btn-secondary btn-sm" disabled={!customCatInput.trim()} onClick={()=>{ saveCustomCat(customCatInput); setCustomCatInput(""); }}>
@@ -1287,7 +1287,7 @@ function TemplateManagerModal({ templates, setTemplates, onClose }) {
   );
 }
 
-// ââ Reports Tab (with multi-select + email send) ââââââââââââââââââââââââââââââ
+// ── Reports Tab (with multi-select + email send) ──────────────────────────────
 export function ReportsTab({ project, onUpdateProject, onOpenReportCreator, settings }) {
   const [selected,    setSelected]    = useState(new Set());
   const [showEmail,   setShowEmail]   = useState(false);
@@ -1314,7 +1314,7 @@ export function ReportsTab({ project, onUpdateProject, onOpenReportCreator, sett
   return (
     <div>
       <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16,gap:10 }}>
-        <div style={{ fontSize:13,color:"var(--text2)" }}>{filteredReports.length} of {reports.length} report{reports.length!==1?"s":""}{selected.size>0&&<span style={{ marginLeft:8,color:"var(--accent)",fontWeight:600 }}> Â· {selected.size} selected</span>}</div>
+        <div style={{ fontSize:13,color:"var(--text2)" }}>{filteredReports.length} of {reports.length} report{reports.length!==1?"s":""}{selected.size>0&&<span style={{ marginLeft:8,color:"var(--accent)",fontWeight:600 }}> · {selected.size} selected</span>}</div>
         <div style={{ display:"flex",gap:8 }}>
           {REPORT_EMAIL_FEATURE_VISIBLE && selected.size > 0 && (
             <button className="btn btn-sm btn-secondary" onClick={() => setShowEmail(true)}>
@@ -1364,8 +1364,8 @@ export function ReportsTab({ project, onUpdateProject, onOpenReportCreator, sett
               <div style={{ flex:1 }}>
                 <div style={{ fontWeight:600,fontSize:13.5,marginBottom:2 }}>{r.title}</div>
                 <div style={{ fontSize:12,color:"var(--text2)" }}>
-                  {r.reportType||r.type} Â· {r.date} Â· {r.photos||0} photo{r.photos!==1?"s":""}
-                  {r.lastSentTo && <span style={{ marginLeft:8,color:"var(--text3)" }}>Â· Last sent to {r.lastSentTo}</span>}
+                  {r.reportType||r.type} · {r.date} · {r.photos||0} photo{r.photos!==1?"s":""}
+                  {r.lastSentTo && <span style={{ marginLeft:8,color:"var(--text3)" }}>· Last sent to {r.lastSentTo}</span>}
                 </div>
               </div>
               <span className={`tag tag-${r.status==="sent"?"green":r.status==="final"?"blue":r.status==="review"?"purple":"orange"}`}>{r.status}</span>
@@ -1407,7 +1407,7 @@ export function ReportsTab({ project, onUpdateProject, onOpenReportCreator, sett
   );
 }
 
-// ââ Send Email Modal âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Send Email Modal ───────────────────────────────────────────────────────────
 function SendEmailModal({ project, reports, settings, onClose, onSent }) {
   const interpolate = (str, recipient) => (str||"")
     .replace(/{{company}}/g,     settings?.companyName||"")
@@ -1416,18 +1416,18 @@ function SendEmailModal({ project, reports, settings, onClose, onSent }) {
     .replace(/{{recipient}}/g,   recipient||"")
     .replace(/{{date}}/g,        formatDate(new Date().toISOString().slice(0,10), settings))
     .replace(/{{inspector}}/g,   `${settings?.userFirstName||""} ${settings?.userLastName||""}`.trim())
-    .replace(/{{reports_list}}/g, reports.map(r=>`  â¢ ${r.title} (${r.reportType||r.type})`).join("\n"));
+    .replace(/{{reports_list}}/g, reports.map(r=>`  • ${r.title} (${r.reportType||r.type})`).join("\n"));
 
   const QUICK_RECIPIENTS = [
-    project.clientName    && project.clientEmail    ? { label:`Client â ${project.clientName}`,    email:project.clientEmail,    name:project.clientName }    : null,
-    project.adjusterName  && project.adjusterEmail  ? { label:`Adjuster â ${project.adjusterName}`,email:project.adjusterEmail,  name:project.adjusterName }  : null,
-    project.insuranceCarrier                         ? { label:`Carrier â ${project.insuranceCarrier}`, email:"",                name:project.insuranceCarrier } : null,
+    project.clientName    && project.clientEmail    ? { label:`Client — ${project.clientName}`,    email:project.clientEmail,    name:project.clientName }    : null,
+    project.adjusterName  && project.adjusterEmail  ? { label:`Adjuster — ${project.adjusterName}`,email:project.adjusterEmail,  name:project.adjusterName }  : null,
+    project.insuranceCarrier                         ? { label:`Carrier — ${project.insuranceCarrier}`, email:"",                name:project.insuranceCarrier } : null,
   ].filter(Boolean);
 
   const [toList,    setToList]    = useState(QUICK_RECIPIENTS.length>0 ? [QUICK_RECIPIENTS[0]] : [{ label:"Custom", email:"", name:"" }]);
   const [customEmail, setCustomEmail] = useState("");
   const [customName,  setCustomName]  = useState("");
-  const [subject,   setSubject]   = useState(() => interpolate(settings?.emailSubject || "Report from {{company}} â {{project}}", QUICK_RECIPIENTS[0]?.name||""));
+  const [subject,   setSubject]   = useState(() => interpolate(settings?.emailSubject || "Report from {{company}} — {{project}}", QUICK_RECIPIENTS[0]?.name||""));
   const [body,      setBody]      = useState(() => interpolate(settings?.emailBody || "Hello {{recipient}},\n\nPlease find attached the reports for {{project}}.\n\n{{reports_list}}\n\nBest regards,", QUICK_RECIPIENTS[0]?.name||""));
   const [activeTab, setActiveTab] = useState("compose"); // compose | preview
 
@@ -1452,7 +1452,7 @@ function SendEmailModal({ project, reports, settings, onClose, onSent }) {
 
   const previewHtml = `
     <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.7;color:#222;max-width:600px;padding:20px;">
-      <p><strong>To:</strong> ${toList.map(r=>r.email||r.name).join(", ")||"â"}</p>
+      <p><strong>To:</strong> ${toList.map(r=>r.email||r.name).join(", ")||"—"}</p>
       <p><strong>Subject:</strong> ${subject}</p>
       <hr style="border:1px solid #eee;margin:12px 0"/>
       <div style="white-space:pre-wrap">${body}</div>
@@ -1473,7 +1473,7 @@ function SendEmailModal({ project, reports, settings, onClose, onSent }) {
           {["compose","preview"].map(t=>(
             <button key={t} className="btn btn-ghost btn-sm"
               style={{ borderBottom:`2px solid ${activeTab===t?"var(--accent)":"transparent"}`,borderRadius:0,paddingBottom:10,color:activeTab===t?"var(--accent)":"var(--text2)",fontWeight:activeTab===t?700:500,textTransform:"capitalize" }}
-              onClick={()=>setActiveTab(t)}>{t==="compose"?"â Compose":"ð Preview"}</button>
+              onClick={()=>setActiveTab(t)}>{t==="compose"?"✏ Compose":"👁 Preview"}</button>
           ))}
           <div style={{ marginLeft:"auto",display:"flex",alignItems:"center",gap:6,paddingBottom:8 }}>
             <span style={{ fontSize:11.5,color:"var(--text3)" }}>Sending:</span>
@@ -1497,7 +1497,7 @@ function SendEmailModal({ project, reports, settings, onClose, onSent }) {
                       return (
                         <div key={r.email} onClick={()=>added?removeRecipient(r.email):addQuick(r)}
                           style={{ padding:"5px 12px",borderRadius:20,border:`1.5px solid ${added?"var(--accent)":"var(--border)"}`,background:added?"var(--accent-glow)":"var(--surface2)",cursor:"pointer",fontSize:12.5,fontWeight:600,color:added?"var(--accent)":"var(--text2)",transition:"all .15s",userSelect:"none" }}>
-                          {added?"â ":""}{r.label}
+                          {added?"✓ ":""}{r.label}
                         </div>
                       );
                     })}
@@ -1510,7 +1510,7 @@ function SendEmailModal({ project, reports, settings, onClose, onSent }) {
                       <div key={r.email||r.name} style={{ display:"flex",alignItems:"center",gap:6,padding:"4px 10px",borderRadius:20,background:"var(--surface2)",border:"1px solid var(--border)",fontSize:12.5 }}>
                         <span style={{ fontWeight:600 }}>{r.name||r.email}</span>
                         {r.email && <span style={{ color:"var(--text3)" }}>&lt;{r.email}&gt;</span>}
-                        <button onClick={()=>removeRecipient(r.email)} style={{ background:"none",border:"none",cursor:"pointer",color:"var(--text3)",padding:0,lineHeight:1,fontSize:14 }}>Ã</button>
+                        <button onClick={()=>removeRecipient(r.email)} style={{ background:"none",border:"none",cursor:"pointer",color:"var(--text3)",padding:0,lineHeight:1,fontSize:14 }}>×</button>
                       </div>
                     ))}
                   </div>
@@ -1537,8 +1537,8 @@ function SendEmailModal({ project, reports, settings, onClose, onSent }) {
 
               {/* Signature preview */}
               <div style={{ padding:"12px 14px",background:"var(--surface2)",borderRadius:"var(--radius-sm)",borderLeft:"3px solid var(--border)",fontSize:12.5 }}>
-                <div style={{ fontSize:11,fontWeight:700,color:"var(--text3)",textTransform:"uppercase",letterSpacing:".05em",marginBottom:8 }}>Signature (from Settings â Email)</div>
-                <div style={{ color:"var(--text2)",lineHeight:1.7,whiteSpace:"pre-wrap" }}>{sig||"No signature configured â add one in Settings â Email"}</div>
+                <div style={{ fontSize:11,fontWeight:700,color:"var(--text3)",textTransform:"uppercase",letterSpacing:".05em",marginBottom:8 }}>Signature (from Settings → Email)</div>
+                <div style={{ color:"var(--text2)",lineHeight:1.7,whiteSpace:"pre-wrap" }}>{sig||"No signature configured — add one in Settings → Email"}</div>
               </div>
             </div>
           ) : (
@@ -1558,7 +1558,7 @@ function SendEmailModal({ project, reports, settings, onClose, onSent }) {
   );
 }
 
-// ââ Videos Tab ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Videos Tab ────────────────────────────────────────────────────────────────
 export function VideosTab({ project, onUpdateProject, onOpenCamera, orgId }) {
   const videos = project.videos || [];
   const [playing,      setPlaying]      = useState(null);
@@ -1627,7 +1627,7 @@ export function VideosTab({ project, onUpdateProject, onOpenCamera, orgId }) {
             )}
             <button className="btn btn-secondary btn-sm" onClick={() => { setSelectMode(false); setSelectedIds(new Set()); }}>Cancel</button>
           </>) : (<>
-            {videos.length > 0 && <button className="btn btn-secondary btn-sm" onClick={() => setSelectMode(true)}>â Select</button>}
+            {videos.length > 0 && <button className="btn btn-secondary btn-sm" onClick={() => setSelectMode(true)}>☑ Select</button>}
             <button className="btn btn-primary btn-sm" onClick={()=>onOpenCamera(project)}>
               <Icon d={ic.video} size={14}/> Record Video
             </button>
@@ -1675,7 +1675,7 @@ export function VideosTab({ project, onUpdateProject, onOpenCamera, orgId }) {
                   </span>
                 )}
                 <span style={{ position:"absolute",top:8,left:8,fontSize:10.5,background:"rgba(0,0,0,.6)",color:"rgba(255,255,255,.85)",padding:"2px 8px",borderRadius:6 }}>
-                  ð¬ {v.room || "General"}
+                  🎬 {v.room || "General"}
                 </span>
               </div>
               {/* Meta */}
@@ -1683,7 +1683,7 @@ export function VideosTab({ project, onUpdateProject, onOpenCamera, orgId }) {
                 <div style={{ fontWeight:700,fontSize:13.5,marginBottom:4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{v.name}</div>
                 <div style={{ display:"flex",alignItems:"center",gap:6,fontSize:11.5,color:"var(--text3)",marginBottom:10 }}>
                   <Icon d={ic.clockIcon} size={11}/>{v.date}
-                  {v.gps && <><span>Â·</span><Icon d={ic.mapPin} size={11} stroke="#3dba7e"/><span style={{ color:"#3dba7e" }}>GPS</span></>}
+                  {v.gps && <><span>·</span><Icon d={ic.mapPin} size={11} stroke="#3dba7e"/><span style={{ color:"#3dba7e" }}>GPS</span></>}
                 </div>
                 <div style={{ display:"flex",gap:6 }}>
                   <button className="btn btn-ghost btn-sm" style={{ flex:1,justifyContent:"center" }} onClick={()=>setPlaying(v.id)}>
@@ -1713,7 +1713,7 @@ export function VideosTab({ project, onUpdateProject, onOpenCamera, orgId }) {
             <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 16px",background:"#111",borderBottom:"1px solid #222" }}>
               <div style={{ fontWeight:700,fontSize:14,color:"white" }}>{playingVid.name}</div>
               <div style={{ display:"flex",alignItems:"center",gap:10 }}>
-                <span style={{ fontSize:11.5,color:"rgba(255,255,255,.5)" }}>{playingVid.room} Â· {playingVid.date}{playingVid.duration!=null?` Â· ${fmtTime(playingVid.duration)}`:""}</span>
+                <span style={{ fontSize:11.5,color:"rgba(255,255,255,.5)" }}>{playingVid.room} · {playingVid.date}{playingVid.duration!=null?` · ${fmtTime(playingVid.duration)}`:""}</span>
                 <button className="btn btn-ghost btn-icon" style={{ color:"white",width:30,height:30 }} onClick={()=>setPlaying(null)}><Icon d={ic.close} size={16}/></button>
               </div>
             </div>
@@ -1776,8 +1776,8 @@ export function VideosTab({ project, onUpdateProject, onOpenCamera, orgId }) {
   );
 }
 
-// ââ Photos Tab ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// ââ Embed code builder â lives outside JSX so </div> strings don't confuse the parser ââ
+// ── Photos Tab ────────────────────────────────────────────────────────────────
+// ── Embed code builder — lives outside JSX so </div> strings don't confuse the parser ──
 export function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdateProject, onSendToDirectMessage, orgId }) {
   const voiceNotes = project.voiceNotes || [];
   const [recState,     setRecState]     = useState("idle");
@@ -1835,7 +1835,7 @@ export function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdate
         dbUploadVoiceNote(project.id, orgId, blob, durationSeconds, title, authorName, durationMs).then(row => {
           // Base64 dataUrl already works for playback this session.
           // Just tag the note with its DB id in local state so delete works later.
-          // Don't call onUpdateProject again â the stale project closure would wipe the note.
+          // Don't call onUpdateProject again — the stale project closure would wipe the note.
           if (row?.id) {
             note.supabaseId  = row.id;
             note.storagePath = row.storage_path;
@@ -1929,7 +1929,7 @@ export function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdate
               )}
               <button className="btn btn-secondary btn-sm" onClick={() => { setSelectMode(false); setSelectedIds(new Set()); }}>Cancel</button>
             </>) : voiceNotes.length > 0 && (
-              <button className="btn btn-secondary btn-sm" onClick={() => setSelectMode(true)}>â Select</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => setSelectMode(true)}>☑ Select</button>
             )}
           </div>
         </div>
@@ -1989,7 +1989,7 @@ export function VoiceNotesTab({ project, teamUsers = [], settings = {}, onUpdate
                         <span className="tag tag-blue">{formatDurationLabel(note.durationMs)}</span>
                       </div>
                       <div style={{ fontSize:12,color:"var(--text2)",marginTop:5 }}>
-                        {note.createdByName || authorName} â¢ {formatDateTimeLabel(note.createdAt, settings)}
+                        {note.createdByName || authorName} • {formatDateTimeLabel(note.createdAt, settings)}
                       </div>
                     </div>
                   </div>
@@ -2177,7 +2177,7 @@ export function ProjectFilesTab({ project, teamUsers = [], settings = {}, onUpda
               });
               const dbRow = dbRes.ok ? (await dbRes.json())[0] : null;
               // Tag the local file object with its Storage URL and DB id in-place
-              // Do NOT call patchFiles here â it would use a stale snapshot and wipe the file
+              // Do NOT call patchFiles here — it would use a stale snapshot and wipe the file
               // Instead, update only the specific file via onUpdateProject with the latest project state
               newFile.dataUrl = publicUrl;
               newFile.storagePath = storagePath;
@@ -2278,7 +2278,7 @@ export function ProjectFilesTab({ project, teamUsers = [], settings = {}, onUpda
               )}
               <button className="btn btn-secondary btn-sm" onClick={() => { setSelectMode(false); setSelectedIds(new Set()); }}>Cancel</button>
             </>) : (<>
-              {files.length > 0 && <button className="btn btn-secondary btn-sm" onClick={() => setSelectMode(true)}>â Select</button>}
+              {files.length > 0 && <button className="btn btn-secondary btn-sm" onClick={() => setSelectMode(true)}>☑ Select</button>}
               <button className="btn btn-primary btn-sm" onClick={() => canUploadFiles && uploadRef.current?.click()} disabled={!canUploadFiles}><Icon d={ic.upload} size={13} /> Upload Files</button>
             </>)}
           </div>
@@ -2372,15 +2372,15 @@ export function ProjectFilesTab({ project, teamUsers = [], settings = {}, onUpda
                     </div>
                     <div style={{ fontSize:11.5,color:"var(--text3)",display:"flex",gap:8,flexWrap:"wrap" }}>
                       <span>{formatFileSizeLabel(file.size)}</span>
-                      <span>â¢</span>
+                      <span>•</span>
                       <span>{file.uploadedByName || "Unknown"}</span>
-                      <span>â¢</span>
+                      <span>•</span>
                       <span>{formatDateTimeLabel(file.uploadedAt, settings)}</span>
                     </div>
                   </div>
                   {!selectMode && (
                   <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,max-content))",gap:8,justifyContent:"end" }}>
-                    {/* Single Preview button â opens in new tab for all types, or shows inline viewer for supported types */}
+                    {/* Single Preview button — opens in new tab for all types, or shows inline viewer for supported types */}
                     <button className="btn btn-secondary btn-sm" onClick={() => {
                       if (previewable) setViewerFile(file);
                       else openFile(file);
@@ -2448,7 +2448,7 @@ export function ProjectFilesTab({ project, teamUsers = [], settings = {}, onUpda
         const vUrl       = viewerFile.dataUrl || "";
         const vIsStorage = vUrl.startsWith("http");
         const vIsImg     = viewerFile.type?.startsWith("image/");
-        // PDFs: use <object> only for base64 (data:) â storage URLs fail silently in many browsers
+        // PDFs: use <object> only for base64 (data:) — storage URLs fail silently in many browsers
         const vIsPdfInline = viewerFile.type === "application/pdf" && !vIsStorage;
         const vIsText    = (viewerFile.type?.startsWith("text/") || ["txt","csv","json","md"].includes(getFileExtension(viewerFile.name))) && !vIsStorage;
         const onImgDown  = e => { e.preventDefault(); imgPanStart.current = { mx:e.clientX, my:e.clientY, px:imgPan.x, py:imgPan.y }; };
@@ -2466,7 +2466,7 @@ export function ProjectFilesTab({ project, teamUsers = [], settings = {}, onUpda
                   <button className="btn btn-sm btn-secondary" onClick={() => { setImgZoom(1); setImgPan({x:0,y:0}); }} style={{ fontSize:11 }}>Reset</button>
                   <button className="btn btn-sm btn-secondary" onClick={() => setImgZoom(z => Math.min(8,z*1.3))} style={{ minWidth:32 }}>+</button>
                   <span style={{ color:"rgba(255,255,255,.6)",fontSize:12,minWidth:44,textAlign:"center" }}>{Math.round(imgZoom*100)}%</span>
-                  <button className="btn btn-sm btn-secondary" onClick={() => setImgZoom(z => Math.max(0.2,z*0.77))} style={{ minWidth:32 }}>â</button>
+                  <button className="btn btn-sm btn-secondary" onClick={() => setImgZoom(z => Math.max(0.2,z*0.77))} style={{ minWidth:32 }}>−</button>
                 </>}
                 <button className="btn btn-sm btn-secondary" onClick={() => openFile(viewerFile)}><Icon d={ic.arrowUpRight} size={13}/> Open</button>
                 <button className="btn btn-ghost btn-sm btn-icon" style={{ color:"white" }} onClick={closeViewer}><Icon d={ic.close} size={20}/></button>
@@ -2495,9 +2495,9 @@ export function ProjectFilesTab({ project, teamUsers = [], settings = {}, onUpda
                   </pre>
                 </div>
               ) : (
-                /* Storage URL PDF, unsupported type, or anything else â Open in New Tab */
+                /* Storage URL PDF, unsupported type, or anything else → Open in New Tab */
                 <div style={{ textAlign:"center",color:"rgba(255,255,255,.7)",padding:40 }}>
-                  <div style={{ fontSize:56,marginBottom:16 }}>ð</div>
+                  <div style={{ fontSize:56,marginBottom:16 }}>📄</div>
                   <div style={{ fontSize:15,fontWeight:600,color:"white",marginBottom:8 }}>{viewerFile.name}</div>
                   <div style={{ fontSize:13,marginBottom:24,color:"rgba(255,255,255,.5)" }}>
                     {viewerFile.type === "application/pdf" ? "PDF preview opens in your browser's PDF viewer." : "Preview not available for this file type."}
@@ -2619,7 +2619,7 @@ function ClientPortalPreview({ project, settings = {}, portal, onAddClientNote }
       setPasswordError("");
       return;
     }
-    setPasswordError("That password doesnât match this portal.");
+    setPasswordError("That password doesn’t match this portal.");
   }
   if (portal?.passwordEnabled && portal?.password && !portalUnlocked) {
     return (
@@ -2632,7 +2632,7 @@ function ClientPortalPreview({ project, settings = {}, portal, onAddClientNote }
                 : <div style={{ width:58,height:58,borderRadius:16,background:"rgba(255,255,255,.95)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:22,color:brandColor }}>{(settings?.companyName||"K")[0]}</div>}
               <div>
                 <div style={{ fontSize:12,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",opacity:.82 }}>Client Portal</div>
-                <div style={{ fontSize:26,fontWeight:900,lineHeight:1.05,marginTop:2 }}>{portal.welcomeTitle || `Hi${project.clientName ? ` ${project.clientName}` : ""}, hereâs your project update`}</div>
+                <div style={{ fontSize:26,fontWeight:900,lineHeight:1.05,marginTop:2 }}>{portal.welcomeTitle || `Hi${project.clientName ? ` ${project.clientName}` : ""}, here’s your project update`}</div>
                 <div style={{ fontSize:14.5,opacity:.95,lineHeight:1.55,marginTop:10,maxWidth:720 }}>This portal is password protected. Enter the project password to continue.</div>
               </div>
             </div>
@@ -2670,7 +2670,7 @@ function ClientPortalPreview({ project, settings = {}, portal, onAddClientNote }
               : <div style={{ width:58,height:58,borderRadius:16,background:"rgba(255,255,255,.95)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:22,color:brandColor }}>{(settings?.companyName||"K")[0]}</div>}
             <div>
               <div style={{ fontSize:12,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",opacity:.82 }}>Client Portal</div>
-              <div style={{ fontSize:26,fontWeight:900,lineHeight:1.05,marginTop:2 }}>{portal.welcomeTitle || `Hi${project.clientName ? ` ${project.clientName}` : ""}, hereâs your project update`}</div>
+              <div style={{ fontSize:26,fontWeight:900,lineHeight:1.05,marginTop:2 }}>{portal.welcomeTitle || `Hi${project.clientName ? ` ${project.clientName}` : ""}, here’s your project update`}</div>
               <div style={{ fontSize:14.5,opacity:.95,lineHeight:1.55,marginTop:10,maxWidth:720 }}>{portal.welcomeMessage}</div>
             </div>
           </div>
@@ -2690,7 +2690,7 @@ function ClientPortalPreview({ project, settings = {}, portal, onAddClientNote }
             { label:"Current Stage", value:timelineStages.find(([id]) => id === visibleStageId)?.[1] || "Preparing update", sub:project.status || "Active" },
             { label:"Photos Shared", value:String(photos.length), sub:"Visual progress" },
             { label:"Files Shared", value:String(files.length + reports.length), sub:"Files and reports" },
-            { label:"Last Activity", value:activity[0] ? formatPortalRelativeLabel(activity[0].when) : "No updates yet", sub:"Weâll keep this fresh" },
+            { label:"Last Activity", value:activity[0] ? formatPortalRelativeLabel(activity[0].when) : "No updates yet", sub:"We’ll keep this fresh" },
           ].map(card => (
             <div key={card.label} style={{ background:"#fff",border:"1px solid #d9e5f4",borderRadius:20,padding:"16px 16px 14px" }}>
               <div style={{ fontSize:11.5,fontWeight:800,color:"#5f7b96",letterSpacing:".08em",textTransform:"uppercase" }}>{card.label}</div>
@@ -2771,7 +2771,7 @@ function ClientPortalPreview({ project, settings = {}, portal, onAddClientNote }
                   </div>
                   <div style={{ padding:"12px 12px 13px" }}>
                     <div style={{ fontSize:13.5,fontWeight:700,color:"#17324d" }}>{photo.name || "Project photo"}</div>
-                    <div style={{ fontSize:12.5,color:"#6c849b",marginTop:4 }}>{photo.room || "General"}{photo.floor ? ` â¢ ${photo.floor}` : ""}</div>
+                    <div style={{ fontSize:12.5,color:"#6c849b",marginTop:4 }}>{photo.room || "General"}{photo.floor ? ` • ${photo.floor}` : ""}</div>
                   </div>
                 </div>
               ))}
@@ -2824,7 +2824,7 @@ function ClientPortalPreview({ project, settings = {}, portal, onAddClientNote }
                   <div style={{ width:42,height:42,borderRadius:14,background:"#fff2e5",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}><Icon d={ic.reports} size={18} stroke="#f0954e" /></div>
                   <div style={{ flex:1,minWidth:0 }}>
                     <div style={{ fontSize:13.5,fontWeight:700,color:"#17324d" }}>{report.title || report.type || "Project report"}</div>
-                    <div style={{ fontSize:12.5,color:"#6c849b",marginTop:3 }}>{report.type || "Report"}{report.createdAt ? ` â¢ ${formatPortalRelativeLabel(report.createdAt)}` : ""}</div>
+                    <div style={{ fontSize:12.5,color:"#6c849b",marginTop:3 }}>{report.type || "Report"}{report.createdAt ? ` • ${formatPortalRelativeLabel(report.createdAt)}` : ""}</div>
                   </div>
                 </div>
               ))}
@@ -2833,7 +2833,7 @@ function ClientPortalPreview({ project, settings = {}, portal, onAddClientNote }
                   <div style={{ width:42,height:42,borderRadius:14,background:"#e9f2ff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}><Icon d={ic.folder} size={18} stroke={brandColor} /></div>
                   <div style={{ flex:1,minWidth:0 }}>
                     <div style={{ fontSize:13.5,fontWeight:700,color:"#17324d" }}>{file.name || "Shared file"}</div>
-                    <div style={{ fontSize:12.5,color:"#6c849b",marginTop:3 }}>{file.category || file.kind || "Project file"}{file.size ? ` â¢ ${formatFileSizeLabel(file.size)}` : ""}</div>
+                    <div style={{ fontSize:12.5,color:"#6c849b",marginTop:3 }}>{file.category || file.kind || "Project file"}{file.size ? ` • ${formatFileSizeLabel(file.size)}` : ""}</div>
                   </div>
                   {file.dataUrl && <a href={file.dataUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize:12.5,fontWeight:700,color:brandColor,textDecoration:"none" }}>Open</a>}
                 </div>
@@ -2867,7 +2867,7 @@ function ClientPortalPreview({ project, settings = {}, portal, onAddClientNote }
           <div style={{ background:"#fff7ec",border:"1px solid #f5d7aa",borderRadius:22,padding:"18px 18px 16px",display:"flex",justifyContent:"space-between",gap:14,alignItems:"center",flexWrap:"wrap" }}>
             <div>
               <div style={{ fontSize:18,fontWeight:800,color:"#17324d" }}>Enjoying the experience so far?</div>
-              <div style={{ fontSize:13,color:"#7b6a52",marginTop:5,lineHeight:1.55 }}>If youâd like, you can leave feedback for our team using the review link below.</div>
+              <div style={{ fontSize:13,color:"#7b6a52",marginTop:5,lineHeight:1.55 }}>If you’d like, you can leave feedback for our team using the review link below.</div>
             </div>
             <a href={portal.reviewUrl} target="_blank" rel="noopener noreferrer" style={{ display:"inline-flex",alignItems:"center",gap:8,padding:"12px 18px",borderRadius:999,background:"#f0a34d",color:"white",fontWeight:800,textDecoration:"none" }}>
               <Icon d={ic.star} size={15} stroke="white" /> {portal.reviewLabel || "Leave us a Review"}
@@ -3008,7 +3008,7 @@ export function ClientPortalTab({ project, settings = {}, onUpdateProject }) {
     portal.shareFiles ? `${filterPortalApprovedItems(project.files).length || 0} approved files` : null,
   ].filter(Boolean);
   const approvalSections = [
-    { key:"photos", title:"Approved Photos", enabled:portal.sharePhotos, items:(project.photos || []).slice().sort((a,b) => getPortalItemDateValue(b) - getPortalItemDateValue(a)), label:item => item.name || "Project photo", sub:item => `${item.room || "General"}${item.floor ? ` â¢ ${item.floor}` : ""}`, previewKind:"image" },
+    { key:"photos", title:"Approved Photos", enabled:portal.sharePhotos, items:(project.photos || []).slice().sort((a,b) => getPortalItemDateValue(b) - getPortalItemDateValue(a)), label:item => item.name || "Project photo", sub:item => `${item.room || "General"}${item.floor ? ` • ${item.floor}` : ""}`, previewKind:"image" },
     { key:"videos", title:"Approved Videos", enabled:portal.shareVideos, items:(project.videos || []).slice().sort((a,b) => getPortalItemDateValue(b) - getPortalItemDateValue(a)), label:item => item.name || "Project video", sub:item => item.room || "General area", previewKind:"video" },
     { key:"sketches", title:"Approved Sketches", enabled:portal.shareSketches, items:(project.sketches || []).slice().sort((a,b) => getPortalItemDateValue(b) - getPortalItemDateValue(a)), label:item => item.title || "Project sketch", sub:item => item.floorLabel || item.roomTag || "Shared drawing", previewKind:"image" },
     { key:"reports", title:"Approved Reports", enabled:portal.shareReports, items:(project.reports || []).slice().sort((a,b) => getPortalItemDateValue(b) - getPortalItemDateValue(a)), label:item => item.title || item.type || "Project report", sub:item => item.type || "Report", previewKind:"report" },
@@ -3023,7 +3023,7 @@ export function ClientPortalTab({ project, settings = {}, onUpdateProject }) {
             <div>
               <div style={{ fontSize:16,fontWeight:800,color:"#17324d" }}>Private, project-only client portal</div>
               <div style={{ fontSize:13,color:"#5f7b96",marginTop:5,lineHeight:1.55,maxWidth:720 }}>
-                Share a clean project page with your client that only shows this jobsiteâs updates, files, photos, videos, sketches, reports, and notes.
+                Share a clean project page with your client that only shows this jobsite’s updates, files, photos, videos, sketches, reports, and notes.
               </div>
             </div>
             <div onClick={() => toggle("enabled")} style={{ width:56,height:30,borderRadius:999,background:portal.enabled ? "var(--accent)" : "var(--surface3)",position:"relative",cursor:"pointer",flexShrink:0 }}>
@@ -3068,7 +3068,7 @@ export function ClientPortalTab({ project, settings = {}, onUpdateProject }) {
           <div className="form-row">
             <div className="form-group" style={{ marginBottom:0 }}>
               <label className="form-label">Welcome Title</label>
-              <input className="form-input" value={portal.welcomeTitle || ""} onChange={e=>patchPortal({ welcomeTitle:e.target.value })} placeholder={`Hi${project.clientName ? ` ${project.clientName}` : ""}, hereâs your project update`} />
+              <input className="form-input" value={portal.welcomeTitle || ""} onChange={e=>patchPortal({ welcomeTitle:e.target.value })} placeholder={`Hi${project.clientName ? ` ${project.clientName}` : ""}, here’s your project update`} />
             </div>
             <div className="form-group" style={{ marginBottom:0 }}>
               <label className="form-label">Review Button Label</label>
@@ -3078,7 +3078,7 @@ export function ClientPortalTab({ project, settings = {}, onUpdateProject }) {
 
           <div className="form-group" style={{ marginBottom:0 }}>
             <label className="form-label">Friendly Welcome Message</label>
-            <textarea className="form-input form-textarea" value={portal.welcomeMessage || ""} onChange={e=>patchPortal({ welcomeMessage:e.target.value })} placeholder="Write a short, client-friendly note to explain what theyâll find here." style={{ minHeight:90 }} />
+            <textarea className="form-input form-textarea" value={portal.welcomeMessage || ""} onChange={e=>patchPortal({ welcomeMessage:e.target.value })} placeholder="Write a short, client-friendly note to explain what they’ll find here." style={{ minHeight:90 }} />
           </div>
 
           <div className="form-group" style={{ marginBottom:0 }}>
@@ -3524,7 +3524,7 @@ export function BAPairCard({ pair, bPhoto, aPhoto, onDelete, settings }) {
         )
       }
 
-      {/* ââ Embed Panel ââ */}
+      {/* ── Embed Panel ── */}
       {showEmbed && (
         <div style={{ padding:"14px 16px",borderTop:"1px solid var(--border)",background:"var(--surface)" }}>
           <div style={{ display:"flex",alignItems:"center",gap:8,marginBottom:10 }}>
@@ -3533,7 +3533,7 @@ export function BAPairCard({ pair, bPhoto, aPhoto, onDelete, settings }) {
             <button className="btn btn-ghost btn-sm btn-icon" style={{ width:24,height:24 }} onClick={()=>setShowEmbed(false)}><Icon d={ic.close} size={13}/></button>
           </div>
           <div style={{ fontSize:12,color:"var(--text2)",marginBottom:10,lineHeight:1.6 }}>
-            Paste this into any website builder's <strong>Custom HTML</strong> block (Squarespace, Wix, Webflow, WordPress, etc). The slider works fully on desktop and mobile â no plugins needed.
+            Paste this into any website builder's <strong>Custom HTML</strong> block (Squarespace, Wix, Webflow, WordPress, etc). The slider works fully on desktop and mobile — no plugins needed.
           </div>
           {/* Max width control */}
           <div style={{ display:"flex",alignItems:"center",gap:10,marginBottom:10 }}>
@@ -3569,7 +3569,7 @@ export function BAPairCard({ pair, bPhoto, aPhoto, onDelete, settings }) {
           {/* Copy button */}
           <div style={{ display:"flex",justifyContent:"flex-end",marginTop:8,gap:8 }}>
             <div style={{ fontSize:11,color:"var(--text3)",alignSelf:"center" }}>
-              â  Images are embedded as data â keep file sizes reasonable.
+              ⚠ Images are embedded as data — keep file sizes reasonable.
             </div>
             <button className="btn btn-primary btn-sm" onClick={copyEmbed}
               style={{ minWidth:130,background:embedCopied?"#3dba7e":undefined,borderColor:embedCopied?"#3dba7e":undefined,transition:"background .2s" }}>
