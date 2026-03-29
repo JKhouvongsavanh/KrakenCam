@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase";
 import { Icon, ic } from "../utils/icons.jsx";
 import { formatDate , NOTIFICATION_PREF_ITEMS, normaliseStatuses
 } from "../utils/helpers.js";
+const REPORT_EMAIL_FEATURE_VISIBLE = false; // feature flag – email reports hidden until ready
 
 export function AddItemInput({ label, onAdd }) {
   const [val, setVal] = useState("");

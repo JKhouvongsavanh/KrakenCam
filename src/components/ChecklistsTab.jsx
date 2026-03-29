@@ -7,6 +7,7 @@ import { Icon, ic } from "../utils/icons.jsx";
 import { hasPermissionLevel, getEffectivePermissions, DEFAULT_CL_TEMPLATES, getPermissionPolicies } from "../utils/constants.js";
 import { uid, formatDate, formatDateTimeLabel, today, buildEmbedCode, formatDurationLabel , isPortalApprovedItem, filterPortalApprovedItems, withPortalFilteredProject, getPortalItemDateValue, formatPortalRelativeLabel, buildPortalActivity, formatFileSizeLabel, getFileExtension, isPreviewableFile, inferProjectFileKind, normaliseProjectFile, parseTagInput, decodeDataUrlText
 } from "../utils/helpers.js";
+const REPORT_EMAIL_FEATURE_VISIBLE = false; // feature flag – email reports hidden until ready
 
 function LegacyChecklistsTab({ project, onUpdateProject }) {
   const [view,          setView]          = useState("list");   // list | run | build
