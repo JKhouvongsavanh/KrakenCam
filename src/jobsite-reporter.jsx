@@ -8377,6 +8377,7 @@ function SketchesTab({ project, onUpdateProject, onNewSketch, onEditSketch }) {
   );
 }
 
+function TemplatesPage({ projects, onUseTemplate, templates: templatesProp, onTemplatesChange }) {
   const [templates, setTemplatesLocal] = useState(templatesProp || TEMPLATES);
   const setTemplates = (updater) => {
     setTemplatesLocal(prev => {
