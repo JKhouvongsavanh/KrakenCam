@@ -162,7 +162,6 @@ const calcProration = (settings, users, fromPlan, toPlan) => {
     minute: "2-digit",
     hour12: settings?.timeFormat !== "24hr",
   })}`;
-};
 const formatDurationLabel = (ms = 0) => {
   const totalSec = Math.max(0, Math.round(ms / 1000));
   const mins = Math.floor(totalSec / 60);
