@@ -12,6 +12,31 @@ const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
 const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
 const isSameDay = (a, b) => a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
 const calDateStr = (d) => d.toISOString().slice(0,10);
+const parseCalDate = (s) => s ? new Date(s+"T12:00:00") : null;
+const expandRecurringEvent = (event, rangeStart, rangeEnd) => {
+  if (!event.repeatEnabled || !event.startDate) return [event];
+  const instances = [];
+  let cursor = parseCalDate(event.startDate);
+  if (!cursor) return [event];
+  const endBound = new Date(rangeEnd.getFullYear(), rangeEnd.getMonth(), rangeEnd.getDate(), 23, 59, 59);
+  let safety = 0;
+  while (cursor <= endBound && safety++ < 500) {
+    if (cursor >= rangeStart) {
+      instances.push({ ...event, startDate: calDateStr(cursor), _isRecurring: true });
+    }
+    const next = new Date(cursor);
+    const rv = event.repeatValue || 1;
+    if      (event.repeatType === "days")     next.setDate(next.getDate() + rv);
+    else if (event.repeatType === "weeks")    next.setDate(next.getDate() + rv * 7);
+    else if (event.repeatType === "months")   next.setMonth(next.getMonth() + rv);
+    else if (event.repeatType === "monthday") { next.setMonth(next.getMonth() + 1); next.setDate(event.repeatDay||1); }
+    else if (event.repeatType === "weekday")  { next.setDate(next.getDate() + 1); while (next.getDay() !== (event.repeatWeekday||0)) next.setDate(next.getDate() + 1); }
+    else break;
+    if (next <= cursor) break;
+    cursor = next;
+  }
+  return instances.length > 0 ? instances : [event];
+};
 
 export function EventModal({ event, projects, teamUsers, settings, onSave, onClose, onDelete }) {
   const isNew = !event?.id || event?._isNew;
