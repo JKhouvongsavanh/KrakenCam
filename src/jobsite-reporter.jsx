@@ -371,15 +371,7 @@ const ROOM_ICONS = {
   "Warehouse": ["M3 8l9-5 9 5v11H3z","M7 11h2v3H7z","M11 11h2v3h-2z","M15 11h2v3h-2z"],
   "Other": ["M4 4h16v16H4z","M9 9h6v6H9z"],
 };
-const ROOM_COLORS = ["#4a90d9","#3dba7e","#8b7cf8","#e8c53a","#e8703a","#e85a3a","#3ab8e8","#f0954e"];const getRoomIcon = (roomName = "Other") => ROOM_ICONS[roomName] || ROOM_ICONS.Other;) {
-  return <Icon d={getRoomIcon(name)} size={size} stroke={stroke} strokeWidth={strokeWidth} />;
-}) {
-  return (
-    <div style={{ width:box,height:box,borderRadius:12,border:`1.5px solid ${ROOM_ICON_BLUE}33`,background:"#f4f9ff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>
-      <RoomIcon name={name} size={size} />
-    </div>
-  );
-}
+const ROOM_COLORS = ["#4a90d9","#3dba7e","#8b7cf8","#e8c53a","#e8703a","#e85a3a","#3ab8e8","#f0954e"];const getRoomIcon = (roomName = "Other") => ROOM_ICONS[roomName] || ROOM_ICONS.Other;
 
 const STATUS_META = {
   active:    { label:"Active",    cls:"green"  },
