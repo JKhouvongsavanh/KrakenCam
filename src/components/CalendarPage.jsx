@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Icon, ic } from "../utils/icons.jsx";
 import { PLAN_CALENDAR_USERS, PLAN_CALENDAR_RECUR, PLAN_CALENDAR_DISPATCH } from "../utils/constants.js";
-import { uid } from "../utils/helpers.js";
+import { uid, ROLE_META } from "../utils/helpers.js";
 
 export function EventModal({ event, projects, teamUsers, settings, onSave, onClose, onDelete }) {
   const isNew = !event?.id || event?._isNew;
@@ -111,7 +111,7 @@ export function EventModal({ event, projects, teamUsers, settings, onSave, onClo
           <div className="form-group">
             <label className="form-label">Linked Jobsite</label>
             <select className="form-input form-select" value={form.projectId} onChange={e=>set("projectId",e.target.value)}>
-              <option value="">— None —</option>
+              <option value="">â None â</option>
               {projects.map(p=><option key={p.id} value={p.id}>{p.title}</option>)}
             </select>
           </div>
@@ -138,7 +138,7 @@ export function EventModal({ event, projects, teamUsers, settings, onSave, onClo
 
           <div className="form-group">
             <label className="form-label">Notes</label>
-            <textarea className="form-input form-textarea" value={form.notes} onChange={e=>set("notes",e.target.value)} placeholder="Additional details…" style={{ minHeight:64 }} />
+            <textarea className="form-input form-textarea" value={form.notes} onChange={e=>set("notes",e.target.value)} placeholder="Additional detailsâ¦" style={{ minHeight:64 }} />
           </div>
 
           <div className="form-group">
@@ -227,7 +227,7 @@ export function EventModal({ event, projects, teamUsers, settings, onSave, onClo
   );
 }
 
-// ── Calendar Page ─────────────────────────────────────────────────────────────
+// ââ Calendar Page âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEventsChange, onNotify }) {
   const todayDate = new Date();
   const [calView,     setCalView]     = useState("month");
@@ -279,7 +279,7 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
     if (!ev.startDate) return false;
     const d = parseCalDate(ev.startDate);
     if (!d) return false;
-    // For recurring instances, each has its own startDate — don't use original endDate
+    // For recurring instances, each has its own startDate â don't use original endDate
     const eEnd = (!ev._isRecurring && ev.endDate) ? parseCalDate(ev.endDate) : d;
     // Normalise to midnight for pure date comparison
     const dN    = new Date(d.getFullYear(),    d.getMonth(),    d.getDate()).getTime();
@@ -295,7 +295,7 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
   const eventsOnDay = (d) => visibleEvents.filter(ev => {
     const eStart = parseCalDate(ev.startDate);
     if (!eStart) return false;
-    // For recurring instances each occurrence has its own startDate — don't use original endDate
+    // For recurring instances each occurrence has its own startDate â don't use original endDate
     const eEnd = (!ev._isRecurring && ev.endDate) ? parseCalDate(ev.endDate) : eStart;
     // Normalise all three to midnight for pure date comparison
     const dN = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
@@ -362,12 +362,12 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
     if (calView==="week"||calView==="dispatch") {
       const ws=new Date(dayCursor); ws.setDate(ws.getDate()-ws.getDay());
       const we=new Date(ws); we.setDate(we.getDate()+6);
-      return `${ws.toLocaleDateString("en-US",{month:"short",day:"numeric"})} – ${we.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`;
+      return `${ws.toLocaleDateString("en-US",{month:"short",day:"numeric"})} â ${we.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`;
     }
     return dayCursor.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
   };
 
-  // ── Month grid ──
+  // ââ Month grid ââ
   const renderMonth = () => {
     const year=cursor.getFullYear(), month=cursor.getMonth();
     const daysInMonth=getDaysInMonth(year,month), firstDay=getFirstDayOfMonth(year,month);
@@ -400,7 +400,7 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
                     <div key={ev.id+ev.startDate}
                       onClick={e=>{ e.stopPropagation(); selectMode ? toggleSelectEvt(ev.id) : (()=>{ const orig=calEvents.find(x=>x.id===ev.id); if(orig) setEditingEvt(orig); })(); }}
                       style={{ fontSize:10.5,fontWeight:600,padding:"1px 5px",borderRadius:3,background:getEvtColor(ev),color:"white",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:"pointer",display:"flex",alignItems:"center",gap:3,outline:selectedEvts.has(ev.id)?"2px solid white":"none" }}>
-                      {selectMode && <span style={{ fontSize:9,flexShrink:0 }}>{selectedEvts.has(ev.id)?"☑":"☐"}</span>}
+                      {selectMode && <span style={{ fontSize:9,flexShrink:0 }}>{selectedEvts.has(ev.id)?"â":"â"}</span>}
                       {!ev.allDay&&ev.startTime&&<span style={{ opacity:.8,marginRight:2 }}>{ev.startTime}</span>}
                       <span style={{ overflow:"hidden",textOverflow:"ellipsis" }}>{ev.title}</span>
                     </div>
@@ -415,7 +415,7 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
     );
   };
 
-  // ── Week view ──
+  // ââ Week view ââ
   const [dragState, setDragState] = useState(null); // { day: dateStr, startH, endH }
   const isDragging     = useRef(false);
   const dragDay        = useRef(null);
@@ -452,12 +452,12 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
       const lo = Math.min(sH, eH);
       const hi = Math.max(sH, eH);
       setDragState(null);
-      // If released on the same cell as started → single-click behaviour
+      // If released on the same cell as started â single-click behaviour
       if (lo === hi) {
         setNewEvtData({ date:calDateStr(d), startTime:fmtH(lo), endTime:fmtH(lo+1>23?23:lo+1) });
         return;
       }
-      // Drag across multiple cells → open modal with range
+      // Drag across multiple cells â open modal with range
       setNewEvtData({ date:dragDay.current, startTime:fmtH(lo), endTime:fmtH(hi+1>23?23:hi+1) });
     };
 
@@ -475,7 +475,7 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
       const toMins = t => { const [h,m]=(t||"00:00").split(":").map(Number); return h*60+(m||0); };
       // Sort by start time
       const sorted = [...dayEvts].sort((a,b)=>toMins(a.startTime)-toMins(b.startTime));
-      const layout = {}; // ev.id → { col, total }
+      const layout = {}; // ev.id â { col, total }
       const cols = []; // cols[i] = endMins of last event in that column
       sorted.forEach(ev => {
         const start = toMins(ev.startTime);
@@ -517,7 +517,7 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
             </div>
           );})}
           {/* All-day row */}
-          <div style={{ padding:"2px",fontSize:9.5,color:"var(--text3)",display:"flex",alignItems:"center",justifyContent:"flex-end",paddingRight:4,borderBottom:"1px solid var(--border)" }}>all‑day</div>
+          <div style={{ padding:"2px",fontSize:9.5,color:"var(--text3)",display:"flex",alignItems:"center",justifyContent:"flex-end",paddingRight:4,borderBottom:"1px solid var(--border)" }}>allâday</div>
           {days.map(d=>(
             <div key={"ad"+d} style={{ borderLeft:"1px solid var(--border)",borderBottom:"1px solid var(--border)",padding:2,minHeight:22 }}
               onClick={()=>{ if(!selectMode) setNewEvtData({ date:calDateStr(d), startTime:null, endTime:null }); }}>
@@ -525,7 +525,7 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
                 <div key={ev.id}
                   onClick={e=>{ e.stopPropagation(); selectMode ? toggleSelectEvt(ev.id) : (()=>{ const orig=calEvents.find(x=>x.id===ev.id); if(orig) setEditingEvt(orig); })(); }}
                   style={{ fontSize:10,padding:"1px 4px",borderRadius:3,background:getEvtColor(ev),color:"white",marginBottom:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:"pointer",display:"flex",alignItems:"center",gap:3,outline:selectedEvts.has(ev.id)?"2px solid white":"none" }}>
-                  {selectMode && <span style={{ fontSize:9,flexShrink:0 }}>{selectedEvts.has(ev.id)?"☑":"☐"}</span>}
+                  {selectMode && <span style={{ fontSize:9,flexShrink:0 }}>{selectedEvts.has(ev.id)?"â":"â"}</span>}
                   <span style={{ overflow:"hidden",textOverflow:"ellipsis" }}>{ev.title}</span>
                 </div>
               ))}
@@ -563,7 +563,7 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
                     {/* Drag label on first cell */}
                     {isHighlighted && h === lo && hi > lo && (
                       <div style={{ position:"absolute",left:4,top:2,fontSize:9,fontWeight:700,color:"var(--accent)",pointerEvents:"none",zIndex:2,whiteSpace:"nowrap" }}>
-                        {fmtH(lo)} – {fmtH(hi+1 > 23 ? 23 : hi+1)}
+                        {fmtH(lo)} â {fmtH(hi+1 > 23 ? 23 : hi+1)}
                       </div>
                     )}
                     {hEvts.map(ev=>{
@@ -590,10 +590,10 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
                             outline:selectedEvts.has(ev.id)?"2px solid white":"none",
                             boxSizing:"border-box" }}>
                           <div style={{ fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:3 }}>
-                            {selectMode && <span style={{ fontSize:9,flexShrink:0 }}>{selectedEvts.has(ev.id)?"☑":"☐"}</span>}
+                            {selectMode && <span style={{ fontSize:9,flexShrink:0 }}>{selectedEvts.has(ev.id)?"â":"â"}</span>}
                             <span style={{ overflow:"hidden",textOverflow:"ellipsis" }}>{ev.title}</span>
                           </div>
-                          {chipHeight > 26 && <div style={{ fontSize:8.5,opacity:.85,whiteSpace:"nowrap" }}>{ev.startTime}{ev.endTime?` – ${ev.endTime}`:""}</div>}
+                          {chipHeight > 26 && <div style={{ fontSize:8.5,opacity:.85,whiteSpace:"nowrap" }}>{ev.startTime}{ev.endTime?` â ${ev.endTime}`:""}</div>}
                         </div>
                       );
                     })}
@@ -607,7 +607,7 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
     );
   };
 
-  // ── Day view ──
+  // ââ Day view ââ
   const renderDay = () => {
     const dayEvts=eventsOnDay(dayCursor).sort((a,b)=>((a.startTime||"00:00")<(b.startTime||"00:00")?-1:1));
     return (
@@ -636,11 +636,11 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
                       <div style={{ fontWeight:700,fontSize:14,marginBottom:3,color:"var(--text)" }}>{ev.title}</div>
                       {ev.allDay
                         ? <div style={{ fontSize:12,color:"var(--text2)",marginBottom:3 }}>All day</div>
-                        : ev.startTime && <div style={{ fontSize:12,color:"var(--text2)",marginBottom:3 }}>🕐 {ev.startTime}{ev.endTime?` – ${ev.endTime}`:""}</div>
+                        : ev.startTime && <div style={{ fontSize:12,color:"var(--text2)",marginBottom:3 }}>ð {ev.startTime}{ev.endTime?` â ${ev.endTime}`:""}</div>
                       }
-                      {proj && <div style={{ fontSize:11.5,color,fontWeight:600,marginBottom:3 }}>📍 {proj.title}</div>}
+                      {proj && <div style={{ fontSize:11.5,color,fontWeight:600,marginBottom:3 }}>ð {proj.title}</div>}
                       {ev.notes && <div style={{ fontSize:12,color:"var(--text2)",lineHeight:1.5 }}>{ev.notes}</div>}
-                      {ev.repeatEnabled && <div style={{ fontSize:10.5,color:"var(--text3)",marginTop:4 }}>🔁 Recurring</div>}
+                      {ev.repeatEnabled && <div style={{ fontSize:10.5,color:"var(--text3)",marginTop:4 }}>ð Recurring</div>}
                     </div>
                     <div style={{ display:"flex",gap:4,flexShrink:0 }}>
                       {(ev.assigneeIds||[]).map(aid=>{
@@ -664,7 +664,7 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
     );
   };
 
-  // ── Dispatch view (Command III) ──
+  // ââ Dispatch view (Command III) ââ
   const renderDispatch = () => {
     const ws=new Date(dayCursor); ws.setDate(ws.getDate()-ws.getDay());
     const days=Array.from({length:7},(_,i)=>{ const d=new Date(ws); d.setDate(d.getDate()+i); return d; });
@@ -714,8 +714,8 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
                           <div key={ev.id+ev.startDate}
                             onClick={e=>{ e.stopPropagation(); selectMode ? toggleSelectEvt(ev.id) : (()=>{ const orig=calEvents.find(x=>x.id===ev.id); if(orig) setEditingEvt(orig); })(); }}
                             style={{ fontSize:10,padding:"2px 5px",borderRadius:3,background:getEvtColor(ev),color:"white",marginBottom:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:"pointer",display:"flex",alignItems:"center",gap:3,outline:selectedEvts.has(ev.id)?"2px solid white":"none" }}>
-                            {selectMode && <span style={{ fontSize:9,flexShrink:0 }}>{selectedEvts.has(ev.id)?"☑":"☐"}</span>}
-                            <span style={{ overflow:"hidden",textOverflow:"ellipsis" }}>{ev.title}{proj?` · ${proj.title.split(" ").slice(0,2).join(" ")}`:""}{ev.startTime?` ${ev.startTime}`:""}</span>
+                            {selectMode && <span style={{ fontSize:9,flexShrink:0 }}>{selectedEvts.has(ev.id)?"â":"â"}</span>}
+                            <span style={{ overflow:"hidden",textOverflow:"ellipsis" }}>{ev.title}{proj?` Â· ${proj.title.split(" ").slice(0,2).join(" ")}`:""}{ev.startTime?` ${ev.startTime}`:""}</span>
                           </div>
                         );
                       })}
@@ -732,7 +732,7 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
 
   const viewBtns = [
     {v:"month",l:"Month"},{v:"week",l:"Week"},{v:"day",l:"Day"},
-    ...(canDispatch?[{v:"dispatch",l:"⬡ Dispatch"}]:[]),
+    ...(canDispatch?[{v:"dispatch",l:"â¬¡ Dispatch"}]:[]),
   ];
 
   return (
@@ -828,7 +828,7 @@ export function CalendarPage({ projects, teamUsers, settings, calEvents, onCalEv
       {calView==="dispatch" && !canDispatch && (
         <div style={{ flex:1,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12,color:"var(--text3)" }}>
           <Icon d={ic.dispatch} size={40} stroke="var(--text3)" />
-          <div style={{ fontWeight:700,fontSize:15,color:"var(--text2)" }}>Dispatch View — Command III</div>
+          <div style={{ fontWeight:700,fontSize:15,color:"var(--text2)" }}>Dispatch View â Command III</div>
           <div style={{ fontSize:13,textAlign:"center",maxWidth:320 }}>Assign crews to jobsites across a weekly dispatch grid. Upgrade to Command III to unlock.</div>
         </div>
       )}

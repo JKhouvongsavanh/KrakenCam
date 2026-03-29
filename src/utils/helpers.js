@@ -1,4 +1,4 @@
-// ââ Core helpers âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Core helpers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 const uid = () => Math.random().toString(36).slice(2, 10);
 const isValidUuid = id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
@@ -6,7 +6,7 @@ const isValidUuid = id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9
 const _sentChatDbIds = new Set();
 export { _sentChatDbIds };
 
-// ââ EXIF / image orientation ââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ EXIF / image orientation Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 /**
  * Read EXIF orientation tag from a Blob/File (JPEG only).
@@ -21,7 +21,7 @@ async function getExifOrientation(blob) {
     while (offset < view.byteLength - 4) {
       const marker = view.getUint16(offset);
       const len    = view.getUint16(offset + 2);
-      if (marker === 0xFFE1) { // APP1 â EXIF
+      if (marker === 0xFFE1) { // APP1 Ã¢ÂÂ EXIF
         const exifHeader = view.getUint32(offset + 4);
         if (exifHeader !== 0x45786966) return 1; // "Exif"
         const tiffOffset = offset + 10;
@@ -68,7 +68,7 @@ function drawImageWithOrientation(canvas, img, orientation) {
   ctx.restore();
 }
 
-// ââ Date / time formatting ââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Date / time formatting Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 const today = () => new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
 // Settings-aware date/time formatters
@@ -108,7 +108,7 @@ const formatDateTimeLabel = (iso, settings) => {
   })}`;
 };
 
-// ââ Sketch scale helpers ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Sketch scale helpers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 const SKETCH_SCALE_OPTIONS = [
   "1 sq = 6 in",
   "1 sq = 1 ft",
@@ -142,23 +142,23 @@ function buildSketchTitleBlockData(project, settings, scale, floorLabel) {
     companyName: settings?.companyName || "Your Company",
     userName,
     projectName: project?.title || project?.name || "Untitled Project",
-    projectNumber: project?.projectNumber || "â",
-    projectType: project?.projectType || "â",
-    projectAddress: projectAddress || "â",
-    siteCompany: project?.companyName || project?.contractorName || "â",
-    clientName: project?.clientName || "â",
-    floorLabel: floorLabel || "â",
+    projectNumber: project?.projectNumber || "Ã¢ÂÂ",
+    projectType: project?.projectType || "Ã¢ÂÂ",
+    projectAddress: projectAddress || "Ã¢ÂÂ",
+    siteCompany: project?.companyName || project?.contractorName || "Ã¢ÂÂ",
+    clientName: project?.clientName || "Ã¢ÂÂ",
+    floorLabel: floorLabel || "Ã¢ÂÂ",
     scale: normalizeSketchScale(scale),
     draftDate,
   };
 }
 
-// ââ Report block height estimator âââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Report block height estimator Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function estimateBlockHeight(block, gridClass) {
   if (block.type === "divider") return 46;
   if (block.type === "text") {
     const lines = Math.max(1, Math.ceil((block.content||"").length / 85));
-    return 24 + lines * 21.25; // 12.5px font Ã 1.7 lineHeight â 21.25px/line + padding
+    return 24 + lines * 21.25; // 12.5px font ÃÂ 1.7 lineHeight Ã¢ÂÂ 21.25px/line + padding
   }
   if (block.type === "photos") {
     const photos = (block.photos||[]).length;
@@ -191,14 +191,14 @@ function estimateBlockHeight(block, gridClass) {
   return 60;
 }
 
-// ââ Signature builder âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Signature builder Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function buildSignature(s) {
   const name    = s.emailSignatureName    || `${s.userFirstName||""} ${s.userLastName||""}`.trim();
   const title   = s.emailSignatureTitle   || s.userTitle   || "";
   const company = s.emailSignatureCompany || s.companyName || "";
   const phone   = s.emailSignaturePhone   || s.phone       || "";
   const email   = s.emailSignatureEmail   || s.email       || "";
-  const lines   = ["ââââââââââââââââââââââ", name, title, company, phone&&`ð ${phone}`, email&&`â ${email}`].filter(Boolean);
+  const lines   = ["Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ", name, title, company, phone&&`Ã°ÂÂÂ ${phone}`, email&&`Ã¢ÂÂ ${email}`].filter(Boolean);
 
   const SOCIALS = [
     { key:"Facebook",  enabled: s.sigFacebookEnabled,  url: s.sigFacebookUrl,  label:"Facebook"  },
@@ -209,15 +209,15 @@ function buildSignature(s) {
   ].filter(x => x.enabled && x.url);
 
   if (s.sigSocialsEnabled && SOCIALS.length) {
-    lines.push("", SOCIALS.map(x => `[${x.label}](${x.url})`).join("  Â·  "));
+    lines.push("", SOCIALS.map(x => `[${x.label}](${x.url})`).join("  ÃÂ·  "));
   }
   if (s.sigReviewEnabled && s.sigReviewUrl) {
-    lines.push("", `â­ ${s.sigReviewLabel||"Leave us a Review"}: ${s.sigReviewUrl}`);
+    lines.push("", `Ã¢Â­Â ${s.sigReviewLabel||"Leave us a Review"}: ${s.sigReviewUrl}`);
   }
   return lines.join("\n");
 }
 
-// ââ Embed code builder ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Embed code builder Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function buildEmbedCode(pair, bPhoto, aPhoto, maxWidth, companyLogo) {
   if (!bPhoto || !bPhoto.dataUrl || !aPhoto || !aPhoto.dataUrl) return "";
   var id   = "ba_" + Math.random().toString(36).slice(2, 8);
@@ -227,7 +227,7 @@ function buildEmbedCode(pair, bPhoto, aPhoto, maxWidth, companyLogo) {
   var aSrc = aPhoto.dataUrl;
   var logo = KRAKENCAM_LOGO;
   var D = [
-    "<!-- Before & After Slider: " + name + " â KrakenCam -->",
+    "<!-- Before & After Slider: " + name + " Ã¢ÂÂ KrakenCam -->",
     ['<div id="',id,'" style="position:relative;width:100%;max-width:',mw,'px;',
      'aspect-ratio:4/3;overflow:hidden;cursor:ew-resize;',
      'user-select:none;-webkit-user-select:none;border-radius:8px;touch-action:none;">'].join(""),
@@ -503,7 +503,7 @@ const STATUS_META = {
 const normaliseStatuses = (arr) => {
   if (!arr?.length) return null;
   if (typeof arr[0] === "string") {
-    // Old format â convert strings to objects using STATUS_META for labels/colours
+    // Old format Ã¢ÂÂ convert strings to objects using STATUS_META for labels/colours
     return arr.map(id => ({ id, label: STATUS_META[id]?.label || id, cls: STATUS_META[id]?.cls || "blue" }));
   }
   return arr;
@@ -517,7 +517,7 @@ const getStatusMeta = (statusId, settings) => {
 const STATUS_CLS_OPTIONS = ["green","blue","orange","purple","red","gray"];
 
 
-// getCertStatus — cert expiry checker, shared across AccountPage/PhotosTab/TasksPage
+// getCertStatus â cert expiry checker, shared across AccountPage/PhotosTab/TasksPage
 const getCertStatus = (dateExpires) => {
   if (!dateExpires) return "no-expiry";
   const now   = new Date(); now.setHours(0,0,0,0);
@@ -527,6 +527,13 @@ const getCertStatus = (dateExpires) => {
   if (days <= 30) return "expiring-soon";
   if (days <= 90) return "expiring-warning";
   return "valid";
+};
+
+// ROLE_META — shared role display metadata (admin/manager/user)
+const ROLE_META = {
+  admin:   { label:"Admin",   color:"#e86c3a", desc:"Full system control"                            },
+  manager: { label:"Manager", color:"#8b7cf8", desc:"Create projects, view reports, manage users"    },
+  user:    { label:"User",    color:"#3dba7e", desc:"Upload photos, fill reports, complete checklists"},
 };
 export {
   uid, isValidUuid,
@@ -549,4 +556,5 @@ export {
   ROOM_ICONS, ROOM_COLORS, STATUS_META, normaliseStatuses, getStatusMeta,
   STATUS_CLS_OPTIONS,
   getCertStatus,
+  ROLE_META,
 };
