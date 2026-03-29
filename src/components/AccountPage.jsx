@@ -513,7 +513,7 @@ export function UserModal({ user, projects, settings = {}, currentUserRole = "ad
                             {st==="expired" ? `Expired ${Math.abs(days)} days ago`
                               : st==="expiring-soon" ? `Expires in ${days} days â will trigger urgent notification`
                               : st==="expiring-warning" ? `Expires in ${days} days â will trigger 90-day warning`
-                              : `Valid Â· expires ${new Date(editingCert.dateExpires+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`}
+                              : `Valid · expires ${new Date(editingCert.dateExpires+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`}
                           </div>
                         );
                       })()}
@@ -734,7 +734,7 @@ export function UpdateCardModal({ current, onSave, onClose }) {
             <div style={{ position:"absolute",bottom:-30,right:30,width:80,height:80,borderRadius:"50%",background:"rgba(255,255,255,.04)" }}/>
             <div style={{ fontSize:11,letterSpacing:".12em",opacity:.7,marginBottom:10,fontWeight:600 }}>PAYMENT METHOD</div>
             <div style={{ fontSize:15,fontWeight:700,letterSpacing:".18em",marginBottom:14,fontFamily:"monospace" }}>
-              {num ? num.padEnd(19,"Â·").slice(0,19) : "â¢â¢â¢â¢ â¢â¢â¢â¢ â¢â¢â¢â¢ â¢â¢â¢â¢"}
+              {num ? num.padEnd(19,"·").slice(0,19) : "â¢â¢â¢â¢ â¢â¢â¢â¢ â¢â¢â¢â¢ â¢â¢â¢â¢"}
             </div>
             <div style={{ display:"flex",justifyContent:"space-between",alignItems:"flex-end" }}>
               <div>
@@ -1239,7 +1239,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
               </div>
               <div style={{ fontSize:11,color:"var(--text3)",marginTop:4,display:"flex",justifyContent:"space-between" }}>
                 <span>{aiUsed} used this week</span>
-                <span>Resets Saturday 11:59 PM Â· {nextReset.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</span>
+                <span>Resets Saturday 11:59 PM · {nextReset.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</span>
               </div>
             </div>
           </div>
@@ -1365,7 +1365,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                       <span style={{ fontSize:11, color:"var(--text3)", fontWeight:400 }}>(you)</span>
                       {certAlertCount > 0 && <span style={{ fontSize:10, fontWeight:800, padding:"1px 6px", borderRadius:8, background:"#e85a3a22", color:"#e85a3a", border:"1px solid #e85a3a44" }}>â  {certAlertCount} cert{certAlertCount!==1?"s":""}</span>}
                     </div>
-                    <div style={{ fontSize:12, color:"var(--text2)" }}>{settings.userEmail} Â· {settings.userTitle||"Administrator"}</div>
+                    <div style={{ fontSize:12, color:"var(--text2)" }}>{settings.userEmail} · {settings.userTitle||"Administrator"}</div>
                   </div>
                   <RoleBadge role={settings.userRole || "admin"} />
                   <StatusDot status="active" />
@@ -1630,7 +1630,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                                 <span style={{ width:9, height:9, borderRadius:"50%", background:p.color, display:"inline-block", flexShrink:0 }} />
                                 <span style={{ fontSize:12.5, fontWeight:600, flex:1 }}>{p.title}</span>
                                 <button style={{ background:"none", border:"none", cursor:"pointer", padding:"2px 6px", borderRadius:4, color:"var(--text3)", fontSize:16, lineHeight:1 }}
-                                  onClick={()=>setAF("assignedProjects",(adminForm.assignedProjects||[]).filter(id=>id!==p.id))}>Ã</button>
+                                  onClick={()=>setAF("assignedProjects",(adminForm.assignedProjects||[]).filter(id=>id!==p.id))}>×</button>
                               </div>
                             ))}
                           </div>
@@ -1709,7 +1709,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                       {u.status==="pending" && <span style={{ fontSize:10,fontWeight:700,padding:"1px 7px",borderRadius:8,background:"rgba(232,197,58,.12)",color:"#b8950a",border:"1px solid rgba(232,197,58,.3)" }}>Pending Invite</span>}
                     </div>
                     <div style={{ fontSize:12,color:"var(--text2)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>
-                      {u.email}{u.title ? ` Â· ${u.title}` : ""}{u.department ? ` Â· ${u.department}` : ""}
+                      {u.email}{u.title ? ` · ${u.title}` : ""}{u.department ? ` · ${u.department}` : ""}
                     </div>
                   </div>
                   <div style={{ display:"flex",alignItems:"center",gap:10,flexShrink:0 }}>
@@ -1900,7 +1900,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                                           title="Remove from project"
                                           onClick={e=>{ e.stopPropagation();
                                             saveUser({...u, assignedProjects:(u.assignedProjects||[]).filter(id=>id!==p.id)});
-                                          }}>Ã</button>
+                                          }}>×</button>
                                       </div>
                                     ))}
                                   </div>
@@ -2002,7 +2002,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                 background: isCommand ? "linear-gradient(135deg,#2b7fe822,#1a5fc822)" : isPro ? "linear-gradient(135deg,#7c3aed22,#a855f722)" : "var(--surface2)",
                 color: isCommand ? "#2b7fe8" : isPro ? "#a855f7" : "var(--text3)",
                 border: `1px solid ${isCommand ? "#2b7fe850" : isPro ? "#a855f750" : "var(--border)"}` }}>
-                {isCommand ? "â¬¡ Command III" : isPro ? "â¦ Intelligence II" : "Capture I"} Â· {cycle==="annual" ? "Annual" : "Monthly"}
+                {isCommand ? "â¬¡ Command III" : isPro ? "â¦ Intelligence II" : "Capture I"} · {cycle==="annual" ? "Annual" : "Monthly"}
               </span>
             </div>
             <div className="card-body">
@@ -2017,7 +2017,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                     <span style={{ fontSize:11,color:"var(--text2)" }}>/mo</span>
                   </div>
                   {cycle==="annual" && <div style={{ fontSize:10,color:"#3dba7e",fontWeight:700,marginBottom:2 }}>Save ${(PRICING.monthly.base.admin-PRICING.annual.base.admin)*12}/yr</div>}
-                  <div style={{ fontSize:11.5,color:"var(--text2)",fontWeight:500,marginBottom:10 }}>admin Â· +${PRICING[cycle].base.user}/user/mo</div>
+                  <div style={{ fontSize:11.5,color:"var(--text2)",fontWeight:500,marginBottom:10 }}>admin · +${PRICING[cycle].base.user}/user/mo</div>
                   <div style={{ display:"flex",flexDirection:"column",gap:4,marginBottom:10 }}>
                     {["All core features","Unlimited projects","Video capture (1.5 mins)","Team Chat (4 groups)","Calendar (up to 10 users)","AI Report Writer","5 AI Generation Krakens/week"].map(f=>(
                       <div key={f} style={{ display:"flex",alignItems:"center",gap:5,fontSize:11,color:"var(--text2)" }}><Icon d={ic.check} size={10} stroke="#3dba7e" /> {f}</div>
@@ -2038,7 +2038,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                     <span style={{ fontSize:11,color:"var(--text2)" }}>/mo</span>
                   </div>
                   {cycle==="annual" && <div style={{ fontSize:10,color:"#3dba7e",fontWeight:700,marginBottom:2 }}>Save ${(PRICING.monthly.pro.admin-PRICING.annual.pro.admin)*12}/yr</div>}
-                  <div style={{ fontSize:11.5,color:"#a855f7",fontWeight:500,marginBottom:10 }}>admin Â· +${PRICING[cycle].pro.user}/user/mo</div>
+                  <div style={{ fontSize:11.5,color:"#a855f7",fontWeight:500,marginBottom:10 }}>admin · +${PRICING[cycle].pro.user}/user/mo</div>
                   <div style={{ display:"flex",flexDirection:"column",gap:4,marginBottom:10 }}>
                     {["Everything in Capture I","Before & After comparison","Video capture (6 mins)","Team Chat (15 groups)","Calendar (up to 25 users)","AI Report Writer","75 AI Generation Krakens/week"].map(f=>(
                       <div key={f} style={{ display:"flex",alignItems:"center",gap:5,fontSize:11,color:"#a855f7" }}><Icon d={ic.check} size={10} stroke="#a855f7" /> {f}</div>
@@ -2064,7 +2064,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                     <span style={{ fontSize:11,color:"var(--text2)" }}>/mo</span>
                   </div>
                   {cycle==="annual" && <div style={{ fontSize:10,color:"#3dba7e",fontWeight:700,marginBottom:2 }}>Save ${(PRICING.monthly.command.admin-PRICING.annual.command.admin)*12}/yr</div>}
-                  <div style={{ fontSize:11.5,color:"#2b7fe8",fontWeight:500,marginBottom:10 }}>admin Â· +${PRICING[cycle].command.user}/user/mo</div>
+                  <div style={{ fontSize:11.5,color:"#2b7fe8",fontWeight:500,marginBottom:10 }}>admin · +${PRICING[cycle].command.user}/user/mo</div>
                   <div style={{ display:"flex",flexDirection:"column",gap:4,marginBottom:10 }}>
                     {["Everything in Intelligence II","Video capture (12 mins)","Team Chat (50 groups)","Calendar (unlimited users)","1,000 AI Generation Krakens/week","Client Portal (desktop only)"].map(f=>(
                       <div key={f} style={{ display:"flex",alignItems:"center",gap:5,fontSize:11,color:"#2b7fe8" }}><Icon d={ic.check} size={10} stroke="#2b7fe8" /> {f}</div>
@@ -2086,10 +2086,10 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                   <div style={{ fontWeight:700,fontSize:15,marginBottom:2 }}>{cycle==="annual" ? "Annual Total" : "Monthly Total"}</div>
                   <div style={{ fontSize:12.5,color:"var(--text2)" }}>
                     {cycle==="annual"
-                      ? `$${monthlyTotal*12}/yr Â· renews on the ${billingDaySuffix(settings?.signupDate)} each year`
+                      ? `$${monthlyTotal*12}/yr · renews on the ${billingDaySuffix(settings?.signupDate)} each year`
                       : `Renews on the ${billingDaySuffix(settings?.signupDate)} each month`
                     }
-                    {" Â· "}{PLAN_NAMES[currentPlan]}
+                    {" · "}{PLAN_NAMES[currentPlan]}
                   </div>
                 </div>
                 <div style={{ textAlign:"right" }}>
@@ -2120,7 +2120,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                   <div key={u.id} className="price-row" style={{ display:"grid",gridTemplateColumns:"1fr 110px 110px",padding:"10px 14px",borderBottom:"1px solid var(--border)",alignItems:"center",fontSize:13,opacity:u.status==="inactive"?0.5:1,gap:8 }}>
                     <span style={{ display:"flex",alignItems:"center",gap:8,minWidth:0 }}>
                       <span style={{ width:7,height:7,borderRadius:"50%",background:ROLE_META[u.role]?.color||"#888",display:"inline-block",flexShrink:0 }} />
-                      <span style={{ overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{u.firstName} {u.lastName} <span style={{ color:"var(--text3)",fontSize:11 }}>({ROLE_META[u.role]?.label}){u.status==="inactive"?" Â· Deactivated":""}</span></span>
+                      <span style={{ overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{u.firstName} {u.lastName} <span style={{ color:"var(--text3)",fontSize:11 }}>({ROLE_META[u.role]?.label}){u.status==="inactive"?" · Deactivated":""}</span></span>
                     </span>
                     <span style={{ color:"var(--text2)" }}>${userSeat}/mo</span>
                     <span style={{ textAlign:"right",fontWeight:600 }}>{u.status==="inactive"?"$0.00":`$${userSeat}.00`}</span>
@@ -2137,7 +2137,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                   return (
                     <div className="price-row" style={{ display:"grid",gridTemplateColumns:"1fr 110px 110px",padding:"10px 14px",borderBottom:"1px solid var(--border)",alignItems:"center",fontSize:12,gap:8,background:"linear-gradient(90deg,#3dba7e08,transparent)" }}>
                       <span style={{ color:"var(--text2)",fontStyle:"italic" }}>
-                        Mid-cycle adjustment ({changeDate.toLocaleDateString("en-US",{month:"short",day:"numeric"})}) Â· {p.daysLeft} days prorated
+                        Mid-cycle adjustment ({changeDate.toLocaleDateString("en-US",{month:"short",day:"numeric"})}) · {p.daysLeft} days prorated
                       </span>
                       <span style={{ color:"var(--text2)" }}>â</span>
                       <span style={{ textAlign:"right",fontWeight:600,color: p.netCharge > 0 ? "var(--accent)" : "#3dba7e" }}>
@@ -2151,7 +2151,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                 </div>
                 {cycle==="annual" && (
                   <div className="price-row" style={{ display:"grid",gridTemplateColumns:"1fr 110px 110px",padding:"11px 14px",alignItems:"center",fontSize:13,fontWeight:700,background:"linear-gradient(90deg,#3dba7e0d,transparent)",gap:8 }}>
-                    <span style={{ color:"#3dba7e" }}>Annual charge (Ã12)</span><span></span><span style={{ textAlign:"right",color:"#3dba7e",fontWeight:800 }}>${monthlyTotal*12}/yr</span>
+                    <span style={{ color:"#3dba7e" }}>Annual charge (×12)</span><span></span><span style={{ textAlign:"right",color:"#3dba7e",fontWeight:800 }}>${monthlyTotal*12}/yr</span>
                   </div>
                 )}
               </div>
@@ -2166,7 +2166,7 @@ export function AccountPage({ settings, onSettingsChange, projects, users, onUse
                 <Icon d={ic.creditCard} size={22} stroke="var(--accent)" />
                 <div style={{ flex:1 }}>
                   <div style={{ fontWeight:600,fontSize:13.5 }}>{cardInfo.brand} ending in {cardInfo.last4}</div>
-                  <div style={{ fontSize:12,color:"var(--text2)" }}>Expires {cardInfo.displayExpiry} Â· Auto-renews {cycle==="annual"?"annually":"monthly"} on the {billingDaySuffix(settings?.signupDate)}</div>
+                  <div style={{ fontSize:12,color:"var(--text2)" }}>Expires {cardInfo.displayExpiry} · Auto-renews {cycle==="annual"?"annually":"monthly"} on the {billingDaySuffix(settings?.signupDate)}</div>
                 </div>
                 <button className="btn btn-secondary btn-sm" onClick={()=>setShowCardModal(true)}>Update Card</button>
               </div>
