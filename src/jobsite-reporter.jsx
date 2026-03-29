@@ -2652,8 +2652,8 @@ function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose 
     lat:                 project?.lat                 || "",
     lng:                 project?.lng                 || "",
     manualGps:           project?.manualGps           || false,
-    powerStatus:         project?.powerStatus         || "on",
-    waterStatus:         project?.waterStatus         || "on",
+    powerStatus:         project?.powerStatus         || "unknown",
+    waterStatus:         project?.waterStatus         || "unknown",
     ppeItems:            project?.ppeItems            || [],
     ppeOtherText:        project?.ppeOtherText        || "",
     // Insurance
@@ -3015,10 +3015,10 @@ function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose 
               <div className="form-group">
                 <label className="form-label">Power Status</label>
                 <div style={{ display:"flex", gap:8, marginTop:4 }}>
-                  {["on","off"].map(v => (
+                  {[{v:"on",label:"On"},{v:"off",label:"Off"},{v:"unknown",label:"N/A"}].map(({v,label}) => (
                     <div key={v} onClick={() => set("powerStatus", v)}
                       style={{ flex:1, padding:"9px 0", textAlign:"center", borderRadius:"var(--radius-sm)", border:`2px solid ${form.powerStatus===v ? "var(--accent)" : "var(--border)"}`, background: form.powerStatus===v ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:13, fontWeight:600, color: form.powerStatus===v ? "var(--accent)" : "var(--text2)", transition:"all .15s" }}>
-                      {v === "on" ? "On" : "Off"}
+                      {label}
                     </div>
                   ))}
                 </div>
@@ -3027,10 +3027,10 @@ function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose 
               <div className="form-group">
                 <label className="form-label">Water Status</label>
                 <div style={{ display:"flex", gap:8, marginTop:4 }}>
-                  {["on","off"].map(v => (
+                  {[{v:"on",label:"On"},{v:"off",label:"Off"},{v:"unknown",label:"N/A"}].map(({v,label}) => (
                     <div key={v} onClick={() => set("waterStatus", v)}
                       style={{ flex:1, padding:"9px 0", textAlign:"center", borderRadius:"var(--radius-sm)", border:`2px solid ${form.waterStatus===v ? "var(--accent)" : "var(--border)"}`, background: form.waterStatus===v ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:13, fontWeight:600, color: form.waterStatus===v ? "var(--accent)" : "var(--text2)", transition:"all .15s" }}>
-                      {v === "on" ? "On" : "Off"}
+                      {label}
                     </div>
                   ))}
                 </div>
@@ -11034,8 +11034,8 @@ function ReportPages({ title, reportType, reportDate, reportTime, accentColor, p
 
               {/* Site Conditions */}
               {hasSiteConditions && <SectionHead label="Site Conditions" />}
-              {project.powerStatus  && <InfoRow label="Power"  value={project.powerStatus==="on"?"On":"Off"} />}
-              {project.waterStatus  && <InfoRow label="Water"  value={project.waterStatus==="on"?"On":"Off"} />}
+              {project.powerStatus  && <InfoRow label="Power"  value={project.powerStatus==="on"?"On":project.powerStatus==="off"?"Off":"N/A"} />}
+              {project.waterStatus  && <InfoRow label="Water"  value={project.waterStatus==="on"?"On":project.waterStatus==="off"?"Off":"N/A"} />}
               {project.accessLimitations && <InfoRow label="Access Limitations" value={project.accessLimitations} />}
               {project.ppeItems?.length > 0 && (
                 <div style={{ gridColumn:"1/-1" }}>
@@ -12062,8 +12062,8 @@ function ReportCreator({ project, reportData, settings, onSettingsChange, templa
                   <div className="rp-section-title" style={{ "--sec-color":accentColor }}>Site Conditions</div>
                   <div className="rp-info-grid">
                     {[
-                      ["Power",              project.powerStatus  ? (project.powerStatus==="on"?"On":"Off") : null],
-                      ["Water",              project.waterStatus  ? (project.waterStatus==="on"?"On":"Off") : null],
+                      ["Power",              project.powerStatus  ? (project.powerStatus==="on"?"On":project.powerStatus==="off"?"Off":"N/A") : null],
+                      ["Water",              project.waterStatus  ? (project.waterStatus==="on"?"On":project.waterStatus==="off"?"Off":"N/A") : null],
                       ["Access Limitations", project.accessLimitations],
                     ].filter(([,v])=>v).map(([label,value]) => (
                       <div key={label} className="rp-info-row">
