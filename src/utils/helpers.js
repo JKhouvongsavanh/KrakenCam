@@ -218,14 +218,14 @@ function buildSignature(s) {
 }
 
 // Ã¢ÂÂÃ¢ÂÂ Embed code builder Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
-function buildEmbedCode(pair, bPhoto, aPhoto, maxWidth, companyLogo) {
+function buildEmbedCode(pair, bPhoto, aPhoto, maxWidth, companyLogo, krakenLogo) {
   if (!bPhoto || !bPhoto.dataUrl || !aPhoto || !aPhoto.dataUrl) return "";
   var id   = "ba_" + Math.random().toString(36).slice(2, 8);
   var name = (pair.name || "Before & After").replace(/</g, "&lt;");
   var mw   = parseInt(maxWidth) || 800;
   var bSrc = bPhoto.dataUrl;
   var aSrc = aPhoto.dataUrl;
-  var logo = KRAKENCAM_LOGO;
+  var logo = krakenLogo || '';
   var D = [
     "<!-- Before & After Slider: " + name + " Ã¢ÂÂ KrakenCam -->",
     ['<div id="',id,'" style="position:relative;width:100%;max-width:',mw,'px;',
