@@ -44,6 +44,8 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
     timeInspection:      project?.timeInspection      || "",
     dateWorkPerformed:   project?.dateWorkPerformed   || "",
     timeWorkPerformed:   project?.timeWorkPerformed   || "",
+    completionDate:      project?.completionDate      || "",
+    completionTime:      project?.completionTime      || "",
     accessLimitations:   project?.accessLimitations   || "",
     lat:                 project?.lat                 || "",
     lng:                 project?.lng                 || "",
@@ -77,6 +79,9 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
     project?.rooms?.map(r => r.name) || []
   );
   const [newRoom, setNewRoom] = useState("");
+  const [siteConditionsOpen, setSiteConditionsOpen] = useState(
+    !!(project?.accessLimitations || (project?.powerStatus && project.powerStatus !== "unknown") || (project?.waterStatus && project.waterStatus !== "unknown") || project?.ppeItems?.length)
+  );
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const COLORS_PROJECT = ["#4a90d9","#3dba7e","#8b7cf8","#e85a3a","#e8703a","#e8c53a","#3ab8e8","#f0954e"];
   const PROJECT_TYPES = settings?.projectTypes?.length ? settings.projectTypes : ["Renovation","Insurance Claim","Inspection","Repair","New Construction","Mitigation","Remediation","Demolition","Consultation","Quote Request","Other"];
@@ -263,6 +268,19 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
                 <input className="form-input" type="time" value={form.timeWorkPerformed} onChange={e => set("timeWorkPerformed", e.target.value)} style={{ colorScheme:"dark" }} />
               </div>
             </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Completion Date</label>
+                <div className="date-input-wrap">
+                  <input className="form-input" type="date" value={form.completionDate} onChange={e => set("completionDate", e.target.value)} />
+                  <span className="date-icon"><Icon d="M8 2v3M16 2v3M3 8h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" size={18} stroke="var(--accent)" strokeWidth={2} /></span>
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Completion Time</label>
+                <input className="form-input" type="time" value={form.completionTime} onChange={e => set("completionTime", e.target.value)} style={{ colorScheme:"dark" }} />
+              </div>
+            </div>
           </div>
 
           {/* Address */}
@@ -397,65 +415,73 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
             </div>
           </div>
 
-          {/* Site Conditions */}
+          {/* Site Conditions — collapsible */}
           <div className="form-section">
-            <div className="form-section-title"><Icon d={ic.alert} size={15} stroke="var(--accent)" /> Site Conditions</div>
-
-            <div className="form-group">
-              <label className="form-label">Access Limitations / Restricted Areas</label>
-              <input className="form-input" placeholder="e.g. Basement locked, roof access restricted…" value={form.accessLimitations} onChange={e => set("accessLimitations", e.target.value)} />
+            <div className="form-section-title" style={{ cursor:"pointer", userSelect:"none" }} onClick={() => setSiteConditionsOpen(o => !o)}>
+              <Icon d={ic.alert} size={15} stroke="var(--accent)" /> Site Conditions
+              <span style={{ marginLeft:"auto", fontSize:12, color:"var(--text3)", fontWeight:400, background:"var(--surface3)", padding:"2px 10px", borderRadius:10 }}>
+                {siteConditionsOpen ? "▲ Hide" : "▼ Add"}
+              </span>
             </div>
+            {siteConditionsOpen && (
+              <>
+                <div className="form-group">
+                  <label className="form-label">Access Limitations / Restricted Areas</label>
+                  <input className="form-input" placeholder="e.g. Basement locked, roof access restricted…" value={form.accessLimitations} onChange={e => set("accessLimitations", e.target.value)} />
+                </div>
 
-            <div className="form-row">
-              {/* Power Status */}
-              <div className="form-group">
-                <label className="form-label">Power Status</label>
-                <div style={{ display:"flex", gap:8, marginTop:4 }}>
-                  {[{v:"on",label:"On"},{v:"off",label:"Off"},{v:"unknown",label:"N/A"}].map(({v,label}) => (
-                    <div key={v} onClick={() => set("powerStatus", v)}
-                      style={{ flex:1, padding:"9px 0", textAlign:"center", borderRadius:"var(--radius-sm)", border:`2px solid ${form.powerStatus===v ? "var(--accent)" : "var(--border)"}`, background: form.powerStatus===v ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:13, fontWeight:600, color: form.powerStatus===v ? "var(--accent)" : "var(--text2)", transition:"all .15s" }}>
-                      {label}
+                <div className="form-row">
+                  {/* Power Status */}
+                  <div className="form-group">
+                    <label className="form-label">Power Status</label>
+                    <div style={{ display:"flex", gap:8, marginTop:4 }}>
+                      {[{v:"on",label:"On"},{v:"off",label:"Off"},{v:"unknown",label:"N/A"}].map(({v,label}) => (
+                        <div key={v} onClick={() => set("powerStatus", v)}
+                          style={{ flex:1, padding:"9px 0", textAlign:"center", borderRadius:"var(--radius-sm)", border:`2px solid ${form.powerStatus===v ? "var(--accent)" : "var(--border)"}`, background: form.powerStatus===v ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:13, fontWeight:600, color: form.powerStatus===v ? "var(--accent)" : "var(--text2)", transition:"all .15s" }}>
+                          {label}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-              {/* Water Status */}
-              <div className="form-group">
-                <label className="form-label">Water Status</label>
-                <div style={{ display:"flex", gap:8, marginTop:4 }}>
-                  {[{v:"on",label:"On"},{v:"off",label:"Off"},{v:"unknown",label:"N/A"}].map(({v,label}) => (
-                    <div key={v} onClick={() => set("waterStatus", v)}
-                      style={{ flex:1, padding:"9px 0", textAlign:"center", borderRadius:"var(--radius-sm)", border:`2px solid ${form.waterStatus===v ? "var(--accent)" : "var(--border)"}`, background: form.waterStatus===v ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:13, fontWeight:600, color: form.waterStatus===v ? "var(--accent)" : "var(--text2)", transition:"all .15s" }}>
-                      {label}
+                  </div>
+                  {/* Water Status */}
+                  <div className="form-group">
+                    <label className="form-label">Water Status</label>
+                    <div style={{ display:"flex", gap:8, marginTop:4 }}>
+                      {[{v:"on",label:"On"},{v:"off",label:"Off"},{v:"unknown",label:"N/A"}].map(({v,label}) => (
+                        <div key={v} onClick={() => set("waterStatus", v)}
+                          style={{ flex:1, padding:"9px 0", textAlign:"center", borderRadius:"var(--radius-sm)", border:`2px solid ${form.waterStatus===v ? "var(--accent)" : "var(--border)"}`, background: form.waterStatus===v ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:13, fontWeight:600, color: form.waterStatus===v ? "var(--accent)" : "var(--text2)", transition:"all .15s" }}>
+                          {label}
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            {/* PPE */}
-            <div className="form-group" style={{ marginBottom:0 }}>
-              <label className="form-label">PPE Required On Site</label>
-              <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginTop:6 }}>
-                {PPE_OPTIONS.map(item => {
-                  const active = form.ppeItems.includes(item);
-                  return (
-                    <div key={item} onClick={() => togglePPE(item)}
-                      style={{ padding:"6px 14px", borderRadius:20, border:`1.5px solid ${active ? "var(--accent)" : "var(--border)"}`, background: active ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:12.5, fontWeight:600, color: active ? "var(--accent)" : "var(--text2)", transition:"all .15s", userSelect:"none" }}>
-                      {active ? "✓ " : ""}{item}
+                {/* PPE */}
+                <div className="form-group" style={{ marginBottom:0 }}>
+                  <label className="form-label">PPE Required On Site</label>
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginTop:6 }}>
+                    {PPE_OPTIONS.map(item => {
+                      const active = form.ppeItems.includes(item);
+                      return (
+                        <div key={item} onClick={() => togglePPE(item)}
+                          style={{ padding:"6px 14px", borderRadius:20, border:`1.5px solid ${active ? "var(--accent)" : "var(--border)"}`, background: active ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:12.5, fontWeight:600, color: active ? "var(--accent)" : "var(--text2)", transition:"all .15s", userSelect:"none" }}>
+                          {active ? "✓ " : ""}{item}
+                        </div>
+                      );
+                    })}
+                    {/* Other option */}
+                    <div onClick={() => togglePPE("Other")}
+                      style={{ padding:"6px 14px", borderRadius:20, border:`1.5px solid ${form.ppeItems.includes("Other") ? "var(--accent)" : "var(--border)"}`, background: form.ppeItems.includes("Other") ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:12.5, fontWeight:600, color: form.ppeItems.includes("Other") ? "var(--accent)" : "var(--text2)", transition:"all .15s", userSelect:"none" }}>
+                      {form.ppeItems.includes("Other") ? "✓ " : ""}Other
                     </div>
-                  );
-                })}
-                {/* Other option */}
-                <div onClick={() => togglePPE("Other")}
-                  style={{ padding:"6px 14px", borderRadius:20, border:`1.5px solid ${form.ppeItems.includes("Other") ? "var(--accent)" : "var(--border)"}`, background: form.ppeItems.includes("Other") ? "var(--accent-glow)" : "var(--surface2)", cursor:"pointer", fontSize:12.5, fontWeight:600, color: form.ppeItems.includes("Other") ? "var(--accent)" : "var(--text2)", transition:"all .15s", userSelect:"none" }}>
-                  {form.ppeItems.includes("Other") ? "✓ " : ""}Other
+                  </div>
+                  {form.ppeItems.includes("Other") && (
+                    <input className="form-input" style={{ marginTop:10 }} placeholder="Describe other PPE required…" value={form.ppeOtherText} onChange={e => set("ppeOtherText", e.target.value)} />
+                  )}
                 </div>
-              </div>
-              {form.ppeItems.includes("Other") && (
-                <input className="form-input" style={{ marginTop:10 }} placeholder="Describe other PPE required…" value={form.ppeOtherText} onChange={e => set("ppeOtherText", e.target.value)} />
-              )}
-            </div>
+              </>
+            )}
           </div>
 
           {/* Insurance — collapsible */}

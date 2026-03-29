@@ -16,16 +16,45 @@ function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNot
     ? { ...EMPTY_TASK, id:uid(), createdAt:today() }
     : { ...task, checklist: task.checklist||[], comments: task.comments||[], tags: task.tags||[], assigneeIds: task.assigneeIds||[], attachments: task.attachments||[], repeatEnabled: task.repeatEnabled||false, repeatType: task.repeatType||"days", repeatValue: task.repeatValue||1, repeatDay: task.repeatDay||1, repeatWeekday: task.repeatWeekday||1 }
   );
-  const [tab, setTab]       = useState("details");
+  const [tab, setTab]               = useState("details");
   const [newCheckItem, setNewCheckItem] = useState("");
   const [newComment, setNewComment]     = useState("");
   const [newTag, setNewTag]             = useState("");
   const set = (k,v) => setForm(f=>({...f,[k]:v}));
 
+  // Checklist item edit state
+  const [editingCheckId, setEditingCheckId]     = useState(null);
+  const [editingCheckText, setEditingCheckText] = useState("");
+
+  // Drag-and-drop state
+  const [dragIdx, setDragIdx]       = useState(null);
+  const [dragOverIdx, setDragOverIdx] = useState(null);
+
+  // Checklist templates state
+  const [templates, setTemplates]           = useState(() => { try { return JSON.parse(localStorage.getItem("kc_checklist_templates") || "[]"); } catch { return []; } });
+  const [showTemplatePanel, setShowTemplatePanel] = useState(false);
+  const [showSaveTemplate, setShowSaveTemplate]   = useState(false);
+  const [templateName, setTemplateName]           = useState("");
+  const [editingTplId, setEditingTplId]           = useState(null);
+  const [editingTplName, setEditingTplName]       = useState("");
+
+  const persistTemplates = (updated) => { setTemplates(updated); try { localStorage.setItem("kc_checklist_templates", JSON.stringify(updated)); } catch {} };
+  const saveAsTemplate   = () => { if (!templateName.trim()) return; persistTemplates([...templates, { id:uid(), name:templateName.trim(), items:form.checklist.map(c=>({ id:uid(), text:c.text })) }]); setTemplateName(""); setShowSaveTemplate(false); };
+  const deleteTemplate   = (id) => persistTemplates(templates.filter(t=>t.id!==id));
+  const loadTemplate     = (t) => { set("checklist", [...form.checklist, ...t.items.map(item=>({ id:uid(), text:item.text, done:false }))]); setShowTemplatePanel(false); };
+  const saveTemplateName = (id) => { if (!editingTplName.trim()) return; persistTemplates(templates.map(t=>t.id===id?{...t,name:editingTplName.trim()}:t)); setEditingTplId(null); };
+
   const toggleAssignee = id => set("assigneeIds", form.assigneeIds.includes(id) ? form.assigneeIds.filter(x=>x!==id) : [...form.assigneeIds, id]);
   const addCheckItem = () => { if (!newCheckItem.trim()) return; set("checklist", [...form.checklist, { id:uid(), text:newCheckItem.trim(), done:false }]); setNewCheckItem(""); };
-  const toggleCheck = id => set("checklist", form.checklist.map(c=>c.id===id?{...c,done:!c.done}:c));
-  const removeCheck = id => set("checklist", form.checklist.filter(c=>c.id!==id));
+  const toggleCheck  = id => set("checklist", form.checklist.map(c=>c.id===id?{...c,done:!c.done}:c));
+  const removeCheck  = id => set("checklist", form.checklist.filter(c=>c.id!==id));
+  const startEditCheck = (item) => { setEditingCheckId(item.id); setEditingCheckText(item.text); };
+  const saveEditCheck  = (id) => { if (!editingCheckText.trim()) return; set("checklist", form.checklist.map(c=>c.id===id?{...c,text:editingCheckText.trim()}:c)); setEditingCheckId(null); };
+
+  const onDragStart   = (idx) => setDragIdx(idx);
+  const onDragOver    = (e, idx) => { e.preventDefault(); setDragOverIdx(idx); };
+  const onDragEnd     = () => { setDragIdx(null); setDragOverIdx(null); };
+  const onDrop        = (idx) => { if (dragIdx===null||dragIdx===idx) return; const r=[...form.checklist]; const [m]=r.splice(dragIdx,1); r.splice(idx,0,m); set("checklist",r); setDragIdx(null); setDragOverIdx(null); };
 
   const addComment = (text) => {
     const t = (text || newComment).trim();
@@ -317,25 +346,102 @@ function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNot
 
           {tab==="checklist" && (
             <div>
+              {/* ── Templates toolbar ─────────────────────────────── */}
+              <div style={{ display:"flex", gap:8, marginBottom:12, alignItems:"center" }}>
+                <button className="btn btn-secondary btn-sm" style={{ fontSize:12 }} onClick={()=>setShowTemplatePanel(v=>!v)}>
+                  <Icon d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" size={13}/> {showTemplatePanel ? "Hide Templates" : "Load Template"}{templates.length > 0 ? ` (${templates.length})` : ""}
+                </button>
+                <button className="btn btn-ghost btn-sm" style={{ fontSize:12, marginLeft:"auto" }} onClick={()=>{ setShowSaveTemplate(v=>!v); setTemplateName(""); }}>
+                  <Icon d={ic.plus} size={12}/> Save as Template
+                </button>
+              </div>
+
+              {/* ── Save-as-template form ──────────────────────────── */}
+              {showSaveTemplate && (
+                <div style={{ display:"flex",gap:8,marginBottom:12,padding:"10px 12px",background:"var(--surface2)",borderRadius:"var(--radius-sm)",border:"1px solid var(--accent)" }}>
+                  <input className="form-input" style={{ flex:1,fontSize:13 }} placeholder="Template name…" value={templateName} onChange={e=>setTemplateName(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")saveAsTemplate();if(e.key==="Escape")setShowSaveTemplate(false);}} autoFocus />
+                  <button className="btn btn-primary btn-sm" onClick={saveAsTemplate} disabled={!templateName.trim()}>Save</button>
+                  <button className="btn btn-ghost btn-sm" onClick={()=>setShowSaveTemplate(false)}>Cancel</button>
+                </div>
+              )}
+
+              {/* ── Template panel ────────────────────────────────── */}
+              {showTemplatePanel && (
+                <div style={{ marginBottom:14,background:"var(--surface2)",borderRadius:"var(--radius-sm)",border:"1px solid var(--border)",overflow:"hidden" }}>
+                  {templates.length === 0
+                    ? <div style={{ padding:"16px 14px",color:"var(--text3)",fontSize:13,textAlign:"center" }}>No templates saved yet. Build a checklist and click "Save as Template".</div>
+                    : templates.map(t=>(
+                        <div key={t.id} style={{ display:"flex",alignItems:"center",gap:8,padding:"9px 12px",borderBottom:"1px solid var(--border)" }}>
+                          {editingTplId===t.id
+                            ? <>
+                                <input className="form-input" style={{ flex:1,fontSize:13,padding:"4px 8px" }} value={editingTplName} onChange={e=>setEditingTplName(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")saveTemplateName(t.id);if(e.key==="Escape")setEditingTplId(null);}} autoFocus />
+                                <button className="btn btn-primary btn-sm" style={{ fontSize:11 }} onClick={()=>saveTemplateName(t.id)}>Save</button>
+                                <button className="btn btn-ghost btn-sm" style={{ fontSize:11 }} onClick={()=>setEditingTplId(null)}>Cancel</button>
+                              </>
+                            : <>
+                                <span style={{ flex:1,fontSize:13,fontWeight:500 }}>{t.name}</span>
+                                <span style={{ fontSize:11,color:"var(--text3)" }}>{t.items.length} item{t.items.length!==1?"s":""}</span>
+                                <button className="btn btn-primary btn-sm" style={{ fontSize:11 }} onClick={()=>loadTemplate(t)}>Load</button>
+                                <button className="btn btn-ghost btn-icon" style={{ width:26,height:26,color:"var(--text2)" }} title="Rename" onClick={()=>{ setEditingTplId(t.id); setEditingTplName(t.name); }}>
+                                  <Icon d="M15.232 5.232l3.536 3.536M9 13l6.5-6.5a2 2 0 012.828 2.828L11.828 15.828a2 2 0 01-1.414.586H8v-2.414a2 2 0 01.586-1.414z" size={13}/>
+                                </button>
+                                <button className="btn btn-ghost btn-icon" style={{ width:26,height:26,color:"#e85a3a" }} title="Delete" onClick={()=>deleteTemplate(t.id)}>
+                                  <Icon d={ic.trash} size={13}/>
+                                </button>
+                              </>
+                          }
+                        </div>
+                      ))
+                  }
+                </div>
+              )}
+
+              {/* ── Progress bar ──────────────────────────────────── */}
               {form.checklist.length > 0 && (
                 <div style={{ marginBottom:8 }}>
-                  <div style={{ height:6,background:"var(--surface2)",borderRadius:3,overflow:"hidden",marginBottom:12 }}>
+                  <div style={{ height:6,background:"var(--surface2)",borderRadius:3,overflow:"hidden",marginBottom:8 }}>
                     <div style={{ height:"100%",background:"var(--accent)",borderRadius:3,width:`${Math.round((form.checklist.filter(c=>c.done).length/form.checklist.length)*100)}%`,transition:"width .3s" }} />
                   </div>
                   <div style={{ fontSize:12,color:"var(--text2)",marginBottom:12,textAlign:"right" }}>{form.checklist.filter(c=>c.done).length} / {form.checklist.length} done</div>
                 </div>
               )}
+
+              {/* ── Checklist items ───────────────────────────────── */}
               <div style={{ display:"flex",flexDirection:"column",gap:6,marginBottom:14 }}>
-                {form.checklist.map(item=>(
-                  <div key={item.id} style={{ display:"flex",alignItems:"center",gap:10,padding:"8px 12px",background:"var(--surface2)",borderRadius:"var(--radius-sm)",border:"1px solid var(--border)" }}>
+                {form.checklist.map((item, idx)=>(
+                  <div key={item.id}
+                    draggable
+                    onDragStart={()=>onDragStart(idx)}
+                    onDragOver={e=>onDragOver(e,idx)}
+                    onDrop={()=>onDrop(idx)}
+                    onDragEnd={onDragEnd}
+                    style={{ display:"flex",alignItems:"center",gap:8,padding:"7px 10px",background:dragOverIdx===idx&&dragIdx!==idx?"var(--accent-glow)":"var(--surface2)",borderRadius:"var(--radius-sm)",border:`1px solid ${dragOverIdx===idx&&dragIdx!==idx?"var(--accent)":"var(--border)"}`,transition:"background .1s,border .1s",cursor:"default" }}>
+                    {/* Drag handle */}
+                    <div style={{ cursor:"grab",color:"var(--text3)",display:"flex",flexShrink:0,padding:"0 2px" }} title="Drag to reorder">
+                      <Icon d="M8 6h8M8 12h8M8 18h8" size={14} stroke="var(--text3)" strokeWidth={2}/>
+                    </div>
+                    {/* Checkbox */}
                     <div onClick={()=>toggleCheck(item.id)} style={{ width:18,height:18,borderRadius:4,border:`2px solid ${item.done?"var(--accent)":"var(--border)"}`,background:item.done?"var(--accent)":"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .15s" }}>
                       {item.done && <Icon d={ic.check} size={11} stroke="white" strokeWidth={3}/>}
                     </div>
-                    <span style={{ flex:1,fontSize:13,textDecoration:item.done?"line-through":"none",color:item.done?"var(--text3)":"var(--text)",transition:"all .15s" }}>{item.text}</span>
+                    {/* Text / inline edit */}
+                    {editingCheckId===item.id
+                      ? <input className="form-input" style={{ flex:1,fontSize:13,padding:"3px 7px" }} value={editingCheckText} autoFocus onChange={e=>setEditingCheckText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")saveEditCheck(item.id);if(e.key==="Escape")setEditingCheckId(null);}} onBlur={()=>saveEditCheck(item.id)} />
+                      : <span onClick={()=>startEditCheck(item)} style={{ flex:1,fontSize:13,textDecoration:item.done?"line-through":"none",color:item.done?"var(--text3)":"var(--text)",cursor:"text",transition:"all .15s" }} title="Click to edit">{item.text}</span>
+                    }
+                    {/* Edit btn */}
+                    {editingCheckId!==item.id && (
+                      <button className="btn btn-ghost btn-icon" style={{ width:24,height:24,color:"var(--text3)" }} title="Edit" onClick={()=>startEditCheck(item)}>
+                        <Icon d="M15.232 5.232l3.536 3.536M9 13l6.5-6.5a2 2 0 012.828 2.828L11.828 15.828a2 2 0 01-1.414.586H8v-2.414a2 2 0 01.586-1.414z" size={12}/>
+                      </button>
+                    )}
+                    {/* Delete btn */}
                     <button className="btn btn-ghost btn-icon" style={{ width:24,height:24,color:"var(--text3)" }} onClick={()=>removeCheck(item.id)}><Icon d={ic.close} size={12}/></button>
                   </div>
                 ))}
               </div>
+
+              {/* ── Add new item ──────────────────────────────────── */}
               <div style={{ display:"flex",gap:8 }}>
                 <input className="form-input" style={{ flex:1 }} placeholder="Add checklist item…" value={newCheckItem} onChange={e=>setNewCheckItem(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addCheckItem()} />
                 <button className="btn btn-secondary btn-sm" onClick={addCheckItem}><Icon d={ic.plus} size={14}/> Add</button>
