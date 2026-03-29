@@ -5,6 +5,7 @@ import { PLAN_AI_LIMITS, canAccessFeature } from "../utils/constants.js";
 import {
   uid, formatDate, formatTime, formatDateTimeLabel,
   estimateBlockHeight, today,
+, formatFileSizeLabel, inferProjectFileKind
 } from "../utils/helpers.js";
 
 // ── Report Pages (paginated preview) ──────────────────────────────────────────

@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { Icon, ic } from "../utils/icons.jsx";
 import { hasPermissionLevel, getEffectivePermissions, getPermissionPolicies } from "../utils/constants.js";
-import { uid, today } from "../utils/helpers.js";
+import { uid, today , ROOM_ICONS, ROOM_COLORS, STATUS_META, normaliseStatuses, getStatusMeta
+} from "../utils/helpers.js";
 
 export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, onClose }) {
   const isEdit = !!project;

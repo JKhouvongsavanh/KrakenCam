@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Icon, ic } from "../utils/icons.jsx";
 import { PLAN_VIDEO_LIMIT_SECS } from "../utils/constants.js";
-import { uid, today } from "../utils/helpers.js";
+import { uid, today , parseTagInput
+} from "../utils/helpers.js";
 
 export function CameraPage({ project, defaultRoom, onSave, onClose, settings }) {
   const videoRef     = useRef(null);

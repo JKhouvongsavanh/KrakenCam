@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Icon, ic } from "../utils/icons.jsx";
-import { uid, today } from "../utils/helpers.js";
+import { uid, today , getStatusMeta
+} from "../utils/helpers.js";
 
 // ── Camera Component ───────────────────────────────────────────────────────────
 function PhotosTab({ project, onUpdateProject, onEditPhoto, onOpenCamera, fileRef, addUploadedPhotos, settings, teamUsers = [], chats = [], onSendPhotoToChat }) {
