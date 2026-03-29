@@ -976,11 +976,11 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
           <div style={{ position:"absolute",top:12,right:12,display:"flex",flexDirection:"row",gap:4,zIndex:20 }}>
             <button onClick={undo} title="Undo"
               style={{ height:40,padding:"0 12px",borderRadius:10,background:"var(--surface)",border:"1px solid var(--border)",color:"var(--text)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:5,boxShadow:"0 2px 12px rgba(0,0,0,.4)",fontSize:14,fontWeight:600 }}>
-              â© <span style={{ fontSize:12 }}>Undo</span>
+              ↩ <span style={{ fontSize:12 }}>Undo</span>
             </button>
             <button onClick={redo} title="Redo"
               style={{ height:40,padding:"0 12px",borderRadius:10,background:"var(--surface)",border:"1px solid var(--border)",color:"var(--text)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:5,boxShadow:"0 2px 12px rgba(0,0,0,.4)",fontSize:14,fontWeight:600 }}>
-              âª <span style={{ fontSize:12 }}>Redo</span>
+              ↪ <span style={{ fontSize:12 }}>Redo</span>
             </button>
           </div>
 
@@ -992,11 +992,11 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
                 <div style={{ display:"flex",alignItems:"center",gap:6 }}>
                   {!fpPanelCollapsed && selectedLine && <div style={{ fontSize:11,color:"var(--accent)" }}>Wall selected</div>}
                   <button onClick={() => setFpPanelCollapsed(v => !v)} title={fpPanelCollapsed ? "Expand" : "Collapse"} style={{ background:"none",border:"none",cursor:"pointer",color:"var(--text3)",fontSize:16,lineHeight:1,padding:"0 2px" }}>
-                    {fpPanelCollapsed ? "â²" : "â¼"}
+                    {fpPanelCollapsed ? "▲" : "▼"}
                   </button>
                 </div>
               </div>
-              {fpPanelCollapsed && <div style={{ fontSize:11,color:"var(--text3)",textAlign:"center" }}>Tap â² to expand</div>}
+              {fpPanelCollapsed && <div style={{ fontSize:11,color:"var(--text3)",textAlign:"center" }}>Tap ▲ to expand</div>}
               {!fpPanelCollapsed && <>
               <button className={`btn btn-sm ${snapToGrid ? "btn-primary" : "btn-secondary"}`} onClick={() => setSnapToGrid(v => !v)} style={{ alignSelf:"flex-start" }}>
                 <Icon d={ic.grid} size={13} /> {snapToGrid ? "Snap On" : "Snap Off"}
@@ -1082,7 +1082,7 @@ export function SketchEditor({ sketch, rooms, reports, project, settings, onSave
 
           <div style={{ position:"absolute",bottom:12,right:12,display:"flex",flexDirection:"row",alignItems:"center",gap:4,zIndex:20 }}>
             <button onClick={zoomOut} title="Zoom Out"
-              style={{ width:40,height:40,borderRadius:10,background:"var(--surface)",border:"1px solid var(--border)",color:"var(--text)",cursor:"pointer",fontSize:20,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 12px rgba(0,0,0,.4)" }}>â</button>
+              style={{ width:40,height:40,borderRadius:10,background:"var(--surface)",border:"1px solid var(--border)",color:"var(--text)",cursor:"pointer",fontSize:20,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 12px rgba(0,0,0,.4)" }}>−</button>
             <button onClick={zoomReset} title={`${Math.round(zoom*100)}% — Click to reset`}
               style={{ height:40,padding:"0 8px",minWidth:44,borderRadius:8,background:"var(--surface2)",border:"1px solid var(--border)",color:"var(--text2)",cursor:"pointer",fontSize:10,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center" }}>
               {Math.round(zoom*100)}%
@@ -1284,46 +1284,46 @@ export function ProjectActivityFeed({ project, onUpdateProject, settings }) {
   const events = [];
 
   // Project created
-  if (project.date) events.push({ id:"created", type:"created", date: project.date, time:"", icon:"ð", label:"Project created", detail: project.title });
+  if (project.date) events.push({ id:"created", type:"created", date: project.date, time:"", icon:"🏗", label:"Project created", detail: project.title });
 
   // Photos
   (project.photos || []).forEach(p => {
-    if (p.date) events.push({ id:`ph-${p.id}`, type:"photo", date:p.date, time:p.time||"", icon:"ð·", label:"Photo captured", detail: `${p.name || "Photo"}${p.room ? ` · ${p.room}` : ""}` });
+    if (p.date) events.push({ id:`ph-${p.id}`, type:"photo", date:p.date, time:p.time||"", icon:"📷", label:"Photo captured", detail: `${p.name || "Photo"}${p.room ? ` · ${p.room}` : ""}` });
   });
 
   // Videos
   (project.videos || []).forEach(v => {
-    if (v.date) events.push({ id:`vid-${v.id}`, type:"video", date:v.date, time:"", icon:"ð¬", label:"Video recorded", detail: v.name || "Video clip" });
+    if (v.date) events.push({ id:`vid-${v.id}`, type:"video", date:v.date, time:"", icon:"🎬", label:"Video recorded", detail: v.name || "Video clip" });
   });
 
   // Voice notes
   (project.voiceNotes || []).forEach(vn => {
-    if (vn.date) events.push({ id:`vn-${vn.id}`, type:"voice", date:vn.date, time:"", icon:"ð", label:"Voice note recorded", detail: vn.name || "Voice note" });
+    if (vn.date) events.push({ id:`vn-${vn.id}`, type:"voice", date:vn.date, time:"", icon:"🎙", label:"Voice note recorded", detail: vn.name || "Voice note" });
   });
 
   // Reports
   (project.reports || []).forEach(r => {
-    if (r.date) events.push({ id:`rpt-${r.id}`, type:"report", date:r.date, time:"", icon:"ð", label:`Report ${r.status === "final" ? "finalised" : r.status === "sent" ? "sent" : "created"}`, detail: r.title || "Report" });
+    if (r.date) events.push({ id:`rpt-${r.id}`, type:"report", date:r.date, time:"", icon:"📄", label:`Report ${r.status === "final" ? "finalised" : r.status === "sent" ? "sent" : "created"}`, detail: r.title || "Report" });
   });
 
   // Checklists
   (project.checklists || []).forEach(cl => {
-    if (cl.date) events.push({ id:`cl-${cl.id}`, type:"checklist", date:cl.date, time:"", icon:"â", label:`Checklist ${cl.status === "complete" ? "completed" : "started"}`, detail: cl.name || "Checklist" });
+    if (cl.date) events.push({ id:`cl-${cl.id}`, type:"checklist", date:cl.date, time:"", icon:"✅", label:`Checklist ${cl.status === "complete" ? "completed" : "started"}`, detail: cl.name || "Checklist" });
   });
 
   // Files
   (project.files || []).forEach(f => {
-    if (f.date || f.uploadedAt) events.push({ id:`fl-${f.id}`, type:"file", date:f.date||f.uploadedAt, time:"", icon:"ð", label:"File uploaded", detail: f.name || "File" });
+    if (f.date || f.uploadedAt) events.push({ id:`fl-${f.id}`, type:"file", date:f.date||f.uploadedAt, time:"", icon:"📎", label:"File uploaded", detail: f.name || "File" });
   });
 
   // Activity log notes (manual entries)
   (project.activityLog || []).forEach(a => {
-    events.push({ id:`al-${a.id}`, type:"note", date:a.date, time:a.time||"", icon:"ð¬", label:a.author ? `Note by ${a.author}` : "Note added", detail:a.text, deletable: true, _raw: a });
+    events.push({ id:`al-${a.id}`, type:"note", date:a.date, time:a.time||"", icon:"💬", label:a.author ? `Note by ${a.author}` : "Note added", detail:a.text, deletable: true, _raw: a });
   });
 
   // Timeline stage changes
   if (project.timelineStage) {
-    events.push({ id:"stage", type:"stage", date: project.date || today(), time:"", icon:"ð·", label:"Stage updated", detail: project.timelineStage.replace(/_/g," ") });
+    events.push({ id:"stage", type:"stage", date: project.date || today(), time:"", icon:"🏷", label:"Stage updated", detail: project.timelineStage.replace(/_/g," ") });
   }
 
   // Sort newest first
@@ -1351,7 +1351,7 @@ export function ProjectActivityFeed({ project, onUpdateProject, settings }) {
     <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
       {/* Add a note */}
       <div className="card">
-        <div className="card-header"><span style={{ fontWeight:700 }}>ð¬ Add Note</span></div>
+        <div className="card-header"><span style={{ fontWeight:700 }}>💬 Add Note</span></div>
         <div className="card-body" style={{ padding:"14px 20px" }}>
           <div style={{ display:"flex", gap:10, alignItems:"flex-start" }}>
             <textarea
@@ -1371,7 +1371,7 @@ export function ProjectActivityFeed({ project, onUpdateProject, settings }) {
       {/* Activity timeline */}
       <div className="card">
         <div className="card-header" style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <span style={{ fontWeight:700 }}>ð Activity Feed</span>
+          <span style={{ fontWeight:700 }}>📋 Activity Feed</span>
           <span style={{ fontSize:12, color:"var(--text3)" }}>{sorted.length} event{sorted.length!==1?"s":""}</span>
         </div>
         <div className="card-body" style={{ padding:"6px 0" }}>

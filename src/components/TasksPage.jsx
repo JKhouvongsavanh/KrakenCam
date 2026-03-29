@@ -391,7 +391,7 @@ function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNot
 
 // ── COMMENT INPUT WITH @MENTION ──────────────────────────────────────────────
 // ── Date Picker Input ─────────────────────────────────────────────────────────
-function DatePickerInput({ value, onChange, placeholder = "Select date" }) {
+export function DatePickerInput({ value, onChange, placeholder = "Select date" }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -467,12 +467,12 @@ function DatePickerInput({ value, onChange, placeholder = "Select date" }) {
           {/* Month/Year header */}
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
             <button type="button" onClick={prevMonth}
-              style={{ background:"none", border:"none", cursor:"pointer", color:"var(--text2)", padding:"4px 8px", borderRadius:6, fontSize:16, lineHeight:1 }}>â¹</button>
+              style={{ background:"none", border:"none", cursor:"pointer", color:"var(--text2)", padding:"4px 8px", borderRadius:6, fontSize:16, lineHeight:1 }}>‹</button>
             <span style={{ fontWeight:700, fontSize:13.5, color:"var(--text)" }}>
               {MONTHS_FULL[viewMonth]} {viewYear}
             </span>
             <button type="button" onClick={nextMonth}
-              style={{ background:"none", border:"none", cursor:"pointer", color:"var(--text2)", padding:"4px 8px", borderRadius:6, fontSize:16, lineHeight:1 }}>âº</button>
+              style={{ background:"none", border:"none", cursor:"pointer", color:"var(--text2)", padding:"4px 8px", borderRadius:6, fontSize:16, lineHeight:1 }}>›</button>
           </div>
 
           {/* Weekday labels */}
@@ -613,7 +613,7 @@ function CommentInput({ value, onChange, onPost, mentionables }) {
             onChange={handleChange}
             onKeyDown={handleKeyDown}
           />
-          <span style={{ position:"absolute",bottom:8,right:10,fontSize:10,color:"var(--text3)",pointerEvents:"none" }}>ââµ post</span>
+          <span style={{ position:"absolute",bottom:8,right:10,fontSize:10,color:"var(--text3)",pointerEvents:"none" }}>⌘↵ post</span>
         </div>
         <button className="btn btn-primary btn-sm" onClick={()=>onPost(value)}>
           <Icon d={ic.message} size={14}/> Post
@@ -928,7 +928,7 @@ export function AnalyticsDashboard({ projects, tasks, teamUsers, settings, onClo
           {mvk && mvk.score > 0 && (
             <div style={{ background:"linear-gradient(135deg,var(--surface2),var(--surface3))",border:"1px solid var(--border)",borderRadius:12,padding:"14px 16px" }}>
               <div style={{ fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",color:"var(--text3)",marginBottom:10,display:"flex",alignItems:"center",gap:6 }}>
-                <span style={{ fontSize:15 }}>ð¦</span> MVK — Most Valuable Kraken
+                <span style={{ fontSize:15 }}>🦑</span> MVK — Most Valuable Kraken
               </div>
               <div style={{ display:"flex",alignItems:"center",gap:12 }}>
                 <div style={{ width:44,height:44,borderRadius:"50%",background:ROLE_COLORS[mvk.role]||"var(--accent)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:800,color:"white",flexShrink:0,overflow:"hidden" }}>
@@ -981,7 +981,7 @@ export function AnalyticsDashboard({ projects, tasks, teamUsers, settings, onClo
                     <div style={{ flex:1,minWidth:0 }}>
                       <div style={{ fontWeight:700,fontSize:13,display:"flex",alignItems:"center",gap:6 }}>
                         {fullName(u)}
-                        {u.id===mvk?.id && mvk?.score>0 && <span style={{ fontSize:10 }}>ð¦</span>}
+                        {u.id===mvk?.id && mvk?.score>0 && <span style={{ fontSize:10 }}>🦑</span>}
                       </div>
                       <div style={{ fontSize:11,color:"var(--text3)",textTransform:"capitalize" }}>{u.role} · {u.activeProjects} active jobs</div>
                     </div>
@@ -990,8 +990,8 @@ export function AnalyticsDashboard({ projects, tasks, teamUsers, settings, onClo
                   {/* Mini stat bars */}
                   <div style={{ display:"flex",gap:6 }}>
                     {[
-                      { label:"ð·", value:u.photosTotal,   max:Math.max(1,...userStats.map(x=>x.photosTotal)),  color:"var(--blue)"   },
-                      { label:"ð", value:u.reportsTotal,  max:Math.max(1,...userStats.map(x=>x.reportsTotal)), color:"var(--accent)" },
+                      { label:"📷", value:u.photosTotal,   max:Math.max(1,...userStats.map(x=>x.photosTotal)),  color:"var(--blue)"   },
+                      { label:"📄", value:u.reportsTotal,  max:Math.max(1,...userStats.map(x=>x.reportsTotal)), color:"var(--accent)" },
                       { label:"✓",  value:u.tasksCompleted,max:Math.max(1,...userStats.map(x=>x.tasksCompleted)),color:"var(--green)"  },
                     ].map(({ label, value, max, color }) => (
                       <div key={label} style={{ flex:1 }}>
@@ -1186,7 +1186,7 @@ export function NotificationBell({ notifications, onMarkRead, onMarkAllRead, onC
                           )}
                           <div style={{ fontSize:11, color:"var(--text3)", marginTop:3, display:"flex", alignItems:"center", gap:6 }}>
                             {n.date}
-                            <span style={{ color:"var(--text3)", fontSize:10 }}>{isExpanded ? "â² collapse" : "â¼ expand"}</span>
+                            <span style={{ color:"var(--text3)", fontSize:10 }}>{isExpanded ? "▲ collapse" : "▼ expand"}</span>
                           </div>
                         </div>
                         {!n.read && <div style={{ width:8, height:8, borderRadius:"50%", background:"var(--accent)", flexShrink:0, marginTop:5 }} />}
@@ -1231,7 +1231,7 @@ function ListCheckToggle({task, checkDone, checkTotal, onToggleChecklistItem}) {
         onClick={e=>{e.stopPropagation();setOpen(v=>!v);}}>
         <Icon d={ic.listCheck} size={12} stroke={checkDone===checkTotal?"#3dba7e":"var(--text3)"}/>
         <span style={{ fontSize:11,fontWeight:700,color:checkDone===checkTotal?"#3dba7e":"var(--text2)" }}>{checkDone}/{checkTotal}</span>
-        <span style={{ fontSize:9,color:"var(--text3)" }}>{open?"â²":"â¼"}</span>
+        <span style={{ fontSize:9,color:"var(--text3)" }}>{open?"▲":"▼"}</span>
       </div>
       {open && (
         <div style={{ position:"absolute",zIndex:50,marginTop:4,background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"var(--radius-sm)",boxShadow:"0 8px 24px rgba(0,0,0,.2)",padding:"8px",minWidth:220,maxWidth:300 }}
@@ -1377,11 +1377,11 @@ export function JobsiteMapPage({ projects, settings, onSelectProject }) {
             <div style="width:100%;height:3px;background:${color};border-radius:2px;margin-bottom:8px"></div>
             <div style="font-weight:700;font-size:13px;margin-bottom:3px;line-height:1.3">${proj.title}</div>
             <div style="font-size:11px;color:#666;margin-bottom:6px">
-              ð ${[proj.address,proj.city,proj.state].filter(Boolean).join(", ") || "No address"}${proj.manualGps ? ' <span style="font-size:10px;color:#2b7fe8;font-weight:700">(GPS override)</span>' : ''}
+              📍 ${[proj.address,proj.city,proj.state].filter(Boolean).join(", ") || "No address"}${proj.manualGps ? ' <span style="font-size:10px;color:#2b7fe8;font-weight:700">(GPS override)</span>' : ''}
             </div>
             <div style="display:flex;gap:10px;font-size:11px;color:#888;margin-bottom:8px">
-              <span>ð· ${proj.photos?.length||0} photos</span>
-              <span>ð ${proj.reports?.length||0} reports</span>
+              <span>📷 ${proj.photos?.length||0} photos</span>
+              <span>📄 ${proj.reports?.length||0} reports</span>
             </div>
             <div style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-block;
               background:${color}20;color:${color}">${proj.type||"Project"}</div>
@@ -1530,8 +1530,8 @@ pins.forEach(function(p){
                 {[selProj.address,selProj.city,selProj.state].filter(Boolean).join(", ") || "No address"}
               </div>
               <div style={{ display:"flex",gap:8,marginBottom:10,fontSize:11.5,color:"var(--text2)" }}>
-                <span>ð· {selProj.photos?.length||0} photos</span>
-                <span>ð {selProj.reports?.length||0} reports</span>
+                <span>📷 {selProj.photos?.length||0} photos</span>
+                <span>📄 {selProj.reports?.length||0} reports</span>
               </div>
               <div style={{ display:"flex",gap:8 }}>
                 <button className="btn btn-primary btn-sm" style={{ flex:1,fontSize:11,justifyContent:"center" }}
@@ -1572,7 +1572,7 @@ pins.forEach(function(p){
                   <div style={{ flex:1,minWidth:0 }}>
                     <div style={{ fontSize:12.5,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{proj.title}</div>
                     <div style={{ fontSize:11,color:"var(--text3)",marginTop:1 }}>
-                      {hasCoords ? `${proj.city||proj.address||"Located"}` : <span style={{ color:"#e8c53a" }}>â  No coordinates</span>}
+                      {hasCoords ? `${proj.city||proj.address||"Located"}` : <span style={{ color:"#e8c53a" }}>⚠ No coordinates</span>}
                     </div>
                   </div>
                 </div>
@@ -1582,7 +1582,7 @@ pins.forEach(function(p){
             {/* Help box for projects without coords */}
             {noCoords.length > 0 && (
               <div style={{ margin:"10px 14px",padding:"10px 12px",background:"rgba(232,197,58,.08)",border:"1px solid rgba(232,197,58,.25)",borderRadius:"var(--radius-sm)",fontSize:11.5,color:"var(--text2)",lineHeight:1.6 }}>
-                <div style={{ fontWeight:700,color:"#e8c53a",marginBottom:3 }}>â  {noCoords.length} jobsite{noCoords.length!==1?"s":""} not on map</div>
+                <div style={{ fontWeight:700,color:"#e8c53a",marginBottom:3 }}>⚠ {noCoords.length} jobsite{noCoords.length!==1?"s":""} not on map</div>
                 These jobsites have no coordinates yet. Open and re-save each one to automatically locate them, or ensure they have a full street address.
               </div>
             )}
@@ -1601,7 +1601,7 @@ pins.forEach(function(p){
             <div className="modal-body" style={{ padding:"16px 20px" }}>
               {/* Info banner */}
               <div style={{ padding:"10px 14px",background:"var(--surface2)",border:"1px solid var(--border)",borderRadius:"var(--radius-sm)",fontSize:12.5,color:"var(--text2)",marginBottom:14,lineHeight:1.6 }}>
-                <div style={{ fontWeight:700,color:"var(--text)",marginBottom:3 }}>ð Privacy-safe embed</div>
+                <div style={{ fontWeight:700,color:"var(--text)",marginBottom:3 }}>🔒 Privacy-safe embed</div>
                 The generated code shows only <strong>pin locations</strong> at the current zoom level.
                 No project names, addresses, client info, or other jobsite data is included — just colored dots on a map.
               </div>
@@ -1862,7 +1862,7 @@ export function TasksPage({ projects, teamUsers, settings, tasks, onTasksChange,
                 <div style={{ height:"100%",background:checkDone===checkTotal?"#3dba7e":"var(--accent)",borderRadius:2,width:`${Math.round((checkDone/checkTotal)*100)}%`,transition:"width .3s" }} />
               </div>
               <span style={{ fontSize:10.5,color:checkDone===checkTotal?"#3dba7e":"var(--text2)",fontWeight:600,flexShrink:0 }}>{checkDone}/{checkTotal}</span>
-              <span style={{ fontSize:10,color:"var(--text3)",flexShrink:0 }}>{showChecklist?"â²":"â¼"}</span>
+              <span style={{ fontSize:10,color:"var(--text3)",flexShrink:0 }}>{showChecklist?"▲":"▼"}</span>
             </div>
             {showChecklist && (
               <div style={{ display:"flex",flexDirection:"column",gap:4,paddingTop:2 }}
@@ -1895,7 +1895,7 @@ export function TasksPage({ projects, teamUsers, settings, tasks, onTasksChange,
           <button className="btn btn-ghost btn-sm" disabled={!canBack}
             style={{ fontSize:11,padding:"3px 8px",color:canBack?"var(--text2)":"var(--text3)",opacity:canBack?1:0.35 }}
             onClick={()=>progressTask(task.id,-1)}>
-            â Back
+            ← Back
           </button>
           <div style={{ flex:1,textAlign:"center" }}>
             <span style={{ fontSize:10.5,fontWeight:700,padding:"2px 9px",borderRadius:10,background:`${col?.color||"#888"}18`,color:col?.color||"var(--text2)" }}>{col?.label||task.status}</span>

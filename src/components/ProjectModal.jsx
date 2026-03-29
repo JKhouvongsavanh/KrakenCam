@@ -85,15 +85,15 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
   const PPE_OPTIONS = ["Hard Hat","Safety Glasses / Goggles","Work Boots","Respirator","Tyvek Suit","Gloves","High Viz","Hearing Protection"];
   const togglePPE = item => set("ppeItems", form.ppeItems.includes(item) ? form.ppeItems.filter(x => x !== item) : [...form.ppeItems, item]);
   const TIMELINE_STAGES = [
-    { id:"lead",        label:"Lead",           icon:"ð" },
-    { id:"assessment",  label:"Assessment",     icon:"ð" },
-    { id:"approved",    label:"Approved",       icon:"â" },
-    { id:"planning",    label:"Planning",       icon:"ðï¸" },
-    { id:"in_progress", label:"In Progress",    icon:"ð¨" },
-    { id:"final_walk",  label:"Final Walk",     icon:"ð¶" },
-    { id:"completion_phase", label:"Completion Phase", icon:"ð§©" },
-    { id:"invoiced",    label:"Invoiced",       icon:"ð§¾" },
-    { id:"completed",   label:"Completed",      icon:"ð" },
+    { id:"lead",        label:"Lead",           icon:"📋" },
+    { id:"assessment",  label:"Assessment",     icon:"🔍" },
+    { id:"approved",    label:"Approved",       icon:"✅" },
+    { id:"planning",    label:"Planning",       icon:"🗂️" },
+    { id:"in_progress", label:"In Progress",    icon:"🔨" },
+    { id:"final_walk",  label:"Final Walk",     icon:"🚶" },
+    { id:"completion_phase", label:"Completion Phase", icon:"🧩" },
+    { id:"invoiced",    label:"Invoiced",       icon:"🧾" },
+    { id:"completed",   label:"Completed",      icon:"🏁" },
   ];
 
   const [geocodeState, setGeocodeState] = useState(
@@ -293,16 +293,16 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
               <Icon d={ic.mapPin} size={15} stroke={form.manualGps?"var(--accent)":form.lat&&form.lng?"#3dba7e":"var(--text3)"} />
               {form.manualGps
                 ? <span style={{ color:"var(--accent)",fontWeight:600,flex:1 }}>
-                    ð Manual GPS: {parseFloat(form.lat||0).toFixed(6)}, {parseFloat(form.lng||0).toFixed(6)}
+                    📍 Manual GPS: {parseFloat(form.lat||0).toFixed(6)}, {parseFloat(form.lng||0).toFixed(6)}
                     <span style={{ fontSize:10.5,fontWeight:400,color:"var(--text3)",marginLeft:6 }}>overriding photo GPS</span>
                   </span>
                 : form.lat && form.lng
                 ? <span style={{ color:"#3dba7e",fontWeight:600 }}>
-                    ð Located: {parseFloat(form.lat).toFixed(4)}, {parseFloat(form.lng).toFixed(4)}
+                    📍 Located: {parseFloat(form.lat).toFixed(4)}, {parseFloat(form.lng).toFixed(4)}
                     <span style={{ fontSize:10.5,fontWeight:400,color:"var(--text3)",marginLeft:6 }}>from photo GPS</span>
                   </span>
                 : <span style={{ color:"var(--text3)" }}>
-                    ð· Map pin will be set automatically from your first on-site photo's GPS
+                    📷 Map pin will be set automatically from your first on-site photo's GPS
                   </span>
               }
             </div>
@@ -463,7 +463,7 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
             <div className="form-section-title" style={{ cursor:"pointer", userSelect:"none" }} onClick={() => set("insuranceEnabled", !form.insuranceEnabled)}>
               <Icon d={ic.briefcase} size={15} stroke="var(--accent)" /> Insurance Information
               <span style={{ marginLeft:"auto", fontSize:12, color:"var(--text3)", fontWeight:400, background:"var(--surface3)", padding:"2px 10px", borderRadius:10 }}>
-                {form.insuranceEnabled ? "â² Hide" : "â¼ Add"}
+                {form.insuranceEnabled ? "▲ Hide" : "▼ Add"}
               </span>
             </div>
             {form.insuranceEnabled && (
@@ -543,7 +543,7 @@ export function ProjectModal({ project, teamUsers = [], settings = {}, onSave, o
             <div style={{ display:"flex",flexWrap:"wrap",gap:7,marginBottom:12 }}>
               {customRooms.map(r => (
                 <div key={r} style={{ display:"flex",alignItems:"center",gap:8,background:"var(--surface2)",border:"1px solid var(--border)",borderRadius:20,padding:"4px 10px 4px 8px",fontSize:0 }}>
-                  <span>{ROOM_ICONS[r]||"ð¦"}</span>
+                  <span>{ROOM_ICONS[r]||"📦"}</span>
                   <RoomIconBadge name={r} size={14} box={28} /><span style={{ fontSize:13 }}>{r}</span>
                   <span style={{ color:"var(--text3)",cursor:"pointer",marginLeft:2,fontSize:12,lineHeight:1 }} onClick={() => removeRoom(r)}>×</span>
                 </div>

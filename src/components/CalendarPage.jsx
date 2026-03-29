@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { Icon, ic } from "../utils/icons.jsx";
 import { PLAN_CALENDAR_USERS, PLAN_CALENDAR_RECUR, PLAN_CALENDAR_DISPATCH } from "../utils/constants.js";
 import { uid, ROLE_META } from "../utils/helpers.js";
+import { DatePickerInput } from "./TasksPage.jsx";
 
 // ── Calendar shared helpers (defined here since CalendarPage was split from the same module) ──
 const CAL_USER_COLORS = [

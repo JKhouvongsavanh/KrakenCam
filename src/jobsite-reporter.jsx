@@ -361,30 +361,30 @@ const SEED_PROJECTS = [
     contractorName: "Apex Builders", contractorPhone: "(720) 555-0199",
     type: "Renovation", status: "active", notes: "Full kitchen and master bath renovation. Insurance claim active.",
     createdAt: "Mar 1, 2026", color: "#4a90d9",
-    rooms: DEFAULT_ROOMS.map((n,i)=>({ id:uid(), name:n, icon:ROOM_ICONS[n]||"ð¦", color:ROOM_COLORS[i%ROOM_COLORS.length], photoCount:Math.floor(Math.random()*12)+1 })),
+    rooms: DEFAULT_ROOMS.map((n,i)=>({ id:uid(), name:n, icon:ROOM_ICONS[n]||"📦", color:ROOM_COLORS[i%ROOM_COLORS.length], photoCount:Math.floor(Math.random()*12)+1 })),
     photos: [
       { id:uid(), name:"Foundation crack NE corner", room:"Exterior",       date:"Mar 7, 2026", tags:["damage","critical"], color:"#e85a3a" },
       { id:uid(), name:"Water damage ceiling",        room:"Living Room",    date:"Mar 7, 2026", tags:["water","mold"],     color:"#4a90d9" },
       { id:uid(), name:"Kitchen plumbing leak",       room:"Kitchen",        date:"Mar 6, 2026", tags:["plumbing"],         color:"#3dba7e" },
     ],
     reports: [
-      { id:uid(), title:"Oak St â Insurance Claim", type:"Insurance", date:"Mar 8, 2026", photos:14, status:"draft",  color:"#4a90d9" },
+      { id:uid(), title:"Oak St – Insurance Claim", type:"Insurance", date:"Mar 8, 2026", photos:14, status:"draft",  color:"#4a90d9" },
     ],
   },
   {
-    id: "proj_2", title: "456 Maple Ave â Water Damage",
+    id: "proj_2", title: "456 Maple Ave – Water Damage",
     address: "456 Maple Avenue", city: "Denver", state: "CO", zip: "80220", lat: "39.7508", lng: "-104.9416",
     clientName: "Sarah Chen", clientEmail: "schen@email.com", clientPhone: "(303) 555-0144",
     contractorName: "FloodPro Restoration", contractorPhone: "(303) 555-0177",
     type: "Insurance Claim", status: "active", notes: "Burst pipe in basement. Mold assessment required.",
     createdAt: "Feb 28, 2026", color: "#3dba7e",
-    rooms: ["Basement","Bathroom","Hallway","Utility Room"].map((n,i)=>({ id:uid(), name:n, icon:ROOM_ICONS[n]||"ð¦", color:ROOM_COLORS[i%ROOM_COLORS.length], photoCount:Math.floor(Math.random()*10)+2 })),
+    rooms: ["Basement","Bathroom","Hallway","Utility Room"].map((n,i)=>({ id:uid(), name:n, icon:ROOM_ICONS[n]||"📦", color:ROOM_COLORS[i%ROOM_COLORS.length], photoCount:Math.floor(Math.random()*10)+2 })),
     photos: [
       { id:uid(), name:"Burst pipe main valve",  room:"Basement",      date:"Feb 28, 2026", tags:["plumbing","damage"], color:"#3dba7e" },
       { id:uid(), name:"Mold on south wall",     room:"Basement",      date:"Feb 28, 2026", tags:["mold","hazard"],    color:"#e85a3a" },
     ],
     reports: [
-      { id:uid(), title:"Maple Ave â Contractor Package", type:"Contractor", date:"Mar 2, 2026", photos:18, status:"sent",  color:"#3dba7e" },
+      { id:uid(), title:"Maple Ave – Contractor Package", type:"Contractor", date:"Mar 2, 2026", photos:18, status:"sent",  color:"#3dba7e" },
     ],
   },
   {
@@ -394,14 +394,14 @@ const SEED_PROJECTS = [
     contractorName: "HomeSafe Inspections", contractorPhone: "(720) 555-0255",
     type: "Inspection", status: "completed", notes: "Pre-sale full property inspection. All rooms documented.",
     createdAt: "Feb 20, 2026", color: "#8b7cf8",
-    rooms: DEFAULT_ROOMS.map((n,i)=>({ id:uid(), name:n, icon:ROOM_ICONS[n]||"ð¦", color:ROOM_COLORS[i%ROOM_COLORS.length], photoCount:Math.floor(Math.random()*18)+4 })),
+    rooms: DEFAULT_ROOMS.map((n,i)=>({ id:uid(), name:n, icon:ROOM_ICONS[n]||"📦", color:ROOM_COLORS[i%ROOM_COLORS.length], photoCount:Math.floor(Math.random()*18)+4 })),
     photos: [
       { id:uid(), name:"Roof shingle damage",     room:"Exterior",       date:"Feb 20, 2026", tags:["roof","damage"],  color:"#e85a3a" },
       { id:uid(), name:"HVAC unit overview",       room:"Basement",       date:"Feb 20, 2026", tags:["hvac"],           color:"#8b7cf8" },
       { id:uid(), name:"Electrical panel",         room:"Basement",       date:"Feb 20, 2026", tags:["electrical"],     color:"#e8c53a" },
     ],
     reports: [
-      { id:uid(), title:"Pine Rd â Full Inspection Report", type:"Inspection", date:"Feb 22, 2026", photos:42, status:"final", color:"#8b7cf8" },
+      { id:uid(), title:"Pine Rd – Full Inspection Report", type:"Inspection", date:"Feb 22, 2026", photos:42, status:"final", color:"#8b7cf8" },
     ],
   },
 ];
@@ -443,7 +443,7 @@ const DEFAULT_SETTINGS = {
   ...NOTIFICATION_PREF_DEFAULTS,
   // Report defaults
   reportHeaderTitle: "Property Inspection Report",
-  reportHeaderNote: "Licensed & Insured ï¿½ Serving the Greater Denver Area",
+  reportHeaderNote: "Licensed & Insured � Serving the Greater Denver Area",
   reportFooterLeft: "", reportFooterCenter: "Confidential",
   reportFooterDisclaimer: "",
   defaultReportType: "Assessment", reportPhotoLayout: "3 per row",
@@ -468,7 +468,7 @@ const DEFAULT_SETTINGS = {
   // Review link
   sigReviewEnabled: false,
   sigReviewUrl: "",
-  sigReviewLabel: "Leave us a Review â­",
+  sigReviewLabel: "Leave us a Review ⭐",
   // Add-ons
   aiWriterEnabled: false,
   plan: "base",             // "base" = Capture I, "pro" = Intelligence II, "command" = Command III
@@ -569,7 +569,7 @@ function LoginPage({ supabaseUrl, supabaseAnonKey, logo, onSuccess }) {
           <div style={{ marginBottom:20 }}>
             <button onClick={()=>{ setMode("login"); setError(""); setSuccess(""); }}
               style={{ background:"none",border:"none",color:"rgba(255,255,255,.5)",cursor:"pointer",fontSize:13,padding:0,marginBottom:12,display:"flex",alignItems:"center",gap:6 }}>
-              â Back to Sign In
+              ← Back to Sign In
             </button>
             <div style={{ fontWeight:700,fontSize:17,color:"white" }}>Reset your password</div>
             <div style={{ fontSize:13,color:"rgba(255,255,255,.4)",marginTop:4 }}>We'll send a reset link to your email.</div>
@@ -594,7 +594,7 @@ function LoginPage({ supabaseUrl, supabaseAnonKey, logo, onSuccess }) {
               <label style={{ fontSize:12,fontWeight:600,color:"rgba(255,255,255,.5)",textTransform:"uppercase",letterSpacing:".06em",display:"block",marginBottom:6 }}>Password</label>
               <div style={{ position:"relative" }}>
                 <input type={showPw?"text":"password"} autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)}
-                  placeholder="â¢â¢â¢â¢â¢â¢â¢â¢" style={{ ...inputStyle,paddingRight:44 }}
+                  placeholder="••••••••" style={{ ...inputStyle,paddingRight:44 }}
                   onFocus={e=>e.target.style.borderColor="rgba(43,127,232,.6)"}
                   onBlur={e=>e.target.style.borderColor="rgba(255,255,255,.12)"} />
                 <button type="button" onClick={()=>setShowPw(v=>!v)}
@@ -703,7 +703,7 @@ function LoginPage({ supabaseUrl, supabaseAnonKey, logo, onSuccess }) {
 
         {/* Footer */}
         <div style={{ marginTop:24,textAlign:"center",fontSize:11.5,color:"rgba(255,255,255,.2)" }}>
-          ï¿½ {new Date().getFullYear()} KrakenCam Inc.
+          � {new Date().getFullYear()} KrakenCam Inc.
         </div>
       </div>
     </div>
@@ -1108,7 +1108,7 @@ useEffect(() => {
     loadTasks();
   }, [authProfile?.organization_id, authKey]);
 
-  // ð¥ Load videos from Supabase when active project changes
+  // 🎥 Load videos from Supabase when active project changes
   useEffect(() => {
     if (!authProfile?.organization_id || !activeProject?.id) return;
     // Load sketches from Supabase
@@ -1196,7 +1196,7 @@ useEffect(() => {
     }).catch(e => console.warn('[KrakenCam] Could not load videos from Supabase:', e));
   }, [activeProject?.id, authProfile?.organization_id]);
 
-  // ð Load project files from Supabase when active project changes
+  // 📁 Load project files from Supabase when active project changes
   useEffect(() => {
     if (!authProfile?.organization_id || !activeProject?.id) return;
     dbGetProjectFiles(activeProject.id).then(rows => {
@@ -1221,7 +1221,7 @@ useEffect(() => {
     }).catch(e => console.warn('[KrakenCam] Could not load project files from Supabase:', e));
   }, [activeProject?.id, authProfile?.organization_id]);
 
-  // ð¬ Load chat history from Supabase on login / when chats change
+  // 💬 Load chat history from Supabase on login / when chats change
   useEffect(() => {
     if (!authProfile?.organization_id || !chats?.length) return;
     chats.forEach(chat => {
@@ -1740,7 +1740,7 @@ useEffect(() => {
         dbSendChatMessage(orgId, targetChatId, {
           senderId:    null,
           senderName:  msg.authorName,
-          content:     text || `ð· Photo from ${project.title}`,
+          content:     text || `📷 Photo from ${project.title}`,
           messageType: 'image',
           attachment:  attachment,
         }).then(saved => {
@@ -1867,7 +1867,7 @@ useEffect(() => {
         authorColor: "var(--accent)",
         action: "uploaded field media to",
         context: latestProj.title,
-        preview: `${newPhotos.length} photo${newPhotos.length!==1?"s":""}${newPhotos.length && newVideos.length ? " â¢ " : ""}${newVideos.length ? `${newVideos.length} video${newVideos.length!==1?"s":""}` : ""}`,
+        preview: `${newPhotos.length} photo${newPhotos.length!==1?"s":""}${newPhotos.length && newVideos.length ? " • " : ""}${newVideos.length ? `${newVideos.length} video${newVideos.length!==1?"s":""}` : ""}`,
         date: today(),
         read: false,
         type: newVideos.length && !newPhotos.length ? "video" : "photo",
@@ -2112,7 +2112,7 @@ useEffect(() => {
               </div>
               <div className="nav-footer-text">
                 <div style={{ fontSize:13,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{settings.userFirstName} {settings.userLastName}</div>
-                <div style={{ fontSize:11,color:"var(--text2)" }}>{settings?.plan==="command" ? "â¬¡ Command III" : settings?.plan==="pro" ? "â¦ Intelligence II" : "Capture I"} ï¿½ {settings?.billingCycle==="annual"?"Annual":"Monthly"}</div>
+                <div style={{ fontSize:11,color:"var(--text2)" }}>{settings?.plan==="command" ? "⬡ Command III" : settings?.plan==="pro" ? "✦ Intelligence II" : "Capture I"} � {settings?.billingCycle==="annual"?"Annual":"Monthly"}</div>
               </div>
               {!navCollapsed && <div className="dot" />}
             </div>
@@ -2136,7 +2136,7 @@ useEffect(() => {
                       </span>
                     )}
                     {isDetail && activeProject && (
-                      <><span style={{ color:"var(--text3)" }}>âº</span>
+                      <><span style={{ color:"var(--text3)" }}>›</span>
                       <span style={{ color:"var(--text)",fontWeight:600,fontSize:13 }}>{activeProject.title}</span></>
                     )}
                   </div>

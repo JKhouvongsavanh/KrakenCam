@@ -116,7 +116,7 @@ export function BlockRenderer({ block, showGps, showTimestamp, showRooms, showTa
               <div style={{ position:"relative" }}>
                 {ph.dataUrl ? <img src={ph.dataUrl} alt={ph.name} style={{ width:"100%",display:"block",aspectRatio:"4/3",objectFit:"cover" }} /> : <div style={{ aspectRatio:"4/3",background:"#eee" }} />}
                 {showTimestamp && ph.date && (
-                  <div style={{ position:"absolute",bottom:4,left:4,background:"rgba(0,0,0,.55)",color:"white",fontSize:7,padding:"2px 5px",borderRadius:3,fontFamily:"monospace",letterSpacing:".02em",pointerEvents:"none" }}>ð {ph.date}</div>
+                  <div style={{ position:"absolute",bottom:4,left:4,background:"rgba(0,0,0,.55)",color:"white",fontSize:7,padding:"2px 5px",borderRadius:3,fontFamily:"monospace",letterSpacing:".02em",pointerEvents:"none" }}>🕐 {ph.date}</div>
                 )}
               </div>
               <div style={{ padding:"4px 6px",fontSize:9.5,color:"#555",background:"#fafafa",borderTop:"1px solid #eee" }}>
@@ -129,8 +129,8 @@ export function BlockRenderer({ block, showGps, showTimestamp, showRooms, showTa
                   </div>
                 )}
                 <div style={{ display:"flex",flexWrap:"wrap",gap:6,fontSize:8.5,color:"#aaa",marginTop:1 }}>
-                  {showRooms && ph.room && <span>ð {ph.room}{ph.floor ? ` Â· ${ph.floor}` : ""}</span>}
-                  {showGps && ph.gps && <span>ð {ph.gps.lat}, {ph.gps.lng}</span>}
+                  {showRooms && ph.room && <span>📍 {ph.room}{ph.floor ? ` Â· ${ph.floor}` : ""}</span>}
+                  {showGps && ph.gps && <span>🌐 {ph.gps.lat}, {ph.gps.lng}</span>}
                 </div>
               </div>
             </div>
@@ -159,7 +159,7 @@ export function BlockRenderer({ block, showGps, showTimestamp, showRooms, showTa
                 <div style={{ fontSize:10,color:"#888",whiteSpace:"nowrap" }}>{formatFileSizeLabel(file.size || 0)}</div>
               </div>
               <div style={{ fontSize:9.5,color:"#999",marginTop:6 }}>
-                {(file.uploadedByName || "Unknown")}{file.uploadedAt ? ` â¢ ${formatDateTimeLabel(file.uploadedAt, settings)}` : ""}
+                {(file.uploadedByName || "Unknown")}{file.uploadedAt ? ` • ${formatDateTimeLabel(file.uploadedAt, settings)}` : ""}
               </div>
             </div>
           ))}
@@ -185,7 +185,7 @@ export function BlockRenderer({ block, showGps, showTimestamp, showRooms, showTa
                 <div style={{ position:"relative" }}>
                   <img src={block.photos[0].dataUrl} alt="" style={{ width:"100%",aspectRatio:"4/3",objectFit:"cover",display:"block" }} />
                   {showTimestamp && block.photos[0].date && (
-                    <div style={{ position:"absolute",bottom:4,left:4,background:"rgba(0,0,0,.55)",color:"white",fontSize:7,padding:"2px 5px",borderRadius:3,fontFamily:"monospace",letterSpacing:".02em",pointerEvents:"none" }}>ð {block.photos[0].date}</div>
+                    <div style={{ position:"absolute",bottom:4,left:4,background:"rgba(0,0,0,.55)",color:"white",fontSize:7,padding:"2px 5px",borderRadius:3,fontFamily:"monospace",letterSpacing:".02em",pointerEvents:"none" }}>🕐 {block.photos[0].date}</div>
                   )}
                 </div>
                 <div style={{ padding:"4px 6px",fontSize:9.5,color:"#555",background:"#fafafa" }}>
@@ -198,7 +198,7 @@ export function BlockRenderer({ block, showGps, showTimestamp, showRooms, showTa
                     </div>
                   )}
                   {showRooms && block.photos[0].room && (
-                    <span style={{ color:"#aaa",fontSize:8.5 }}>ð {block.photos[0].room}{block.photos[0].floor ? ` Â· ${block.photos[0].floor}` : ""}</span>
+                    <span style={{ color:"#aaa",fontSize:8.5 }}>📍 {block.photos[0].room}{block.photos[0].floor ? ` Â· ${block.photos[0].floor}` : ""}</span>
                   )}
                 </div>
               </div>
@@ -350,8 +350,8 @@ export function ReportPages({ title, reportType, reportDate, reportTime, accentC
           <div style={{ position:"absolute",bottom:0,left:0,right:0,padding:"20px 36px",background:"linear-gradient(to top,rgba(0,0,0,.85),transparent)",zIndex:2 }}>
             <div style={{ fontSize:20,fontWeight:700,color:"white",marginBottom:4,lineHeight:1.2 }}>{title}</div>
             <div style={{ fontSize:11.5,color:"rgba(255,255,255,.75)",display:"flex",gap:12,flexWrap:"wrap" }}>
-              {project.address && <span>ð {[project.address,project.city,project.state].filter(Boolean).join(", ")}</span>}
-              {project.clientName && <span>ð¤ {project.clientName}</span>}
+              {project.address && <span>📍 {[project.address,project.city,project.state].filter(Boolean).join(", ")}</span>}
+              {project.clientName && <span>👤 {project.clientName}</span>}
             </div>
           </div>
         )}
@@ -570,13 +570,13 @@ export function SignatureDrawModal({ onSave, onClose }) {
     <div className="modal-overlay" onClick={e => e.target===e.currentTarget && onClose()}>
       <div className="modal fade-in" style={{ maxWidth:520 }}>
         <div className="modal-header">
-          <div className="modal-title">â Add Signature</div>
+          <div className="modal-title">✍ Add Signature</div>
           <button className="btn btn-ghost btn-icon" style={{ width:44,height:44 }} onClick={onClose}><Icon d={ic.close} size={22} /></button>
         </div>
 
         {/* Mode tabs */}
         <div style={{ display:"flex", borderBottom:"1px solid var(--border)", padding:"0 24px" }}>
-          {[["draw","â Draw by Hand"],["upload","ð Upload Image"]].map(([id,label]) => (
+          {[["draw","✏ Draw by Hand"],["upload","📁 Upload Image"]].map(([id,label]) => (
             <button key={id} className="btn btn-ghost btn-sm"
               style={{ borderBottom:`2px solid ${mode===id?"var(--accent)":"transparent"}`,borderRadius:0,paddingBottom:10,color:mode===id?"var(--accent)":"var(--text2)",fontWeight:mode===id?700:500 }}
               onClick={()=>{ setMode(id); setUploadSrc(null); }}>
@@ -871,7 +871,7 @@ export function AiWriterUpgradeModal({ onUpgrade, onClose, isAdmin, settings, us
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
           </div>
           <div style={{ fontSize:19,fontWeight:800,color:"white",marginBottom:5 }}>
-            {confirming ? "Confirm Upgrade" : "â¦ Intelligence II / â¬¡ Command III Feature"}
+            {confirming ? "Confirm Upgrade" : "✦ Intelligence II / ⬡ Command III Feature"}
           </div>
           <div style={{ fontSize:13,color:"rgba(255,255,255,.82)",lineHeight:1.5 }}>
             {confirming
@@ -910,7 +910,7 @@ export function AiWriterUpgradeModal({ onUpgrade, onClose, isAdmin, settings, us
                 <>
                   <div style={{ padding:"12px 16px",background:"var(--surface2)",borderRadius:10,border:"1px solid var(--border)",marginBottom:14,display:"flex",alignItems:"center",justifyContent:"space-between" }}>
                     <div>
-                      <div style={{ fontWeight:700,fontSize:13.5 }}>â¦ Intelligence II / â¬¡ Command III</div>
+                      <div style={{ fontWeight:700,fontSize:13.5 }}>✦ Intelligence II / ⬡ Command III</div>
                       <div style={{ fontSize:11.5,color:"var(--text2)" }}>Admin seat Â· +${PRICING.monthly.pro.user}/user/mo</div>
                     </div>
                     <div style={{ textAlign:"right" }}>
@@ -953,7 +953,7 @@ export function AiWriterUpgradeModal({ onUpgrade, onClose, isAdmin, settings, us
               <div style={{ background:"var(--surface2)",borderRadius:9,overflow:"hidden",border:"1px solid var(--border)",marginBottom:14,fontSize:12.5 }}>
                 <div style={{ display:"grid",gridTemplateColumns:"1fr auto",padding:"9px 13px",borderBottom:"1px solid var(--border)",color:"var(--text2)" }}>
                   <span>Capture I unused credit ({p.daysLeft} of {p.daysTotal} days left)</span>
-                  <span style={{ color:"#3dba7e",fontWeight:700 }}>â${p.unusedCredit}</span>
+                  <span style={{ color:"#3dba7e",fontWeight:700 }}>−${p.unusedCredit}</span>
                 </div>
                 <div style={{ display:"grid",gridTemplateColumns:"1fr auto",padding:"9px 13px",borderBottom:"1px solid var(--border)",color:"var(--text2)" }}>
                   <span>Intelligence II prorated charge ({p.daysLeft} days)</span>
@@ -970,7 +970,7 @@ export function AiWriterUpgradeModal({ onUpgrade, onClose, isAdmin, settings, us
                 From <strong>{p.cycleEnd.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</strong> onwards: <strong>${p.toTotal}/mo</strong> Â· AI Write unlocks immediately for all team members.
               </div>
               <div style={{ display:"flex",gap:8 }}>
-                <button className="btn btn-secondary btn-sm" style={{ flex:1 }} onClick={()=>setConfirming(false)}>â Back</button>
+                <button className="btn btn-secondary btn-sm" style={{ flex:1 }} onClick={()=>setConfirming(false)}>← Back</button>
                 <button className="btn btn-primary btn-sm" style={{ flex:2,background:"linear-gradient(135deg,#7c3aed,#a855f7)",border:"none",fontWeight:700,gap:6 }}
                   onClick={onUpgrade}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
@@ -1008,9 +1008,9 @@ function parseAiOutputToBlocks(rawText) {
 
 function AiOneClickModal({ project, settings, onGenerate, onClose, onUsageIncrement }) {
   const REPORT_TYPES = [
-    { id:"findings",   label:"Findings Report",    krakens:2, desc:"3â6 paragraphs on identified issues, deficiencies, risks, and recommended actions." },
-    { id:"progress",   label:"Progress Report",    krakens:2, desc:"3â6 paragraphs: work completed, current conditions, concerns, and next steps." },
-    { id:"completion", label:"Completion Report",  krakens:4, desc:"6â12 paragraph professional close-out: scope, actions, final condition, recommendations, conclusion." },
+    { id:"findings",   label:"Findings Report",    krakens:2, desc:"3–6 paragraphs on identified issues, deficiencies, risks, and recommended actions." },
+    { id:"progress",   label:"Progress Report",    krakens:2, desc:"3–6 paragraphs: work completed, current conditions, concerns, and next steps." },
+    { id:"completion", label:"Completion Report",  krakens:4, desc:"6–12 paragraph professional close-out: scope, actions, final condition, recommendations, conclusion." },
     { id:"custom",     label:"Custom Report",      krakens:6, desc:"Choose your sections and describe exactly what you need." },
   ];
   const CUSTOM_SECTIONS = ["Executive Summary","Scope of Work","Findings & Deficiencies","Cause of Loss","Moisture Readings","Equipment Used","Work Completed","Site Conditions","Photo Documentation","Safety Observations","Timeline","Recommendations","Next Steps","Sign-Off","Conclusion"];
@@ -1401,7 +1401,7 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
 
       {/* Top bar */}
       <div className="rc-topbar">
-        <button className="btn btn-ghost btn-sm" onClick={onClose}>â Back</button>
+        <button className="btn btn-ghost btn-sm" onClick={onClose}>← Back</button>
         <div style={{ width:1,height:20,background:"var(--border)" }} />
         <input value={title} onChange={e=>setTitle(e.target.value)} style={{ background:"transparent",border:"none",outline:"none",fontSize:14,fontWeight:700,color:"var(--text)",flex:1,minWidth:0 }} />
         <div style={{ display:"flex",gap:8,alignItems:"center",marginLeft:"auto" }}>
@@ -1497,9 +1497,9 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
                   <div className="rp-cover-overlay">
                     <div style={{ fontSize:22,fontWeight:700,color:"white",marginBottom:6,lineHeight:1.2 }}>{title}</div>
                     <div style={{ fontSize:12,color:"rgba(255,255,255,.75)",display:"flex",gap:12,flexWrap:"wrap" }}>
-                      {project.address && <span>ð {[project.address,project.city,project.state].filter(Boolean).join(", ")}</span>}
-                      {project.clientName && <span>ð¤ {project.clientName}</span>}
-                      {project.type && <span>ð· {project.type}</span>}
+                      {project.address && <span>📍 {[project.address,project.city,project.state].filter(Boolean).join(", ")}</span>}
+                      {project.clientName && <span>👤 {project.clientName}</span>}
+                      {project.type && <span>🏷 {project.type}</span>}
                     </div>
                   </div>
                 )}
@@ -1692,7 +1692,7 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
                       {!block.content && editingBlock!==block.id && (
                         <div style={{ position:"absolute",top:10,left:10,color:"#aaa",fontSize:(block.textStyle?.fontSize||12.5)+"px",pointerEvents:"none",fontStyle:"italic" }}>Click to type text…</div>
                       )}
-                      <button title="â¨ Write with AI" onClick={e=>{e.stopPropagation(); aiEnabled ? setAiWriterBlock(block.id) : setShowAiUpgrade(true);}}
+                      <button title="✨ Write with AI" onClick={e=>{e.stopPropagation(); aiEnabled ? setAiWriterBlock(block.id) : setShowAiUpgrade(true);}}
                         style={{ position:"absolute",top:6,right:6,height:32,padding:"0 10px",borderRadius:7,border:"none",background:"linear-gradient(135deg,#2b7fe8,#1a5fc8)",display:"flex",alignItems:"center",justifyContent:"center",gap:5,cursor:"pointer",boxShadow:"0 2px 8px rgba(43,127,232,.45)",transition:"transform .1s,box-shadow .1s",whiteSpace:"nowrap" }}
                         onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.05)";e.currentTarget.style.boxShadow="0 3px 12px rgba(43,127,232,.6)";}}
                         onMouseLeave={e=>{e.currentTarget.style.transform="scale(1)";e.currentTarget.style.boxShadow="0 2px 8px rgba(43,127,232,.45)";}}>
@@ -1714,7 +1714,7 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
                               <div style={{ position:"relative" }}>
                                 {ph.dataUrl ? <img src={ph.dataUrl} alt={ph.name} /> : <div style={{ aspectRatio:"4/3",background:"#e8e8e8",display:"flex",alignItems:"center",justifyContent:"center",color:"#ccc" }}><Icon d={ic.image} size={28} stroke="#ccc" /></div>}
                                 {showTimestamp && ph.date && (
-                                  <div style={{ position:"absolute",bottom:4,left:4,background:"rgba(0,0,0,.55)",color:"white",fontSize:7.5,padding:"2px 5px",borderRadius:3,fontFamily:"monospace",letterSpacing:".02em",pointerEvents:"none" }}>ð {ph.date}</div>
+                                  <div style={{ position:"absolute",bottom:4,left:4,background:"rgba(0,0,0,.55)",color:"white",fontSize:7.5,padding:"2px 5px",borderRadius:3,fontFamily:"monospace",letterSpacing:".02em",pointerEvents:"none" }}>🕐 {ph.date}</div>
                                 )}
                               </div>
                               <div className="rp-photo-caption">
@@ -1727,8 +1727,8 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
                                   </div>
                                 )}
                                 <div className="rp-photo-meta">
-                                  {showRooms && ph.room && <span>ð {ph.room}{ph.floor ? ` Â· ${ph.floor}` : ""}</span>}
-                                  {showGps && ph.gps && <span>ð {ph.gps.lat}, {ph.gps.lng}</span>}
+                                  {showRooms && ph.room && <span>📍 {ph.room}{ph.floor ? ` Â· ${ph.floor}` : ""}</span>}
+                                  {showGps && ph.gps && <span>🌐 {ph.gps.lat}, {ph.gps.lng}</span>}
                                 </div>
                               </div>
                             </div>
@@ -1844,9 +1844,9 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
                                   </div>
                                 )}
                                 <div className="rp-photo-meta">
-                                  {showRooms && block.photos[0].room && <span>ð {block.photos[0].room}{block.photos[0].floor ? ` Â· ${block.photos[0].floor}` : ""}</span>}
-                                  {showGps && block.photos[0].gps && <span>ð {block.photos[0].gps.lat}</span>}
-                                  {showTimestamp && block.photos[0].date && <span>ð {block.photos[0].date}{block.photos[0].time ? ` ${block.photos[0].time}` : ""}</span>}
+                                  {showRooms && block.photos[0].room && <span>📍 {block.photos[0].room}{block.photos[0].floor ? ` Â· ${block.photos[0].floor}` : ""}</span>}
+                                  {showGps && block.photos[0].gps && <span>🌐 {block.photos[0].gps.lat}</span>}
+                                  {showTimestamp && block.photos[0].date && <span>🕐 {block.photos[0].date}{block.photos[0].time ? ` ${block.photos[0].time}` : ""}</span>}
                                 </div>
                               </div>
                             </div>
@@ -1882,7 +1882,7 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
                       <div style={{ display:"flex", gap:8, marginTop:4 }}>
                         <button className="btn btn-secondary btn-sm" style={{ fontSize:11 }}
                           onClick={e => { e.stopPropagation(); setSignatureTargetId(block.id); setShowSigModal(true); }}>
-                          â {block.signatureImg ? "Replace" : "Add Signature"}
+                          ✍ {block.signatureImg ? "Replace" : "Add Signature"}
                         </button>
                         {block.signatureImg && (
                           <button className="btn btn-ghost btn-sm" style={{ fontSize:11, color:"var(--text3)" }}
@@ -2463,7 +2463,7 @@ export function ReportCreator({ project, reportData, settings, onSettingsChange,
           {/* Preview top bar */}
           <div style={{ height:52,background:"#0d1017",borderBottom:"1px solid #2a2f3e",display:"flex",alignItems:"center",padding:"0 16px",gap:10,flexShrink:0,flexWrap:"wrap" }}>
             <div style={{ fontWeight:700,fontSize:14,color:"white",flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>Print Preview — {title}</div>
-            <div style={{ fontSize:11,color:"#888",background:"#1a1e28",padding:"3px 10px",borderRadius:20,border:"1px solid #2a2f3e",flexShrink:0 }}>8.5â³ Ã 11â³</div>
+            <div style={{ fontSize:11,color:"#888",background:"#1a1e28",padding:"3px 10px",borderRadius:20,border:"1px solid #2a2f3e",flexShrink:0 }}>8.5″ Ã 11″</div>
             <button className="btn btn-secondary btn-sm" onClick={()=>_doPrint()} style={{ flexShrink:0 }} disabled={!canExportReports}><Icon d={ic.download} size={13} /> Export PDF</button>
             <button className="btn btn-secondary btn-sm btn-icon" title="Print" onClick={()=>_doPrint()} style={{ flexShrink:0 }} disabled={!canExportReports}><Icon d={ic.printer} size={13} /></button>
             <button className="btn btn-ghost btn-sm" style={{ color:"white",flexShrink:0 }} onClick={()=>setPreviewOpen(false)}>
