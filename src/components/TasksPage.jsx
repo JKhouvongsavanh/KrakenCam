@@ -3,6 +3,13 @@ import { Icon, ic } from "../utils/icons.jsx";
 import { uid, formatDate, today, getCertStatus, ROLE_META } from "../utils/helpers.js";
 import { DEFAULT_COLUMNS } from "../utils/constants.js";
 
+const TASK_PRIORITIES = [
+  { id:"critical", label:"Critical", color:"#e85a3a" },
+  { id:"high",     label:"High",     color:"#e8703a" },
+  { id:"medium",   label:"Medium",   color:"#e8c53a" },
+  { id:"low",      label:"Low",      color:"#3dba7e" },
+];
+
 function TaskModal({ task, projects, teamUsers, settings, onSave, onClose, onNotify }) {
   const isNew = !task?.id;
   const [form, setForm] = useState(isNew

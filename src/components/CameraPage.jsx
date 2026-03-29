@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Icon, ic } from "../utils/icons.jsx";
+import { Icon, ic, RoomIcon } from "../utils/icons.jsx";
 import { PLAN_VIDEO_LIMIT_SECS } from "../utils/constants.js";
 import { uid, today , parseTagInput, ROLE_META
 } from "../utils/helpers.js";

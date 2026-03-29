@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { supabase } from "../lib/supabase";
-import { Icon, ic } from "../utils/icons.jsx";
+import { Icon, ic, RoomIcon } from "../utils/icons.jsx";
 import { hasPermissionLevel, getEffectivePermissions, getPermissionPolicies } from "../utils/constants.js";
 import { uid, today , ROOM_ICONS, ROOM_COLORS, STATUS_META, normaliseStatuses, getStatusMeta, ROLE_META
 } from "../utils/helpers.js";

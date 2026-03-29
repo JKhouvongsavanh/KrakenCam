@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Icon, ic } from "../utils/icons.jsx";
+import { Icon, ic, RoomIcon } from "../utils/icons.jsx";
 import { uid, today , getStatusMeta, getCertStatus, ROLE_META, isValidUuid
 } from "../utils/helpers.js";
 import { ChecklistsTab, ReportsTab, VideosTab, VoiceNotesTab, ProjectFilesTab, ClientPortalTab, BAPairCard, ClientPortalDesktopOnlyPrompt, ClientPortalUpgradePrompt } from "./ChecklistsTab.jsx";
